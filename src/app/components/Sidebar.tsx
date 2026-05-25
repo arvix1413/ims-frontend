@@ -14,6 +14,7 @@ import {
   Clock, 
   UserCheck, 
   CreditCard,
+  Contact,
   ChevronLeft,
   ChevronRight,
   Shirt,
@@ -47,8 +48,9 @@ export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsC
     { name: 'hotColdItems', icon: TrendingUp, color: 'text-red-600', bgColor: 'bg-red-50', hoverColor: 'group-hover:text-red-700' },
     { name: 'inventoryRecords', icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50', hoverColor: 'group-hover:text-indigo-700' },
     { name: 'employeeHistory', icon: Clock, color: 'text-teal-600', bgColor: 'bg-teal-50', hoverColor: 'group-hover:text-teal-700' },
+    { name: 'billManagement', icon: CreditCard, color: 'text-yellow-600', bgColor: 'bg-yellow-50', hoverColor: 'group-hover:text-yellow-700' },
     { name: 'memberManagement', icon: UserCheck, color: 'text-pink-600', bgColor: 'bg-pink-50', hoverColor: 'group-hover:text-pink-700' },
-    { name: 'billManagement', icon: CreditCard, color: 'text-yellow-600', bgColor: 'bg-yellow-50', hoverColor: 'group-hover:text-yellow-700' }
+    { name: 'customerManagement', icon: Contact, color: 'text-cyan-600', bgColor: 'bg-cyan-50', hoverColor: 'group-hover:text-cyan-700' }
   ];
 
   // 根据权限过滤菜单项

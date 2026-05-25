@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
+import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest } from '@/lib/types';
-import { receipt, designService } from '@/lib/api';
+import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData } from '@/lib/types';
+import { receipt, designService, customerApi } from '@/lib/api';
 import moment from 'moment';
 
 interface PrintReceiptProps {
@@ -36,6 +36,8 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
   const [shop, setShops] = useState(1);
   const inputRef = useRef<InputRef>(null);
   const [newPayment, setNewPayment] = useState(paymentList);
+  const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
+  const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // refs 持久化状态（不会触发重渲染）
   const addRef = useRef<((defaultValue?: any, insertIndex?: number) => void) | null>(null);
@@ -126,6 +128,8 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
   const onFinish = async () => {
     const itemForm: any = form.getFieldsValue();
     const payment = itemForm.paymentList?.reduce((total: any, current: any) => total + parseFloat(current.amount), 0);
+    const phone = normalizePhone(itemForm.customerPhone);
+    const name = (itemForm.customerName || '').trim();
     const newItem: PrintReceiptRequest = {
       ...itemForm,
       gst: 0,
@@ -137,6 +141,16 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
         finalPrice: calcFinalPrice(item.price, item.discountPercent, item.discount, item.qty) 
       }))
     };
+    if (!phone && !(itemForm.customerId > 0)) {
+      delete newItem.customerId;
+      delete newItem.customerName;
+      delete newItem.customerPhone;
+    } else {
+      if (phone) newItem.customerPhone = phone;
+      if (name) newItem.customerName = name;
+      else delete newItem.customerName;
+      if (!(itemForm.customerId > 0)) delete newItem.customerId;
+    }
 
     if (payment.toFixed(2) === totalPrice.toFixed(2)) {
       try {
@@ -161,13 +175,76 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
     }, 0);
   };
 
+  const normalizePhone = (phone: string) => (phone || '').trim().replace(/\s+/g, '');
+
+  const applyCustomer = (customer: CustomerData) => {
+    form.setFieldsValue({
+      customerId: customer.id,
+      customerName: customer.name,
+      customerPhone: customer.phone,
+    });
+  };
+
+  const searchCustomersByPhone = (phone: string) => {
+    const normalized = normalizePhone(phone);
+    if (!normalized) {
+      setCustomerOptions([]);
+      return;
+    }
+    if (phoneSearchTimer.current) clearTimeout(phoneSearchTimer.current);
+    phoneSearchTimer.current = setTimeout(async () => {
+      try {
+        const res = await customerApi.getList({
+          phone: normalized,
+          searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' },
+        });
+        if (res.code === 200 && Array.isArray(res.data)) {
+          setCustomerOptions(
+            res.data.map((c) => ({
+              value: c.phone,
+              label: `${c.phone} — ${c.name}`,
+              customer: c,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error('customer lookup failed', e);
+      }
+    }, 300);
+  };
+
+  const onCustomerPhoneSelect = (value: string, option: { customer?: CustomerData }) => {
+    if (option?.customer) {
+      applyCustomer(option.customer);
+    }
+  };
+
+  const onCustomerPhoneBlur = async () => {
+    const phone = normalizePhone(form.getFieldValue('customerPhone'));
+    if (!phone) return;
+    try {
+      const res = await customerApi.fetchByPhone(phone);
+      if (res.code === 200 && res.data) {
+        applyCustomer(res.data);
+      } else {
+        form.setFieldsValue({ customerId: undefined });
+      }
+    } catch (e) {
+      console.error('fetch customer by phone failed', e);
+    }
+  };
+
   const onReset = useCallback(() => {
     form.setFieldsValue({
       shop: shops[0], 
       cashier: saler[0], 
       item: [], 
-      paymentList: []
+      paymentList: [],
+      customerId: undefined,
+      customerName: undefined,
+      customerPhone: undefined,
     });
+    setCustomerOptions([]);
   }, [form]);
 
   const onPackage = useCallback((value: number) => {
@@ -226,6 +303,25 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
               <Select.Option key={s} value={s}>{s}</Select.Option>
             ))}
           </Select>
+        </Form.Item>
+
+        <Form.Item name="customerId" hidden><Input /></Form.Item>
+        <Form.Item
+          name="customerPhone"
+          label={t('customerPhone')}
+          extra={t('customerPhoneLookup')}
+        >
+          <AutoComplete
+            style={{ width: 280 }}
+            options={customerOptions}
+            onSearch={searchCustomersByPhone}
+            onSelect={onCustomerPhoneSelect}
+            onBlur={onCustomerPhoneBlur}
+            placeholder={t('customerPhone')}
+          />
+        </Form.Item>
+        <Form.Item name="customerName" label={t('customerName')}>
+          <Input style={{ width: 280 }} placeholder={t('customerName')} />
         </Form.Item>
 
         {/* Items 列表 */}

@@ -8,6 +8,7 @@ import HotColdItems from './pages/hotCold';
 import InventoryRecords from './pages/inventory';
 import EmployeeHistory from './pages/employee/history';
 import MemberManagement from './pages/member';
+import CustomerManagement from './pages/customer';
 import BillManagement from './pages/bill';
 import Design from './pages/design/index';
 import Order from './pages/order';
@@ -27,7 +28,7 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
   useEffect(() => {
     // 等待权限加载完成后再检查
     if (!loading && !canAccessPage(activePage) && setActivePage) {
-      const accessiblePages = ['designManagement', 'employeeManagement', 'orderManagement', 'hotColdItems', 'inventoryRecords', 'employeeHistory', 'memberManagement', 'billManagement'];
+      const accessiblePages = ['designManagement', 'employeeManagement', 'orderManagement', 'hotColdItems', 'inventoryRecords', 'employeeHistory', 'billManagement', 'memberManagement', 'customerManagement'];
       const firstAccessiblePage = accessiblePages.find(page => canAccessPage(page));
       if (firstAccessiblePage) {
         setActivePage(firstAccessiblePage);
@@ -59,7 +60,6 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         </div>
       );
     }
-
     // 使用 CSS 隐藏而不是卸载组件，保持所有页面的状态
     return (
       <>
@@ -84,11 +84,14 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         <div style={{ display: activePage === 'employeeHistory' ? 'block' : 'none' }}>
           <EmployeeHistory />
         </div>
+        <div style={{ display: activePage === 'billManagement' ? 'block' : 'none' }}>
+          <BillManagement />
+        </div>
         <div style={{ display: activePage === 'memberManagement' ? 'block' : 'none' }}>
           <MemberManagement />
         </div>
-        <div style={{ display: activePage === 'billManagement' ? 'block' : 'none' }}>
-          <BillManagement />
+        <div style={{ display: activePage === 'customerManagement' ? 'block' : 'none' }}>
+          <CustomerManagement />
         </div>
       </>
     );

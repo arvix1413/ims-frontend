@@ -82,8 +82,9 @@ export function usePermissions() {
           'orderManagement', 
           'hotColdItems',
           'inventoryRecords',
+          'billManagement',
           'memberManagement',
-          'billManagement'
+          'customerManagement'
         ];
       
       case E_USER_TYPE.LOGISTICS:
@@ -105,8 +106,9 @@ export function usePermissions() {
           'hotColdItems',
           'inventoryRecords',
           'employeeHistory',
+          'billManagement',
           'memberManagement',
-          'billManagement'
+          'customerManagement'
         ];
     }
   };
@@ -164,6 +166,13 @@ export function usePermissions() {
       case 'createMember':
       case 'editMember':
         return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN, E_USER_TYPE.SALER]);
+
+      case 'createCustomer':
+      case 'editCustomer':
+        return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN, E_USER_TYPE.SALER]);
+
+      case 'deleteCustomer':
+        return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN]);
       
       case 'deleteMember':
         return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN]);

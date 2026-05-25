@@ -372,6 +372,20 @@ export default function BillManagement() {
               <span className="text-gray-600">{t('cashier')}:</span>
               <span className="font-medium">{item.cashier}</span>
             </div>
+            {(item.customerName || item.customerPhone) && (
+              <>
+                {item.customerName && (
+                  <div className="col-span-2 text-gray-600">
+                    {t('customerName')}: <span className="font-medium text-gray-900">{item.customerName}</span>
+                  </div>
+                )}
+                {item.customerPhone && (
+                  <div className="col-span-2 text-gray-600">
+                    {t('customerPhone')}: <span className="font-medium text-gray-900">{item.customerPhone}</span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* 总金额 */}
@@ -472,6 +486,20 @@ export default function BillManagement() {
       width: 120,
     },
     {
+      title: t('customerName'),
+      dataIndex: 'customerName',
+      key: 'customerName',
+      width: 120,
+      render: (v: string | undefined) => v || '-',
+    },
+    {
+      title: t('customerPhone'),
+      dataIndex: 'customerPhone',
+      key: 'customerPhone',
+      width: 130,
+      render: (v: string | undefined) => v || '-',
+    },
+    {
       title: t('payment'),
       dataIndex: 'paymentList',
       key: 'paymentList',
@@ -569,7 +597,7 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 1450 }}
+          scroll={{ x: 1700 }}
         />
       ),
     },
@@ -583,7 +611,7 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 1450 }}
+          scroll={{ x: 1700 }}
         />
       ),
     },

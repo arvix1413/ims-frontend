@@ -229,6 +229,54 @@ export interface MemberListRequest {
   phone?: string;
 }
 
+// 客户管理（账单客人，电话唯一）
+export interface CustomerData {
+  id: number;
+  name: string;
+  phone: string;
+  remark?: string;
+  createDate?: string;
+  modifyDate?: string;
+}
+
+export interface CustomerPageResponse {
+  msg: string;
+  code: number;
+  data: {
+    number: number;
+    size: number;
+    totalPages: number;
+    numberOfElements: number;
+    totalElements: number;
+    content: CustomerData[];
+  };
+}
+
+export interface CustomerListResponse {
+  msg: string;
+  code: number;
+  data: CustomerData[];
+}
+
+export interface CustomerListRequest {
+  searchPage: SearchPageParams;
+  name?: string;
+  phone?: string;
+}
+
+export interface CreateCustomerRequest {
+  name: string;
+  phone: string;
+  remark?: string;
+}
+
+export interface ModifyCustomerRequest {
+  id: number;
+  name: string;
+  phone: string;
+  remark?: string;
+}
+
 export interface ModifyMemberRequest {
   id: number;
   name: string;
@@ -380,6 +428,9 @@ export interface ReceiptData {
   receiptDate: string;
   createDate: string;
   cashier: string;
+  customerId?: number;
+  customerName?: string;
+  customerPhone?: string;
   paymentList?: Array<{ payment: string; amount: number }>;
   totalPrice?: number;
   store?: number;
@@ -434,6 +485,9 @@ export interface PrintReceiptRequest {
   totalPrice: number;
   store: number;
   address: string;
+  customerId?: number;
+  customerName?: string;
+  customerPhone?: string;
 }
 
 // 打印标签相关类型

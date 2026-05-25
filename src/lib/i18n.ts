@@ -20,8 +20,16 @@ const zhTranslations = {
   hotColdItems: '爆/冷款',
   inventoryRecords: '库存修改记录',
   memberManagement: '会员管理',
+  customerManagement: '客户管理',
   employeeHistory: '员工操作历史记录',
   billManagement: '账单管理',
+  customerName: '客户姓名',
+  customerPhone: '客户电话',
+  createCustomer: '新建客户',
+  modifyCustomer: '修改客户',
+  fetchCustomerDataFailed: '获取客户数据失败',
+  confirmDeleteCustomer: '确定删除所选客户吗？',
+  customerPhoneLookup: '选填：输入电话可查询客户，无则跳过',
   
   // Design Management
   designList: '商品列表',
@@ -514,8 +522,16 @@ const enTranslations = {
   hotColdItems: 'Hot/Cold Items',
   inventoryRecords: 'Inventory Records',
   memberManagement: 'Member Management',
+  customerManagement: 'Customer Management',
   employeeHistory: 'Employee History',
   billManagement: 'Bill Management',
+  customerName: 'Customer Name',
+  customerPhone: 'Customer Phone',
+  createCustomer: 'Create Customer',
+  modifyCustomer: 'Edit Customer',
+  fetchCustomerDataFailed: 'Failed to fetch customer data',
+  confirmDeleteCustomer: 'Delete selected customers?',
+  customerPhoneLookup: 'Optional: enter phone to find customer; leave blank to skip',
   
   // Design Management
   designList: 'Design List',
