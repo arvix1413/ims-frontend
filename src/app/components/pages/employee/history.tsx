@@ -7,13 +7,13 @@ import { useTranslation } from 'react-i18next';
 import { EmployeeOperationLog, EmployeeOperationLogRequest } from '@/lib/types';
 import { employeeOperationLog } from '@/lib/api';
 import moment from 'moment';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 export default function EmployeeHistory() {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [data, setData] = useState<EmployeeOperationLog[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 20,
@@ -75,13 +75,7 @@ export default function EmployeeHistory() {
     }
   };
 
-  // 初始化数据
-  useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => fetchData(1));
 
   // 搜索
   const handleSearch = () => {

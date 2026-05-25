@@ -24,12 +24,20 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
   const { t } = useTranslation();
   const { canAccessPage, loading } = usePermissions();
 
-  // 检查当前页面是否可访问，如果不可访问则切换到第一个可访问的页面
   useEffect(() => {
-    // 等待权限加载完成后再检查
     if (!loading && !canAccessPage(activePage) && setActivePage) {
-      const accessiblePages = ['designManagement', 'employeeManagement', 'orderManagement', 'hotColdItems', 'inventoryRecords', 'employeeHistory', 'billManagement', 'memberManagement', 'customerManagement'];
-      const firstAccessiblePage = accessiblePages.find(page => canAccessPage(page));
+      const accessiblePages = [
+        'designManagement',
+        'employeeManagement',
+        'orderManagement',
+        'hotColdItems',
+        'inventoryRecords',
+        'employeeHistory',
+        'billManagement',
+        'memberManagement',
+        'customerManagement',
+      ];
+      const firstAccessiblePage = accessiblePages.find((page) => canAccessPage(page));
       if (firstAccessiblePage) {
         setActivePage(firstAccessiblePage);
       }
@@ -37,7 +45,6 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
   }, [activePage, canAccessPage, setActivePage, loading]);
 
   const renderPage = () => {
-    // 如果权限还在加载中，显示loading
     if (loading) {
       return (
         <div className="flex items-center justify-center h-96">
@@ -49,7 +56,6 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
       );
     }
 
-    // 检查页面访问权限
     if (!canAccessPage(activePage)) {
       return (
         <div className="flex items-center justify-center h-96">
@@ -60,41 +66,32 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         </div>
       );
     }
-    // 使用 CSS 隐藏而不是卸载组件，保持所有页面的状态
-    return (
-      <>
-        <div style={{ display: activePage === 'employeeManagement' ? 'block' : 'none' }}>
-          <EmployeeManagement />
-        </div>
-        <div style={{ display: activePage === 'designManagement' ? 'block' : 'none' }}>
-          <Design />
-        </div>
-        <div style={{ display: activePage === 'orderManagement' ? 'block' : 'none' }}>
-          <Order />
-        </div>
-        <div style={{ display: activePage === 'orderHistory' ? 'block' : 'none' }}>
-          <OrderHistory />
-        </div>
-        <div style={{ display: activePage === 'hotColdItems' ? 'block' : 'none' }}>
-          <HotColdItems />
-        </div>
-        <div style={{ display: activePage === 'inventoryRecords' ? 'block' : 'none' }}>
-          <InventoryRecords />
-        </div>
-        <div style={{ display: activePage === 'employeeHistory' ? 'block' : 'none' }}>
-          <EmployeeHistory />
-        </div>
-        <div style={{ display: activePage === 'billManagement' ? 'block' : 'none' }}>
-          <BillManagement />
-        </div>
-        <div style={{ display: activePage === 'memberManagement' ? 'block' : 'none' }}>
-          <MemberManagement />
-        </div>
-        <div style={{ display: activePage === 'customerManagement' ? 'block' : 'none' }}>
-          <CustomerManagement />
-        </div>
-      </>
-    );
+
+    // 仅挂载当前页，切换导航时卸载并重新请求数据
+    switch (activePage) {
+      case 'employeeManagement':
+        return <EmployeeManagement key={activePage} />;
+      case 'designManagement':
+        return <Design key={activePage} />;
+      case 'orderManagement':
+        return <Order key={activePage} />;
+      case 'orderHistory':
+        return <OrderHistory key={activePage} />;
+      case 'hotColdItems':
+        return <HotColdItems key={activePage} />;
+      case 'inventoryRecords':
+        return <InventoryRecords key={activePage} />;
+      case 'employeeHistory':
+        return <EmployeeHistory key={activePage} />;
+      case 'billManagement':
+        return <BillManagement key={activePage} />;
+      case 'memberManagement':
+        return <MemberManagement key={activePage} />;
+      case 'customerManagement':
+        return <CustomerManagement key={activePage} />;
+      default:
+        return <Design key="designManagement" />;
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { InventoryRecordItem, InventoryRecordRequest } from '@/lib/types';
 import { inventoryRecord } from '@/lib/api';
 import moment from 'moment';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 const dev_url = 'http://119.28.104.20';
 
@@ -15,7 +16,6 @@ export default function InventoryRecords() {
   const [form] = Form.useForm();
   const [data, setData] = useState<InventoryRecordItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 20,
@@ -99,12 +99,7 @@ export default function InventoryRecords() {
   };
 
   // 初始化数据
-  useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => fetchData(1));
 
   // 搜索
   const handleSearch = () => {

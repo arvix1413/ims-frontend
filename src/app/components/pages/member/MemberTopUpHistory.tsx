@@ -6,6 +6,7 @@ import { ArrowLeftOutlined, SearchOutlined, ReloadOutlined, FilterOutlined } fro
 import { useTranslation } from 'react-i18next';
 import { MemberPurchaseRecord, MemberPurchaseHistoryRequest } from '@/lib/types';
 import { member } from '@/lib/api';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 interface MemberTopUpHistoryProps {
   onBackToList: () => void;
@@ -16,7 +17,6 @@ export default function MemberTopUpHistory({ onBackToList }: MemberTopUpHistoryP
   const [form] = Form.useForm();
   const [data, setData] = useState<MemberPurchaseRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 20,
@@ -73,12 +73,7 @@ export default function MemberTopUpHistory({ onBackToList }: MemberTopUpHistoryP
   };
 
   // 初始化数据
-  useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => fetchData(1));
 
   // {t('search')}
   const handleSearch = () => {

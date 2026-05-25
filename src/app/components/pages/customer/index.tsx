@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, Space } from 'antd';
 import { SearchOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { CustomerData, CustomerListRequest, CreateCustomerRequest, ModifyCustomerRequest } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import { customerApi } from '@/lib/api';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 export default function CustomerManagement() {
   const { t } = useTranslation();
@@ -16,7 +17,6 @@ export default function CustomerManagement() {
   const [createForm] = Form.useForm();
   const [data, setData] = useState<CustomerData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [modifyDrawerVisible, setModifyDrawerVisible] = useState(false);
   const [createDrawerVisible, setCreateDrawerVisible] = useState(false);
@@ -52,12 +52,7 @@ export default function CustomerManagement() {
     }
   };
 
-  useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => fetchData(1));
 
   const handleModify = (record: CustomerData) => {
     setSelectedCustomer(record);

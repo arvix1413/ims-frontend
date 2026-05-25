@@ -189,7 +189,8 @@ export default function Design() {
     setCurrentView('list');
     setSelectedDesignId(null);
     setDetailData(null);
-    
+    fetchDesignList(1, true);
+
     // 恢复滚动位置
     setTimeout(() => {
       if (scrollListRef.current && savedScrollPosition.current > 0) {

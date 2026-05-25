@@ -12,6 +12,9 @@ import moment from 'moment';
 import MemberPurchaseHistory from './MemberPurchaseHistory';
 import AllMemberPurchaseHistory from './AllMemberPurchaseHistory';
 import MemberTopUpHistory from './MemberTopUpHistory';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
+
+const MEMBER_PAGE_SIZE = 20;
 
 export default function MemberManagement() {
   const { t } = useTranslation();
@@ -23,11 +26,10 @@ export default function MemberManagement() {
   const [createForm] = Form.useForm();
   const [data, setData] = useState<MemberData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: MEMBER_PAGE_SIZE,
     total: 0,
   });
   const [modifyDrawerVisible, setModifyDrawerVisible] = useState(false);
@@ -59,7 +61,7 @@ export default function MemberManagement() {
         searchPage: {
           desc: 1,
           page,
-          pageSize: 999,
+          pageSize: MEMBER_PAGE_SIZE,
           sort: 'voucherNumber'
         },
         ...formValues,
@@ -96,13 +98,7 @@ export default function MemberManagement() {
     }
   };
 
-  // 初始化数据
-  useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => fetchData(1));
 
   // 处理行选择变化
   const handleRowSelectionChange = (selectedKeys: React.Key[], selectedRows: MemberData[]) => {
@@ -240,6 +236,7 @@ export default function MemberManagement() {
   const handleBackToList = () => {
     setCurrentView('list');
     setSelectedMember(null);
+    fetchData(pagination.current);
   };
 
   // 查看所有会员购买记录
@@ -290,11 +287,18 @@ export default function MemberManagement() {
     }
   };
 
-  // 筛选数据（移动端）
-  const filteredMembers = data.filter(m => 
-    m.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    m.phone.includes(searchText)
-  );
+  const handleMobileSearch = () => {
+    const keyword = searchText.trim();
+    if (!keyword) {
+      fetchData(1);
+      return;
+    }
+    if (/^\d/.test(keyword)) {
+      fetchData(1, { phone: keyword });
+    } else {
+      fetchData(1, { name: keyword });
+    }
+  };
 
   // 渲染会员卡片（移动端）
   const renderMemberCard = (memberData: MemberData) => {
@@ -559,13 +563,14 @@ export default function MemberManagement() {
       <div className="md:hidden pb-20">
         {/* 搜索和新增 */}
         <div className="mb-4 space-y-3">
-          <Input
+          <Input.Search
             placeholder={t('searchNameOrPhone')}
-            prefix={<SearchOutlined />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
+            onSearch={handleMobileSearch}
             size="large"
             allowClear
+            enterButton
           />
           <Button
             type="primary"
@@ -582,15 +587,29 @@ export default function MemberManagement() {
         <div className="space-y-3">
           {loading ? (
             <div className="text-center py-8 text-gray-400">{t('loading')}</div>
-          ) : filteredMembers.length === 0 ? (
+          ) : data.length === 0 ? (
             <div className="text-center py-8 text-gray-400">{t('noMembers')}</div>
           ) : (
-            filteredMembers.map((memberData) => (
+            data.map((memberData) => (
               <div key={memberData.id}>
                 {renderMemberCard(memberData)}
               </div>
             ))
           )}
+        </div>
+
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            onChange={handleTableChange}
+            showSizeChanger={false}
+            showTotal={(total, range) =>
+              `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
+            }
+            size="small"
+          />
         </div>
       </div>
 

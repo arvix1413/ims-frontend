@@ -8,6 +8,7 @@ import { HotColdItem, HotColdListRequest } from '@/lib/types';
 import { hotCold } from '@/lib/api';
 import TopThreeItems from './TopThreeItems';
 import HotColdTable from './HotColdTable';
+import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 export default function HotColdItems() {
   const { t } = useTranslation();
@@ -15,7 +16,6 @@ export default function HotColdItems() {
   const [hotData, setHotData] = useState<HotColdItem[]>([]);
   const [coldData, setColdData] = useState<HotColdItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
 
   // 获取爆款数据
   const fetchHotData = async () => {
@@ -61,17 +61,10 @@ export default function HotColdItems() {
     }
   };
 
-  // 初始化数据
-  useEffect(() => {
-    if (!hasLoaded) {
-      setLoading(true);
-      setHasLoaded(true);
-      Promise.all([fetchHotData(), fetchColdData()])
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, [hasLoaded]);
+  useInitialListRefresh(() => {
+    setLoading(true);
+    void Promise.all([fetchHotData(), fetchColdData()]).finally(() => setLoading(false));
+  });
 
   // 移动端标签页配置
   const mobileTabItems = [

@@ -64,6 +64,7 @@ export default function Order() {
     setCurrentView('list');
     setSelectedDesignId(null);
     setDetailData(null);
+    handleRefresh();
   };
 
   // 编辑相关状态和函数（从 design/index.tsx 复制，但这里可能不需要编辑功能）

@@ -10,6 +10,7 @@ import moment from 'moment';
 
 interface PrintReceiptProps {
   onBackToList: () => void;
+  onPrintSuccess?: () => void;
 }
 
 const calcFinalPrice = (price: number = 0, discountPercent: number = 0, discount: number = 0, qty: number = 1) => {
@@ -29,7 +30,7 @@ export const paymentList = ['Bank Transfer/Pay Now','PayLah', 'Wechat Pay', 'Ali
 
 let index = 0;
 
-export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
+export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintReceiptProps) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [payment, setPayment] = useState('');
@@ -155,8 +156,12 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
     if (payment.toFixed(2) === totalPrice.toFixed(2)) {
       try {
         await receipt.print(newItem);
-        notification.success({ message: 'Printing' });
-        onReset();
+        notification.success({ message: t('printReceiptSuccess') });
+        if (onPrintSuccess) {
+          onPrintSuccess();
+        } else {
+          onBackToList();
+        }
       } catch (error) {
         console.error('打印失败:', error);
         notification.error({ message: '打印失败' });
@@ -306,21 +311,26 @@ export default function PrintReceipt({ onBackToList }: PrintReceiptProps) {
         </Form.Item>
 
         <Form.Item name="customerId" hidden><Input /></Form.Item>
-        <Form.Item
-          name="customerPhone"
-          label={t('customerPhone')}
-          extra={t('customerPhoneLookup')}
-        >
-          <AutoComplete
-            style={{ width: 280 }}
-            options={customerOptions}
-            onSearch={searchCustomersByPhone}
-            onSelect={onCustomerPhoneSelect}
-            onBlur={onCustomerPhoneBlur}
-            placeholder={t('customerPhone')}
-          />
-        </Form.Item>
-        <Form.Item name="customerName" label={t('customerName')}>
+        <div style={{ marginBottom: 8 }}>
+          <Form.Item
+            name="customerPhone"
+            label={t('customerPhone')}
+            style={{ marginBottom: 4 }}
+          >
+            <AutoComplete
+              style={{ width: 280 }}
+              options={customerOptions}
+              onSearch={searchCustomersByPhone}
+              onSelect={onCustomerPhoneSelect}
+              onBlur={onCustomerPhoneBlur}
+              placeholder={t('customerPhone')}
+            />
+          </Form.Item>
+          <div style={{ marginTop: 6, marginBottom: 16, color: 'rgba(0,0,0,0.45)', fontSize: 13, lineHeight: '20px' }}>
+            {t('customerPhoneLookup')}
+          </div>
+        </div>
+        <Form.Item name="customerName" label={t('customerName')} style={{ marginBottom: 24 }}>
           <Input style={{ width: 280 }} placeholder={t('customerName')} />
         </Form.Item>
 

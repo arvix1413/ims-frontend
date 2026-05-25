@@ -25,8 +25,6 @@ export default function BillManagement() {
   const [form] = Form.useForm();
   const [data, setData] = useState<ReceiptData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
-  
   // 获取财务用户的店铺限制
   const financeStoreAccess = getFinanceStoreAccess();
   // 根据财务用户限制设置默认 tab
@@ -110,35 +108,29 @@ export default function BillManagement() {
     }
   };
 
-  // 初始化数据
   useEffect(() => {
-    if (!hasLoaded) {
-      setHasLoaded(true);
-      fetchData();
-    }
-  }, [hasLoaded]);
+    fetchData(1);
+  }, [activeTab]);
 
   // 确保财务用户的 activeTab 符合限制
   useEffect(() => {
     if (financeStoreAccess && activeTab !== financeStoreAccess.toString()) {
       setActiveTab(financeStoreAccess.toString());
-      setHasLoaded(false);
     }
-  }, [financeStoreAccess]);
+  }, [financeStoreAccess, activeTab]);
 
   // Tab切换
   const handleTabChange = (key: string) => {
-    // 如果财务用户有限制，不允许切换到其他店铺
     if (financeStoreAccess && key !== financeStoreAccess.toString()) {
       return;
     }
     setActiveTab(key);
-    setHasLoaded(false);
     setPagination({
       current: 1,
       pageSize: 20,
       total: 0,
     });
+    fetchData(1);
   };
 
   // 搜索
@@ -261,6 +253,13 @@ export default function BillManagement() {
   // 返回列表
   const handleBackToList = () => {
     setCurrentView('list');
+    fetchData(pagination.current);
+  };
+
+  // 新建账单打印成功后回到列表并刷新
+  const handlePrintSuccess = () => {
+    setCurrentView('list');
+    fetchData(1);
   };
 
   // 解析商品列表
@@ -581,7 +580,7 @@ export default function BillManagement() {
 
   if (currentView === 'print') {
     return (
-      <PrintReceipt onBackToList={handleBackToList} />
+      <PrintReceipt onBackToList={handleBackToList} onPrintSuccess={handlePrintSuccess} />
     );
   }
 
