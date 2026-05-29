@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider } from 'antd';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -51,9 +51,17 @@ export default function BillManagement() {
   const [openCashDrawerVisible, setOpenCashDrawerVisible] = useState(false);
   const [openCashDrawerLoading, setOpenCashDrawerLoading] = useState(false);
   const [selectedStore, setSelectedStore] = useState(1);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // 获取数据
   const fetchData = async (page = 1, searchParams: any = {}) => {
+    // 取消上一次请求
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setData([]);
     
@@ -79,6 +87,9 @@ export default function BillManagement() {
       }
 
       const response = await receipt.getList(params);
+
+      if (controller.signal.aborted) return;
+
       if (response.code === 200) {
         setData(response.data.content);
         setPagination({
@@ -94,7 +105,8 @@ export default function BillManagement() {
           total: 0,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (controller.signal.aborted) return;
       console.error('获取账单数据失败:', error);
       message.error(t('获取账单数据失败'));
       setData([]);
@@ -104,7 +116,9 @@ export default function BillManagement() {
         total: 0,
       });
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   };
 
@@ -130,7 +144,7 @@ export default function BillManagement() {
       pageSize: 20,
       total: 0,
     });
-    fetchData(1);
+    // 不再直接调用 fetchData，由 useEffect([activeTab]) 统一触发
   };
 
   // 搜索
