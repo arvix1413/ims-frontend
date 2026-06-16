@@ -132,6 +132,10 @@ export default function MemberManagement() {
       registrationDate: moment(record.registrationDate, 'YYYY-MM-DD'),
       voucherNumber: record.voucherNumber,
       remark: record.remark,
+      height: record.height,
+      weight: record.weight,
+      size: record.size,
+      personalNotes: record.personalNotes,
     });
     setModifyDrawerVisible(true);
   };
@@ -149,6 +153,10 @@ export default function MemberManagement() {
         registrationDate: values.registrationDate.format('YYYY-MM-DD'),
         voucherNumber: values.voucherNumber,
         remark: values.remark,
+        height: values.height,
+        weight: values.weight,
+        size: values.size,
+        personalNotes: values.personalNotes,
       };
 
       await member.modify(params);
@@ -268,6 +276,10 @@ export default function MemberManagement() {
         remark: values.remark,
         balance: 0,
         membershipPackageTotal: 0,
+        height: values.height,
+        weight: values.weight,
+        size: values.size,
+        personalNotes: values.personalNotes,
       };
 
       await member.create(params);
@@ -348,6 +360,14 @@ export default function MemberManagement() {
             <div className="text-sm text-gray-600 space-y-1">
               <div>📱 {memberData.phone}</div>
               <div>🎫 {t('voucherNumber')}: {memberData.voucherNumber}</div>
+              {memberData.height && <div>📏 {t('height')}: {memberData.height}cm</div>}
+              {memberData.weight && <div>⚖️ {t('weight')}: {memberData.weight}kg</div>}
+              {memberData.size && <div>👕 {t('size')}: {memberData.size}</div>}
+              {memberData.personalNotes && (
+                <div className="text-xs bg-blue-50 p-2 rounded mt-2">
+                  💡 {memberData.personalNotes}
+                </div>
+              )}
               <div className="text-xs text-gray-400">
                 {moment(memberData.registrationDate).format('YYYY-MM-DD')}
               </div>
@@ -639,6 +659,18 @@ export default function MemberManagement() {
             <Form.Item name="voucherNumber" label={t('voucherNumber')} rules={[{ required: true, message: t('pleaseEnterVoucherNumber') }]}>
               <InputNumber style={{ width: '100%' }} />
             </Form.Item>
+            <Form.Item name="height" label={t('height') + ' (cm)'}>
+              <InputNumber style={{ width: '100%' }} min={0} max={300} placeholder={t('pleaseEnterHeight')} />
+            </Form.Item>
+            <Form.Item name="weight" label={t('weight') + ' (kg)'}>
+              <InputNumber style={{ width: '100%' }} min={0} max={500} step={0.1} placeholder={t('pleaseEnterWeight')} />
+            </Form.Item>
+            <Form.Item name="size" label={t('size')}>
+              <Input placeholder={t('pleaseEnterSize')} />
+            </Form.Item>
+            <Form.Item name="personalNotes" label={t('personalNotes')}>
+              <Input.TextArea rows={4} placeholder={t('pleaseEnterPersonalNotes')} />
+            </Form.Item>
             <Form.Item name="remark" label={t('remark')}>
               <Input />
             </Form.Item>
@@ -677,6 +709,18 @@ export default function MemberManagement() {
             </Form.Item>
             <Form.Item name="voucherNumber" label={t('voucherNumber')} rules={[{ required: true, message: t('pleaseEnterVoucherNumber') }]}>
               <InputNumber size="large" style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="height" label={t('height') + ' (cm)'}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} max={300} placeholder={t('pleaseEnterHeight')} />
+            </Form.Item>
+            <Form.Item name="weight" label={t('weight') + ' (kg)'}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} max={500} step={0.1} placeholder={t('pleaseEnterWeight')} />
+            </Form.Item>
+            <Form.Item name="size" label={t('size')}>
+              <Input size="large" placeholder={t('pleaseEnterSize')} />
+            </Form.Item>
+            <Form.Item name="personalNotes" label={t('personalNotes')}>
+              <Input.TextArea size="large" rows={4} placeholder={t('pleaseEnterPersonalNotes')} />
             </Form.Item>
             <Form.Item name="remark" label={t('remark')}>
               <Input size="large" placeholder={t('remark')} />
@@ -778,6 +822,18 @@ export default function MemberManagement() {
             <Form.Item name="voucherNumber" label={t('voucherNumber')} rules={[{ required: true, message: t('pleaseEnterVoucherNumber') }]}>
               <InputNumber style={{ width: '100%' }} />
             </Form.Item>
+            <Form.Item name="height" label={t('height') + ' (cm)'}>
+              <InputNumber style={{ width: '100%' }} min={0} max={300} placeholder={t('pleaseEnterHeight')} />
+            </Form.Item>
+            <Form.Item name="weight" label={t('weight') + ' (kg)'}>
+              <InputNumber style={{ width: '100%' }} min={0} max={500} step={0.1} placeholder={t('pleaseEnterWeight')} />
+            </Form.Item>
+            <Form.Item name="size" label={t('size')}>
+              <Input placeholder={t('pleaseEnterSize')} />
+            </Form.Item>
+            <Form.Item name="personalNotes" label={t('personalNotes')}>
+              <Input.TextArea rows={4} placeholder={t('pleaseEnterPersonalNotes')} />
+            </Form.Item>
             <Form.Item name="remark" label={t('remark')}>
               <Input />
             </Form.Item>
@@ -816,6 +872,18 @@ export default function MemberManagement() {
             </Form.Item>
             <Form.Item name="voucherNumber" label={t('voucherNumber')} rules={[{ required: true, message: t('pleaseEnterVoucherNumber') }]}>
               <InputNumber size="large" style={{ width: '100%' }} />
+            </Form.Item>
+            <Form.Item name="height" label={t('height') + ' (cm)'}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} max={300} placeholder={t('pleaseEnterHeight')} />
+            </Form.Item>
+            <Form.Item name="weight" label={t('weight') + ' (kg)'}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} max={500} step={0.1} placeholder={t('pleaseEnterWeight')} />
+            </Form.Item>
+            <Form.Item name="size" label={t('size')}>
+              <Input size="large" placeholder={t('pleaseEnterSize')} />
+            </Form.Item>
+            <Form.Item name="personalNotes" label={t('personalNotes')}>
+              <Input.TextArea size="large" rows={4} placeholder={t('pleaseEnterPersonalNotes')} />
             </Form.Item>
             <Form.Item name="remark" label={t('remark')}>
               <Input size="large" placeholder={t('remark')} />

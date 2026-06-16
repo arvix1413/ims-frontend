@@ -340,6 +340,30 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Member Package Total Amount 会员配套总额：</span>
             <span>${memberData?.membershipPackageTotal}</span>
           </Row>
+          {memberData?.height && (
+            <Row style={{ marginBottom: 8 }}>
+              <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Height 身高：</span>
+              <span>{memberData.height} cm</span>
+            </Row>
+          )}
+          {memberData?.weight && (
+            <Row style={{ marginBottom: 8 }}>
+              <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Weight 体重：</span>
+              <span>{memberData.weight} kg</span>
+            </Row>
+          )}
+          {memberData?.size && (
+            <Row style={{ marginBottom: 8 }}>
+              <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Size 尺码：</span>
+              <span>{memberData.size}</span>
+            </Row>
+          )}
+          {memberData?.personalNotes && (
+            <Row style={{ marginBottom: 8 }}>
+              <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Personal Notes 个人备注及喜好：</span>
+              <span>{memberData.personalNotes}</span>
+            </Row>
+          )}
           <Row>
             <span style={{ fontWeight: 'bold', marginRight: 8, minWidth: 200 }}>Remark 备注：</span>
             <span>{memberData?.remark}</span>

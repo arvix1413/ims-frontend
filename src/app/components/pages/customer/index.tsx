@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, Space } from 'antd';
-import { SearchOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, Space, Tag, Spin } from 'antd';
+import { SearchOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { CustomerData, CustomerListRequest, CreateCustomerRequest, ModifyCustomerRequest } from '@/lib/types';
+import { CustomerData, CustomerListRequest, CreateCustomerRequest, ModifyCustomerRequest, ReceiptData, ReceiptItem } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
-import { customerApi } from '@/lib/api';
+import { customerApi, receipt } from '@/lib/api';
 import { useInitialListRefresh } from '@/lib/useListRefresh';
 
 export default function CustomerManagement() {
@@ -23,6 +23,10 @@ export default function CustomerManagement() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [receiptModalVisible, setReceiptModalVisible] = useState(false);
+  const [receiptLoading, setReceiptLoading] = useState(false);
+  const [receiptData, setReceiptData] = useState<ReceiptData[]>([]);
+  const [receiptCustomer, setReceiptCustomer] = useState<CustomerData | null>(null);
 
   const fetchData = async (page = 1) => {
     setLoading(true);
@@ -53,6 +57,29 @@ export default function CustomerManagement() {
   };
 
   useInitialListRefresh(() => fetchData(1));
+
+  const handleViewReceipts = async (record: CustomerData) => {
+    setReceiptCustomer(record);
+    setReceiptModalVisible(true);
+    setReceiptLoading(true);
+    try {
+      const response = await receipt.getList({
+        searchPage: { desc: 1, page: 1, pageSize: 100, sort: 'id' },
+        store: 0,
+        customerId: record.id,
+      });
+      if (response.code === 200) {
+        setReceiptData(response.data.content);
+      } else {
+        setReceiptData([]);
+      }
+    } catch (error) {
+      console.error('fetch receipts failed:', error);
+      setReceiptData([]);
+    } finally {
+      setReceiptLoading(false);
+    }
+  };
 
   const handleModify = (record: CustomerData) => {
     setSelectedCustomer(record);
@@ -135,6 +162,9 @@ export default function CustomerManagement() {
       key: 'actions',
       render: (_: unknown, record: CustomerData) => (
         <Space>
+          <Button type="link" icon={<FileTextOutlined />} onClick={() => handleViewReceipts(record)}>
+            {t('viewReceipts')}
+          </Button>
           {canUseFeature('editCustomer') && (
             <Button type="link" icon={<EditOutlined />} onClick={() => handleModify(record)}>
               {t('edit')}
@@ -238,6 +268,62 @@ export default function CustomerManagement() {
         onCancel={() => setDeleteModalVisible(false)}
       >
         {t('confirmDeleteCustomer')}
+      </Modal>
+
+      <Modal
+        title={`${receiptCustomer?.name || ''} - ${t('receiptHistory')}`}
+        open={receiptModalVisible}
+        onCancel={() => setReceiptModalVisible(false)}
+        footer={null}
+        width={900}
+      >
+        <Spin spinning={receiptLoading}>
+          <Table
+            rowKey="id"
+            dataSource={receiptData}
+            pagination={{ pageSize: 10 }}
+            columns={[
+              { title: t('receiptId'), dataIndex: 'id', key: 'id', width: 80 },
+              {
+                title: t('date'),
+                dataIndex: 'receiptDate',
+                key: 'receiptDate',
+                width: 160,
+                render: (v: string) => v?.slice(0, 16) || '-',
+              },
+              {
+                title: t('items'),
+                dataIndex: 'itemList',
+                key: 'itemList',
+                ellipsis: true,
+                render: (itemList: ReceiptItem[] | string) => {
+                  const list: ReceiptItem[] = typeof itemList === 'string' ? JSON.parse(itemList || '[]') : (itemList || []);
+                  return list.map((i) => `${i.code}×${i.qty}`).join(', ') || '-';
+                },
+              },
+              {
+                title: t('totalPrice'),
+                dataIndex: 'totalPrice',
+                key: 'totalPrice',
+                width: 100,
+                render: (v: number) => v != null ? `$${v.toFixed(2)}` : '-',
+              },
+              {
+                title: t('store'),
+                dataIndex: 'store',
+                key: 'store',
+                width: 80,
+              },
+              {
+                title: t('void'),
+                dataIndex: 'voided',
+                key: 'voided',
+                width: 80,
+                render: (v: number) => v ? <Tag color="red">Void</Tag> : <Tag color="green">OK</Tag>,
+              },
+            ]}
+          />
+        </Spin>
       </Modal>
     </div>
   );

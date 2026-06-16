@@ -202,6 +202,11 @@ export interface MemberData {
   membershipPackageTotal: number;
   remark: string;
   registrationDate: string;
+  // 新增字段
+  height?: number;  // 身高（cm）
+  weight?: number;  // 体重（kg）
+  size?: string;    // 尺码
+  personalNotes?: string;  // 个人备注及喜好
 }
 
 export interface MemberListResponse {
@@ -284,6 +289,11 @@ export interface ModifyMemberRequest {
   registrationDate: string;
   voucherNumber: number;
   remark: string;
+  // 新增字段
+  height?: number;
+  weight?: number;
+  size?: string;
+  personalNotes?: string;
 }
 
 export interface TopUpMemberRequest {
@@ -343,6 +353,11 @@ export interface CreateMemberRequest {
   remark: string;
   balance: number;
   membershipPackageTotal: number;
+  // 新增字段
+  height?: number;
+  weight?: number;
+  size?: string;
+  personalNotes?: string;
 }
 
 // 新增购买记录相关类型
@@ -459,6 +474,8 @@ export interface ReceiptListRequest {
   item?: string;
   startDateTime?: string;
   endDateTime?: string;
+  customerId?: number;
+  customerPhone?: string;
 }
 
 // 打印账单相关类型
