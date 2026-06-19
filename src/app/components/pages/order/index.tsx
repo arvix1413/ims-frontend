@@ -12,7 +12,7 @@ import { DesignDetail as DesignDetailType } from '@/lib/types';
 
 export default function Order() {
   const { t } = useTranslation();
-  const [activeKey, setActiveKey] = useState('slady');
+  const [activeKey, setActiveKey] = useState('sl2');
   const sladyRef = useRef<any>(null);
   const sl2Ref = useRef<any>(null);
   const liveRef = useRef<any>(null);
@@ -82,18 +82,6 @@ export default function Order() {
 
   const tabItems = [
     {
-      key: 'slady',
-      label: WAREHOUSE.SLADY,
-      children: (
-        <OrderList
-          ref={sladyRef}
-          warehouseName={WAREHOUSE.SLADY}
-          onRefresh={() => handleRefresh()}
-          onViewDesignDetail={handleViewDesignDetail}
-        />
-      ),
-    },
-    {
       key: 'sl2',
       label: WAREHOUSE.SL,
       children: (
@@ -112,6 +100,18 @@ export default function Order() {
         <OrderList
           ref={liveRef}
           warehouseName={WAREHOUSE.LIVE}
+          onRefresh={() => handleRefresh()}
+          onViewDesignDetail={handleViewDesignDetail}
+        />
+      ),
+    },
+    {
+      key: 'slady',
+      label: WAREHOUSE.SLADY,
+      children: (
+        <OrderList
+          ref={sladyRef}
+          warehouseName={WAREHOUSE.SLADY}
           onRefresh={() => handleRefresh()}
           onViewDesignDetail={handleViewDesignDetail}
         />

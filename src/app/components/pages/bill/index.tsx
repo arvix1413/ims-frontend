@@ -601,8 +601,8 @@ export default function BillManagement() {
   // 根据财务用户限制过滤 tab 项
   const allTabItems = [
     {
-      key: '1',
-      label: '一店',
+      key: '2',
+      label: '二店',
       children: (
         <Table
           columns={columns}
@@ -615,8 +615,8 @@ export default function BillManagement() {
       ),
     },
     {
-      key: '2',
-      label: '二店',
+      key: '1',
+      label: '一店',
       children: (
         <Table
           columns={columns}
