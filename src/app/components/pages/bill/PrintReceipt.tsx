@@ -445,6 +445,15 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                           onSearch={handleCodeSearch}
                           onSelect={handleCodeSelect}
                           filterOption={false}
+                          allowClear
+                          onChange={(val) => {
+                            // 清空时重置颜色/尺码/价格/库存缓存
+                            if (!val) {
+                              const currentItems = form.getFieldValue('item') || [];
+                              currentItems[name] = { ...currentItems[name], code: '', price: undefined, color: undefined, size: undefined, _warehouseItems: [], _codeOptions: [] };
+                              form.setFieldsValue({ item: [...currentItems] });
+                            }
+                          }}
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'color']}>
