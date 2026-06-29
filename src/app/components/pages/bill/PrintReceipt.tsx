@@ -5,7 +5,7 @@ import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, noti
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData } from '@/lib/types';
-import { receipt, designService, customerApi } from '@/lib/api';
+import { receipt, designService, customerApi, item as itemApi } from '@/lib/api';
 import moment from 'moment';
 
 interface PrintReceiptProps {
@@ -44,6 +44,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const addRef = useRef<((defaultValue?: any, insertIndex?: number) => void) | null>(null);
   const bufferRef = useRef<string>('');
   const lastTimeRef = useRef<number>(Date.now());
+  const codeSearchTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const items = Form.useWatch('item', form) as Array<any> | undefined;
 
   const totalPrice = useMemo(() => {
@@ -359,84 +360,115 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                   const discountPercent = Number(cur.discountPercent ?? 0);
                   const discount = Number(cur.discount ?? 0);
                   const finalPrice = calcFinalPrice(price, discountPercent, discount, qty);
-                  
-                  // 检测价格函数
-                  const handleGetPrice = async () => {
-                    const code = form.getFieldValue(['item', name, 'code']);
-                    if (!code) {
-                      notification.warning({ message: t('pleaseEnterDesignCodeFirst') });
-                      return;
-                    }
+
+                  // 当前行的 designId 缓存的 items（按仓库过滤后）
+                  const rowItems: any[] = cur._warehouseItems ?? [];
+                  const colorOptions = [...new Set(rowItems.map((i: any) => i.color).filter(Boolean))];
+                  const selectedColor = cur.color;
+                  const sizeOptions = [...new Set(
+                    rowItems
+                      .filter((i: any) => !selectedColor || i.color === selectedColor)
+                      .map((i: any) => i.size)
+                      .filter(Boolean)
+                  )];
+
+                  // 搜索商品（debounce）
+                  const handleCodeSearch = (val: string) => {
+                    if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    if (!val || val.length < 2) return;
+                    codeSearchTimers.current[name] = setTimeout(async () => {
+                      try {
+                        const res = await designService.getList({
+                          design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
+                        });
+                        const list = res?.data?.content ?? [];
+                        const currentItems = form.getFieldValue('item') || [];
+                        currentItems[name] = { ...currentItems[name], _codeOptions: list };
+                        form.setFieldsValue({ item: [...currentItems] });
+                      } catch { /* ignore */ }
+                    }, 350);
+                  };
+
+                  // 选中某个商品
+                  const handleCodeSelect = async (val: string, option: any) => {
+                    const designId = option.designId;
+                    const salePrice = option.salePrice;
+                    // 仓库映射：shop=1 → SL二店，shop=2 → Live直播间
+                    const warehouseName = shop === 1 ? 'SL二店' : 'Live直播间';
                     try {
-                      const res = await designService.getDesignDetail({ design: code });
-                      if (res.code === 200 && res.data && res.data.length > 0) {
-                        const d = res.data[0];
-                        const currentItems = form.getFieldValue(['item']) || [];
-                        const updatedItems = currentItems.map((item: any, index: number) => 
-                          index === name ? {
-                            ...item,
-                            price: parseFloat(d.salePrice),
-                            color: d.color?.[0] ?? item.color,
-                            size: d.size?.[0] ?? item.size,
-                          } : item
-                        );
-                        form.setFieldsValue({ item: updatedItems });
-                        notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
-                      } else {
-                        notification.error({ message: t('productNotFoundWhenDetectingPrice') });
-                      }
-                    } catch (error) {
-                      console.error('获取价格失败:', error);
-                      notification.error({ message: t('getPriceFailed') });
+                      const res = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      const warehouseItems = res?.data ?? [];
+                      const firstColor = warehouseItems[0]?.color ?? '';
+                      const firstSize = warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
+                      const currentItems = form.getFieldValue('item') || [];
+                      currentItems[name] = {
+                        ...currentItems[name],
+                        code: val,
+                        price: parseFloat(salePrice ?? 0),
+                        color: firstColor,
+                        size: firstSize,
+                        _warehouseItems: warehouseItems,
+                        _codeOptions: [],
+                      };
+                      form.setFieldsValue({ item: [...currentItems] });
+                    } catch {
+                      notification.error({ message: '获取库存失败' });
                     }
                   };
-                  
+
+                  // 颜色改变时重置尺码
+                  const handleColorChange = (val: string) => {
+                    const currentItems = form.getFieldValue('item') || [];
+                    const newSize = rowItems.find((i: any) => i.color === val)?.size ?? '';
+                    currentItems[name] = { ...currentItems[name], color: val, size: newSize };
+                    form.setFieldsValue({ item: [...currentItems] });
+                  };
+
+                  const codeOptions = (cur._codeOptions ?? []).map((d: any) => ({
+                    value: d.design,
+                    label: `${d.design}  $${d.salePrice}`,
+                    designId: d.id,
+                    salePrice: d.salePrice,
+                  }));
+
                   return (
-                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                    <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
                       <Form.Item
                         {...restField}
                         name={[name, 'code']}
                         rules={[{ required: true, message: 'Missing code' }]}
                       >
-                        <Input
+                        <AutoComplete
+                          style={{ width: 180 }}
                           placeholder="Code"
-                          onBlur={async (e) => {
-                            const code = e.target.value;
-                            if (!code) return;
-                            try {
-                              const res = await designService.getDesignDetail({ design: code });
-                              if (res.code === 200 && res.data?.length > 0) {
-                                const d = res.data[0];
-                                const currentItems = form.getFieldValue(['item']) || [];
-                                const updatedItems = currentItems.map((item: any, index: number) =>
-                                  index === name ? {
-                                    ...item,
-                                    price: parseFloat(d.salePrice),
-                                    color: d.color?.[0] ?? item.color,
-                                    size: d.size?.[0] ?? item.size,
-                                  } : item
-                                );
-                                form.setFieldsValue({ item: updatedItems });
-                                notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
-                              }
-                            } catch { /* 静默失败，用户可手动点检测价格 */ }
-                          }}
+                          options={codeOptions}
+                          onSearch={handleCodeSearch}
+                          onSelect={handleCodeSelect}
+                          filterOption={false}
                         />
                       </Form.Item>
-                      <Button onClick={handleGetPrice} style={{ marginBottom: 0 }}>
-                        {t('detectPrice')}
-                      </Button>
                       <Form.Item {...restField} name={[name, 'color']}>
-                        <Input placeholder="Color" style={{ width: 90 }} />
+                        <Select
+                          placeholder="Color"
+                          style={{ width: 120 }}
+                          options={colorOptions.map(c => ({ value: c, label: c }))}
+                          onChange={handleColorChange}
+                          allowClear
+                        />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Input placeholder="Size" style={{ width: 70 }} />
+                        <Select
+                          placeholder="Size"
+                          style={{ width: 100 }}
+                          options={sizeOptions.map(s => ({ value: s, label: s }))}
+                          allowClear
+                        />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'qty']} initialValue={1}>
                         <InputNumber placeholder="Qty" min={0} style={{ width: 60 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'price']}>
-                        <InputNumber placeholder="Price per unit" style={{ width: 100 }} />
+                        <InputNumber placeholder="Price" style={{ width: 100 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'discountPercent']} initialValue={0}>
                         <InputNumber placeholder="Discount/%" min={0} max={100} style={{ width: 100 }} />
@@ -446,8 +478,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         <InputNumber placeholder="Discount/Number" min={0} style={{ width: 100 }} />
                       </Form.Item>
                       <span>(Number)</span>
-
-                      {/* 显示计算结果 */}
                       <div style={{ minWidth: 80, marginLeft: 100, fontWeight: 600 }}>Final: {finalPrice}</div>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
