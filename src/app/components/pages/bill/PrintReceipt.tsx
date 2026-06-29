@@ -487,7 +487,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         <InputNumber placeholder="Discount/Number" min={0} style={{ width: 100 }} />
                       </Form.Item>
                       <span>(Number)</span>
-                      <div style={{ minWidth: 80, marginLeft: 100, fontWeight: 600 }}>Final: {finalPrice}</div>
+                      <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Final: {finalPrice}</div>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
                   );
