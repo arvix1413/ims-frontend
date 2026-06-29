@@ -478,10 +478,22 @@ export const designService = {
     return response.data;
   },
   
-  // 获取设计详情（用于打印标签时获取价格）
+  // 获取设计详情（用于自动填充价格/颜色/尺码）
   getDesignDetail: async (params: { design: string }): Promise<any> => {
-    const response = await apiClient.post<any>('/design/list', params);
-    return response.data;
+    // 先用 list 拿到 id
+    const listRes = await apiClient.post<any>('/design/list', params);
+    if (listRes.data?.code !== 200 || !listRes.data?.data?.length) {
+      return listRes.data;
+    }
+    const id = listRes.data.data[0].id;
+    // 再用 detail 拿颜色/尺码
+    const detailRes = await apiClient.get<any>(`/design/detail?id=${id}`);
+    if (detailRes.data?.code === 200) {
+      // 合并 list 的 salePrice 和 detail 的 color/size
+      const merged = { ...listRes.data.data[0], ...detailRes.data.data };
+      return { ...detailRes.data, data: [merged] };
+    }
+    return listRes.data;
   },
 };
 
