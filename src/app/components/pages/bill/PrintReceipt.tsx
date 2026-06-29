@@ -487,6 +487,27 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         <InputNumber placeholder="Discount/Number" min={0} style={{ width: 100 }} />
                       </Form.Item>
                       <span>(Number)</span>
+                      <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock" noStyle>
+                        <input type="hidden" />
+                      </Form.Item>
+                      <Button
+                        size="small"
+                        type={cur.stockType === 'order' ? 'default' : 'primary'}
+                        style={{ 
+                          width: 80,
+                          background: cur.stockType === 'order' ? '#faad14' : undefined,
+                          borderColor: cur.stockType === 'order' ? '#faad14' : undefined,
+                          color: cur.stockType === 'order' ? '#fff' : undefined,
+                        }}
+                        onClick={() => {
+                          const currentItems = form.getFieldValue('item') || [];
+                          const next = cur.stockType === 'order' ? 'inStock' : 'order';
+                          currentItems[name] = { ...currentItems[name], stockType: next };
+                          form.setFieldsValue({ item: [...currentItems] });
+                        }}
+                      >
+                        {cur.stockType === 'order' ? 'Order' : 'In Stock'}
+                      </Button>
                       <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Final: {finalPrice}</div>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
