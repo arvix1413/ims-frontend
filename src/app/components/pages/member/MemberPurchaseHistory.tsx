@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { MemberData, MemberPurchaseRecord, MemberPurchaseRequest, CreatePurchaseRecordRequest } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import { member } from '@/lib/api';
+import { designService } from '@/lib/api';
 import moment from 'moment';
 
 interface MemberPurchaseHistoryProps {
@@ -444,20 +445,45 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                   </Button>
                 </Form.Item>
                 {fields.map(({ key, name, ...restField }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
                     <Form.Item
                       {...restField}
                       name={[name, 'designCode']}
                       rules={[{ required: true, message: '请输入商品代码' }]}
                     >
-                      <Input placeholder="商品代码" style={{ width: 200 }} />
+                      <Input
+                        placeholder="商品代码"
+                        style={{ width: 180 }}
+                        onBlur={async (e) => {
+                          const code = e.target.value;
+                          if (!code) return;
+                          try {
+                            const res = await designService.getDesignDetail({ design: code });
+                            if (res.code === 200 && res.data?.length > 0) {
+                              const d = res.data[0];
+                              const designs = form.getFieldValue('designs') || [];
+                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '' };
+                              form.setFieldsValue({ designs: [...designs] });
+                              notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
+                            } else {
+                              notification.warning({ message: '未找到对应商品' });
+                            }
+                          } catch { notification.error({ message: '查询失败' }); }
+                        }}
+                      />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'color']}>
+                      <Input placeholder="颜色" style={{ width: 120 }} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'size']}>
+                      <Input placeholder="尺码" style={{ width: 100 }} />
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'price']}
                       rules={[{ required: true, message: '请输入价格' }]}
                     >
-                      <InputNumber placeholder="价格" min={0} style={{ width: 150 }} />
+                      <InputNumber placeholder="价格" min={0} style={{ width: 140 }} />
                     </Form.Item>
                     <MinusCircleOutlined onClick={() => remove(name)} style={{ color: "red" }} />
                   </Space>
@@ -502,20 +528,45 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                   </Button>
                 </Form.Item>
                 {fields.map(({ key, name, ...restField }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
                     <Form.Item
                       {...restField}
                       name={[name, 'designCode']}
                       rules={[{ required: true, message: '请输入商品代码' }]}
                     >
-                      <Input placeholder="商品代码" style={{ width: 200 }} />
+                      <Input
+                        placeholder="商品代码"
+                        style={{ width: 180 }}
+                        onBlur={async (e) => {
+                          const code = e.target.value;
+                          if (!code) return;
+                          try {
+                            const res = await designService.getDesignDetail({ design: code });
+                            if (res.code === 200 && res.data?.length > 0) {
+                              const d = res.data[0];
+                              const designs = form.getFieldValue('designs') || [];
+                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '' };
+                              form.setFieldsValue({ designs: [...designs] });
+                              notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
+                            } else {
+                              notification.warning({ message: '未找到对应商品' });
+                            }
+                          } catch { notification.error({ message: '查询失败' }); }
+                        }}
+                      />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'color']}>
+                      <Input placeholder="颜色" style={{ width: 120 }} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'size']}>
+                      <Input placeholder="尺码" style={{ width: 100 }} />
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, 'price']}
                       rules={[{ required: true, message: '请输入价格' }]}
                     >
-                      <InputNumber placeholder="价格" min={0} style={{ width: 150 }} />
+                      <InputNumber placeholder="价格" min={0} style={{ width: 140 }} />
                     </Form.Item>
                     <MinusCircleOutlined onClick={() => remove(name)} style={{ color: "red" }} />
                   </Space>

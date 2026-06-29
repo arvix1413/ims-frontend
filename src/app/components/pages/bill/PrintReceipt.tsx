@@ -370,13 +370,18 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                     try {
                       const res = await designService.getDesignDetail({ design: code });
                       if (res.code === 200 && res.data && res.data.length > 0) {
-                        const salePrice = res.data[0].salePrice;
+                        const d = res.data[0];
                         const currentItems = form.getFieldValue(['item']) || [];
                         const updatedItems = currentItems.map((item: any, index: number) => 
-                          index === name ? { ...item, price: parseFloat(salePrice) } : item
+                          index === name ? {
+                            ...item,
+                            price: parseFloat(d.salePrice),
+                            color: d.color?.[0] ?? item.color,
+                            size: d.size?.[0] ?? item.size,
+                          } : item
                         );
                         form.setFieldsValue({ item: updatedItems });
-                        notification.success({ message: t('priceAutoFilled') });
+                        notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
                       } else {
                         notification.error({ message: t('productNotFoundWhenDetectingPrice') });
                       }
@@ -393,11 +398,40 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         name={[name, 'code']}
                         rules={[{ required: true, message: 'Missing code' }]}
                       >
-                        <Input placeholder="Code" />
+                        <Input
+                          placeholder="Code"
+                          onBlur={async (e) => {
+                            const code = e.target.value;
+                            if (!code) return;
+                            try {
+                              const res = await designService.getDesignDetail({ design: code });
+                              if (res.code === 200 && res.data?.length > 0) {
+                                const d = res.data[0];
+                                const currentItems = form.getFieldValue(['item']) || [];
+                                const updatedItems = currentItems.map((item: any, index: number) =>
+                                  index === name ? {
+                                    ...item,
+                                    price: parseFloat(d.salePrice),
+                                    color: d.color?.[0] ?? item.color,
+                                    size: d.size?.[0] ?? item.size,
+                                  } : item
+                                );
+                                form.setFieldsValue({ item: updatedItems });
+                                notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
+                              }
+                            } catch { /* 静默失败，用户可手动点检测价格 */ }
+                          }}
+                        />
                       </Form.Item>
                       <Button onClick={handleGetPrice} style={{ marginBottom: 0 }}>
                         {t('detectPrice')}
                       </Button>
+                      <Form.Item {...restField} name={[name, 'color']}>
+                        <Input placeholder="Color" style={{ width: 90 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'size']}>
+                        <Input placeholder="Size" style={{ width: 70 }} />
+                      </Form.Item>
                       <Form.Item {...restField} name={[name, 'qty']} initialValue={1}>
                         <InputNumber placeholder="Qty" min={0} style={{ width: 60 }} />
                       </Form.Item>
