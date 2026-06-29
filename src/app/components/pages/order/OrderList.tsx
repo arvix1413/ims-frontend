@@ -16,7 +16,7 @@ import { useNotification } from '@/lib/notificationManager';
 dayjs.locale('zh-cn');
 
 // 店员列表
-const salerList = ['Sandy', 'Serene', 'Jewaa', 'Yen', 'Xiao Li', 'Qi Qi', 'Staff'];
+const salerList = ['Serene', 'Yen', 'Xiao Li', 'Qi Qi', 'Staff'];
 
 interface OrderListProps {
   warehouseName: string;
