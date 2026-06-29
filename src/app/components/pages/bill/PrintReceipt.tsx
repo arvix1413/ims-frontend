@@ -375,7 +375,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                   // 搜索商品（debounce）
                   const handleCodeSearch = (val: string) => {
                     if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
-                    if (!val || val.length < 2) return;
+                    if (!val || val.length < 1) return;
                     codeSearchTimers.current[name] = setTimeout(async () => {
                       try {
                         const res = await designService.getList({
