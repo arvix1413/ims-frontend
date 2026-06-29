@@ -35,6 +35,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const [form] = Form.useForm();
   const [payment, setPayment] = useState('');
   const [shop, setShops] = useState(1);
+  const shopRef = useRef(1);
   const inputRef = useRef<InputRef>(null);
   const [newPayment, setNewPayment] = useState(paymentList);
   const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
@@ -104,10 +105,41 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
           }
         };
         
-        designService.getList(params).then((res: any) => {
+        designService.getList(params).then(async (res: any) => {
           if (res && res.data && res.data.content && res.data.content.length > 0) {
-            const price = parseInt(res.data.content[0]['salePrice']);
-            const scannedData = { code, qty: 1, price: price, discountPercent: 0, discount: 0 };
+            const design = res.data.content[0];
+            const price = parseInt(design['salePrice']);
+            const designId = design['id'];
+
+            // 拉库存，填充颜色/尺码（与手动选择路径一致）
+            const warehouseName = shopRef.current === 1 ? 'SL二店' : 'Live直播间';
+            let warehouseItems: any[] = [];
+            let firstColor = '';
+            let firstSize = '';
+            let firstItemId: number | null = null;
+            try {
+              const itemRes = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+              warehouseItems = itemRes?.data ?? [];
+              firstColor = warehouseItems[0]?.color ?? '';
+              firstSize = warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
+              firstItemId = warehouseItems.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
+            } catch {
+              // 拉库存失败不阻断流程
+            }
+
+            const scannedData = {
+              code,
+              qty: 1,
+              price,
+              discountPercent: 0,
+              discount: 0,
+              color: firstColor,
+              size: firstSize,
+              itemId: firstItemId,
+              stockType: 'inStock',
+              _warehouseItems: warehouseItems,
+              _codeOptions: [],
+            };
             if (addRef.current) {
               addRef.current(scannedData);
             } else {
@@ -296,7 +328,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
               key={index}
               type={shop === index ? 'primary' : 'default'} 
               style={{ borderRadius: 20, marginRight: 5, marginBottom: 5 }} 
-              onClick={() => setShops(index)}
+              onClick={() => { setShops(index); shopRef.current = index; }}
             >
               {item}
             </Button>:<></>

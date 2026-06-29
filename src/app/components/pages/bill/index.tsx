@@ -341,6 +341,9 @@ export default function BillManagement() {
                 <div key={`${it.code}-${idx}`} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
                   <div className="flex-1">
                     <span className="font-medium text-blue-600">{it.code}</span>
+                    {it.color && <span className="text-gray-600 ml-1">{it.color}</span>}
+                    {it.size && <span className="text-gray-600 ml-1">{it.size}</span>}
+                    {it.stockType === 'order' && <span className="text-yellow-600 font-bold ml-1">[ORDER]</span>}
                     <span className="text-gray-500 ml-2">× {it.qty}</span>
                   </div>
                   <div className="text-right">
@@ -466,6 +469,9 @@ export default function BillManagement() {
           discount: number;
           finalPrice: number;
           discountPercent: number;
+          color?: string;
+          size?: string;
+          stockType?: string;
         }> = [];
     
         try {
@@ -479,7 +485,11 @@ export default function BillManagement() {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {arr.map((it, idx) => (
               <Tag key={`${it.code}-${idx}`}>
-                <span style={{color:"#396293",fontWeight:"bold"}}>{it.code}</span> × {it.qty} | ${Number(it.finalPrice ?? it.price).toFixed(2)}
+                <span style={{color:"#396293",fontWeight:"bold"}}>{it.code}</span>
+                {it.color ? <span style={{color:"#595959"}}> {it.color}</span> : null}
+                {it.size ? <span style={{color:"#595959"}}> {it.size}</span> : null}
+                {it.stockType === 'order' ? <span style={{color:"#faad14",fontWeight:"bold"}}> [ORDER]</span> : null}
+                <span> × {it.qty} | ${Number(it.finalPrice ?? it.price).toFixed(2)}</span>
               </Tag>
             ))}
           </div>
