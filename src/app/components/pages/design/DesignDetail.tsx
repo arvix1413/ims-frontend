@@ -44,7 +44,6 @@ export default function DesignDetail({
   
   // 库存相关状态
   const [itemsLoading, setItemsLoading] = useState(false);
-  const [sladyItems, setSladyItems] = useState<ItemData[]>([]);
   const [sl2Items, setSl2Items] = useState<ItemData[]>([]);
   const [liveItems, setLiveItems] = useState<ItemData[]>([]);
   const [createDrawerVisible, setCreateDrawerVisible] = useState(false);
@@ -61,7 +60,6 @@ export default function DesignDetail({
   const [deleteItemData, setDeleteItemData] = useState<ItemData | null>(null);
   
   const warehouseOptions = [
-    { label: WAREHOUSE.SLADY, value: WAREHOUSE.SLADY },
     { label: WAREHOUSE.SL, value: WAREHOUSE.SL },
     { label: WAREHOUSE.LIVE, value: WAREHOUSE.LIVE },
   ];
@@ -74,15 +72,11 @@ export default function DesignDetail({
     try {
       const searchPage = { desc: 1, page: 1, pageSize: 99, sort: '' };
       
-      const [sladyResponse, sl2Response, liveResponse] = await Promise.all([
-        item.getList({ designId, warehouseName: 'Slady一店', searchPage }),
+      const [sl2Response, liveResponse] = await Promise.all([
         item.getList({ designId, warehouseName: 'SL二店', searchPage }),
         item.getList({ designId, warehouseName: 'Live直播间', searchPage }),
       ]);
 
-      if (sladyResponse.code === 200) {
-        setSladyItems(sladyResponse.data);
-      }
       if (sl2Response.code === 200) {
         setSl2Items(sl2Response.data);
       }
@@ -459,18 +453,6 @@ export default function DesignDetail({
           </div>
           <Spin spinning={itemsLoading}>
             <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-              {/* Slady一店已隐藏 */}
-              {/* <div style={{ flex: 1 }}>
-                <h4 style={{ marginBottom: 12, fontSize: 16, fontWeight: 600, color: '#333' }}>Slady一店</h4>
-                <ItemTable
-                  data={sladyItems}
-                  loading={itemsLoading}
-                  warehouseName="Slady一店"
-                  designId={detailData?.id || 0}
-                  onRefresh={handleRefreshItems}
-                />
-              </div> */}
-              
               <div style={{ flex: 1 }}>
                 <h4 style={{ marginBottom: 12, fontSize: 16, fontWeight: 600, color: '#333' }}>SL二店</h4>
                 <ItemTable
@@ -651,24 +633,6 @@ export default function DesignDetail({
             <Tabs
               defaultActiveKey="sl2"
               items={[
-                // Slady一店已隐藏
-                // {
-                //   key: 'slady',
-                //   label: t('sladyStore1'),
-                //   children: (
-                //     <div className="space-y-2">
-                //       {sladyItems.length > 0 ? (
-                //         sladyItems.map((itemData, index) => (
-                //           <div key={index}>
-                //             {renderMobileItemCard(itemData)}
-                //           </div>
-                //         ))
-                //       ) : (
-                //         <div className="text-center text-gray-500 py-4">{t('noStockData')}</div>
-                //       )}
-                //     </div>
-                //   ),
-                // },
                 {
                   key: 'sl2',
                   label: t('slStore2'),
