@@ -228,17 +228,24 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
       title: '商品',
       dataIndex: 'designList',
       key: 'designList',
-      width: 350,
+      width: 450,
       render: (value: any) => {
         if (!Array.isArray(value) || value.length === 0) return <span>-</span>;
 
         return (
           <Space wrap>
-            {value.map((item, idx) => (
-              <Tag key={idx} color="blue">
-                {item?.designCode} - ${item?.price}
-              </Tag>
-            ))}
+            {value.map((item, idx) => {
+              const parts = [item?.designCode];
+              if (item?.color) parts.push(item.color);
+              if (item?.size) parts.push(item.size);
+              if (item?.stockType) parts.push(`[${item.stockType}]`);
+              
+              return (
+                <Tag key={idx} color="blue" style={{ fontSize: 13 }}>
+                  {parts.join(' ')} - ${item?.price}
+                </Tag>
+              );
+            })}
           </Space>
         );
       }
@@ -462,7 +469,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                             if (res.code === 200 && res.data?.length > 0) {
                               const d = res.data[0];
                               const designs = form.getFieldValue('designs') || [];
-                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '' };
+                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '', stockType: d.stockType ?? '' };
                               form.setFieldsValue({ designs: [...designs] });
                               notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
                             } else {
@@ -477,6 +484,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     </Form.Item>
                     <Form.Item {...restField} name={[name, 'size']}>
                       <Input placeholder="尺码" style={{ width: 100 }} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'stockType']}>
+                      <Input placeholder="ORDER/IN STOCK" style={{ width: 140 }} />
                     </Form.Item>
                     <Form.Item
                       {...restField}
@@ -545,7 +555,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                             if (res.code === 200 && res.data?.length > 0) {
                               const d = res.data[0];
                               const designs = form.getFieldValue('designs') || [];
-                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '' };
+                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '', stockType: d.stockType ?? '' };
                               form.setFieldsValue({ designs: [...designs] });
                               notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
                             } else {
@@ -560,6 +570,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     </Form.Item>
                     <Form.Item {...restField} name={[name, 'size']}>
                       <Input placeholder="尺码" style={{ width: 100 }} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'stockType']}>
+                      <Input placeholder="ORDER/IN STOCK" style={{ width: 140 }} />
                     </Form.Item>
                     <Form.Item
                       {...restField}

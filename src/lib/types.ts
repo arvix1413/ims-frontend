@@ -307,6 +307,9 @@ export interface TopUpMemberRequest {
 export interface PurchaseItem {
   designCode: string;
   price: number;
+  color?: string;
+  size?: string;
+  stockType?: string; // ORDER 或 IN STOCK
 }
 
 export interface MemberPurchaseRecord {

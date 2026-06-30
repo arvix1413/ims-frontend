@@ -17,49 +17,61 @@ interface DailySaleDrawerProps {
 // 转换数据 -> pivot 格式
 function transformData(data: DailySaleData[]) {
   const grouped: any = {};
+  
+  // 收集所有出现过的收银员（包括已删除的）
+  const allCashiers = new Set<string>();
 
   data.forEach((item: DailySaleData) => {
+    allCashiers.add(item.cashier);
+    
     if (!grouped[item.date]) {
       grouped[item.date] = { date: item.date };
+      // 初始化 saler 数组中的收银员（用于显示列）
       saler.forEach(c => (grouped[item.date][c] = null));
     }
     grouped[item.date][item.cashier] = item.totalPrice;
   });
 
-  // 计算每行总计（保留两位小数）
+  // 计算每行总计（包含所有收银员的销售额，不仅限于 saler 数组）
   Object.values(grouped).forEach((row: any) => {
-    const sum = saler.reduce((sum, c) => sum + (row[c] || 0), 0);
+    let sum = 0;
+    // 遍历行中的所有 key（除了 date），累加所有收银员的销售额
+    Object.keys(row).forEach(key => {
+      if (key !== 'date' && row[key] !== null) {
+        sum += row[key];
+      }
+    });
     row.total = parseFloat(sum.toFixed(2));
   });
 
-  // 添加总计行（保留两位小数）
+  // 添加总计行
   const totalRow: any = { date: "total" };
+  
+  // 为 saler 数组中的收银员计算总计（用于显示）
   saler.forEach((c: any) => {
     const sum = Object.values(grouped).reduce((sum: number, row: any) => sum + (row[c] || 0), 0);
     totalRow[c] = parseFloat(sum.toFixed(2));
   });
-  const totalSum = saler.reduce((sum: number, c) => sum + (totalRow[c] || 0), 0);
+  
+  // 为已删除的收银员也计算总计（他们的数据也要加入 total）
+  allCashiers.forEach(cashier => {
+    if (!saler.includes(cashier)) {
+      const sum = Object.values(grouped).reduce((sum: number, row: any) => sum + (row[cashier] || 0), 0);
+      totalRow[cashier] = parseFloat(sum.toFixed(2));
+    }
+  });
+  
+  // 计算总计的 total 列（所有收银员的总和）
+  let totalSum = 0;
+  Object.keys(totalRow).forEach(key => {
+    if (key !== 'date') {
+      totalSum += totalRow[key];
+    }
+  });
   totalRow.total = parseFloat(totalSum.toFixed(2));
 
   return [...Object.values(grouped), totalRow];
 }
-
-// 定义表格列（所有数字保留两位小数）
-const columns = [
-  { title: "Date", dataIndex: "date", key: "date" },
-  ...saler.map(c => ({
-    title: c,
-    dataIndex: c,
-    key: c,
-    render: (value: number | null) => value !== null ? value.toFixed(2) : '0.00',
-  })),
-  { 
-    title: "total", 
-    dataIndex: "total", 
-    key: "total",
-    render: (value: number | null) => value !== null ? value.toFixed(2) : '0.00',
-  }
-];
 
 export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerProps) {
   const { t } = useTranslation();
@@ -68,9 +80,46 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
   const [dateTime, setDateTime] = useState<any>();
   const [activeTab, setActiveTab] = useState('2'); // 默认二店
   const [loading, setLoading] = useState(false);
+  const [allCashiers, setAllCashiers] = useState<string[]>([]); // 存储所有收银员（包括已删除的）
 
   // 获取财务用户可访问的店铺
   const financeStoreAccess = getFinanceStoreAccess();
+
+  // 动态生成表格列（包括已删除的收银员）
+  const columns = useMemo(() => {
+    return [
+      { title: "Date", dataIndex: "date", key: "date", fixed: 'left' as const },
+      // 先显示 saler 数组中的活跃收银员
+      ...saler.map(c => ({
+        title: c,
+        dataIndex: c,
+        key: c,
+        render: (value: number | null) => value !== null ? value.toFixed(2) : '0.00',
+      })),
+      // 再显示已删除的收银员（以灰色标记）
+      ...allCashiers
+        .filter(c => !saler.includes(c))
+        .map(c => ({
+          title: `${c} (已删除)`,
+          dataIndex: c,
+          key: c,
+          render: (value: number | null) => (
+            <span style={{ color: '#999', fontStyle: 'italic' }}>
+              {value !== null ? value.toFixed(2) : '0.00'}
+            </span>
+          ),
+        })),
+      { 
+        title: "total", 
+        dataIndex: "total", 
+        key: "total",
+        fixed: 'right' as const,
+        render: (value: number | null) => (
+          <strong>{value !== null ? value.toFixed(2) : '0.00'}</strong>
+        ),
+      }
+    ];
+  }, [allCashiers]);
 
   // 查询数据
   const onQuery = useCallback(async () => {
@@ -94,6 +143,13 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
 
       const res = await printService.getDailySale(query);
       if (res.code === 200) {
+        // 收集所有出现过的收银员
+        const cashierSet = new Set<string>();
+        res.data.forEach((item: DailySaleData) => {
+          cashierSet.add(item.cashier);
+        });
+        setAllCashiers(Array.from(cashierSet));
+        
         setData(transformData(res.data));
       }
     } catch (error) {
@@ -143,6 +199,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
               bordered
               rowKey="date"
               loading={loading}
+              scroll={{ x: 'max-content' }}
             />
           </div>
         ),
@@ -172,6 +229,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
               bordered
               rowKey="date"
               loading={loading}
+              scroll={{ x: 'max-content' }}
             />
           </div>
         ),
