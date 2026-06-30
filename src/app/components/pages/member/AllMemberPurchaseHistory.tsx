@@ -6,6 +6,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { MemberPurchaseRecord, MemberPurchaseHistoryRequest } from '@/lib/types';
 import { member } from '@/lib/api';
+import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 
 interface AllMemberPurchaseHistoryProps {
   onBackToList: () => void;
@@ -178,9 +179,16 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
         return (
           <Space wrap>
             {value.map((item, idx) => (
-              <Tag key={idx} color="blue">
-                {item.designCode} - ${item.price}
-              </Tag>
+              <ProductItemTag
+                key={idx}
+                item={{
+                  designCode: item?.designCode,
+                  color: item?.color,
+                  size: item?.size,
+                  stockType: item?.stockType,
+                  price: item?.price
+                }}
+              />
             ))}
           </Space>
         );
@@ -206,7 +214,7 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
       render: (sum: number) => (
         <div style={{ 
           fontWeight: 'bold', 
-          color: sum < 0 ? '#ff4d4f' : '#52c41a' 
+          color: sum < 0 ? '#ff4d4f' : '#262626' 
         }}>
           ${sum}
         </div>
@@ -218,7 +226,7 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
       key: 'memberRemainingAmount',
       width: 120,
       render: (amount: number) => (
-        <div style={{ fontWeight: 'bold', color: '#52c41a' }}>
+        <div style={{ fontWeight: 'bold', color: '#1890ff' }}>
           ${amount}
         </div>
       ),

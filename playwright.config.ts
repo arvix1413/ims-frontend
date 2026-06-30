@@ -18,10 +18,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-  },
+  // 注释掉 webServer 配置，不自动启动本地服务
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: 'http://127.0.0.1:3000',
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 120000,
+  // },
 });
