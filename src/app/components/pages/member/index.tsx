@@ -355,7 +355,7 @@ export default function MemberManagement() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base font-semibold text-gray-800">{memberData.name}</span>
-              <Tag color="green">${memberData.balance}</Tag>
+              <Tag color="blue">${memberData.balance}</Tag>
             </div>
             <div className="text-sm text-gray-600 space-y-1">
               <div>📱 {memberData.phone}</div>
@@ -418,7 +418,7 @@ export default function MemberManagement() {
       key: 'balance',
       width: 120,
       render: (balance: number) => (
-        <div style={{ fontWeight: 'bold', color: '#52c41a' }}>
+        <div style={{ fontWeight: 'bold', color: '#262626' }}>
           ${balance}
         </div>
       ),
@@ -538,7 +538,7 @@ export default function MemberManagement() {
             </Form.Item>
             {isAdmin() && (
               <Form.Item>
-                <span style={{ fontSize: 16, fontWeight: 'bold', color: '#52c41a' }}>
+                <span style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff' }}>
                   {t('选中会员总余额')}: ${totalBalance}
                 </span>
               </Form.Item>

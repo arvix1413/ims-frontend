@@ -274,7 +274,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
       key: 'memberRemainingAmount',
       width: 120,
       render: (amount: number) => (
-        <div style={{ fontWeight: 'bold', color: '#52c41a' }}>
+        <div style={{ fontWeight: 'bold', color: '#1890ff' }}>
           ${amount}
         </div>
       ),
