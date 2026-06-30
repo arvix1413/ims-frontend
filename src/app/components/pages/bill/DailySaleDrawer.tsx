@@ -97,7 +97,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
         title: c,
         dataIndex: c,
         key: c,
-        render: (value: number | null) => value !== null ? value.toFixed(2) : '0.00',
+        render: (value: number | null | undefined) => (value != null && !isNaN(value)) ? value.toFixed(2) : '0.00',
       })),
       // 再显示已删除的收银员（以灰色标记）
       ...allCashiers
@@ -106,9 +106,9 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
           title: `${c} (已删除)`,
           dataIndex: c,
           key: c,
-          render: (value: number | null) => (
+          render: (value: number | null | undefined) => (
             <span style={{ color: '#999', fontStyle: 'italic' }}>
-              {value !== null ? value.toFixed(2) : '0.00'}
+              {(value != null && !isNaN(value)) ? value.toFixed(2) : '0.00'}
             </span>
           ),
         })),
@@ -117,8 +117,8 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
         dataIndex: "total", 
         key: "total",
         fixed: 'right' as const,
-        render: (value: number | null) => (
-          <strong>{value !== null ? value.toFixed(2) : '0.00'}</strong>
+        render: (value: number | null | undefined) => (
+          <strong>{(value != null && !isNaN(value)) ? value.toFixed(2) : '0.00'}</strong>
         ),
       }
     ];
