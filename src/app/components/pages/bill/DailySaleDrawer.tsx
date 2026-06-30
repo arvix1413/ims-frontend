@@ -70,7 +70,10 @@ function transformData(data: DailySaleData[]) {
   });
   totalRow.total = parseFloat(totalSum.toFixed(2));
 
-  return [...Object.values(grouped), totalRow];
+  return {
+    tableData: [...Object.values(grouped), totalRow],
+    allCashiers: Array.from(allCashiers)
+  };
 }
 
 export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerProps) {
@@ -143,14 +146,9 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
 
       const res = await printService.getDailySale(query);
       if (res.code === 200) {
-        // 收集所有出现过的收银员
-        const cashierSet = new Set<string>();
-        res.data.forEach((item: DailySaleData) => {
-          cashierSet.add(item.cashier);
-        });
-        setAllCashiers(Array.from(cashierSet));
-        
-        setData(transformData(res.data));
+        const result = transformData(res.data);
+        setAllCashiers(result.allCashiers);
+        setData(result.tableData);
       }
     } catch (error) {
       console.error('获取销售数据失败:', error);
