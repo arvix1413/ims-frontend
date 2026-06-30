@@ -9,7 +9,7 @@ import { usePermissions } from '@/lib/usePermissions';
 import { member } from '@/lib/api';
 import { designService } from '@/lib/api';
 import moment from 'moment';
-import { ProductItemTag } from '../common/ProductItemTag';
+import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 
 interface MemberPurchaseHistoryProps {
   memberData: MemberData;

@@ -17,7 +17,7 @@ import PaymentMethodSaleDrawer from './PaymentMethodSaleDrawer';
 import CashInOutDrawer from './CashInOutDrawer';
 import OpeningClosingBalanceDrawer from './OpeningClosingBalanceDrawer';
 import { shops } from './PrintReceipt';
-import { ProductItemTag } from '../common/ProductItemTag';
+import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 
 export default function BillManagement() {
   const { t } = useTranslation();
