@@ -234,18 +234,15 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
         return (
           <Space wrap>
-            {value.map((item, idx) => {
-              const parts = [item?.designCode];
-              if (item?.color) parts.push(item.color);
-              if (item?.size) parts.push(item.size);
-              if (item?.stockType) parts.push(`[${item.stockType}]`);
-              
-              return (
-                <Tag key={idx} color="blue" style={{ fontSize: 13 }}>
-                  {parts.join(' ')} - ${item?.price}
-                </Tag>
-              );
-            })}
+            {value.map((item, idx) => (
+              <Tag key={idx}>
+                <span style={{ color: '#396293', fontWeight: 'bold' }}>{item?.designCode}</span>
+                {item?.color ? <span style={{ color: '#595959' }}> {item.color}</span> : null}
+                {item?.size ? <span style={{ color: '#595959' }}> {item.size}</span> : null}
+                {item?.stockType ? <span style={{ color: '#faad14', fontWeight: 'bold' }}> [{item.stockType}]</span> : null}
+                <span> - ${item?.price}</span>
+              </Tag>
+            ))}
           </Space>
         );
       }
