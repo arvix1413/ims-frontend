@@ -515,20 +515,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                           }}
                         />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'qty']} initialValue={1}>
-                        <InputNumber placeholder="Qty" min={0} style={{ width: 60 }} />
-                      </Form.Item>
-                      <Form.Item {...restField} name={[name, 'price']}>
-                        <InputNumber placeholder="Price" style={{ width: 100 }} />
-                      </Form.Item>
-                      <Form.Item {...restField} name={[name, 'discountPercent']} initialValue={0}>
-                        <InputNumber placeholder="Discount/%" min={0} max={100} style={{ width: 100 }} />
-                      </Form.Item>
-                      <span>(%)</span>
-                      <Form.Item {...restField} name={[name, 'discount']} initialValue={0}>
-                        <InputNumber placeholder="Discount/Number" min={0} style={{ width: 100 }} />
-                      </Form.Item>
-                      <span>(Number)</span>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock" noStyle>
                         <input type="hidden" />
                       </Form.Item>
@@ -550,6 +536,20 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                       >
                         {cur.stockType === 'order' ? 'Order' : 'In Stock'}
                       </Button>
+                      <Form.Item {...restField} name={[name, 'qty']} initialValue={1}>
+                        <InputNumber placeholder="Qty" min={0} style={{ width: 60 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'price']}>
+                        <InputNumber placeholder="Price" style={{ width: 100 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'discountPercent']} initialValue={0}>
+                        <InputNumber placeholder="Discount/%" min={0} max={100} style={{ width: 100 }} />
+                      </Form.Item>
+                      <span>(%)</span>
+                      <Form.Item {...restField} name={[name, 'discount']} initialValue={0}>
+                        <InputNumber placeholder="Discount/Number" min={0} style={{ width: 100 }} />
+                      </Form.Item>
+                      <span>(Number)</span>
                       <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Final: {finalPrice}</div>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
