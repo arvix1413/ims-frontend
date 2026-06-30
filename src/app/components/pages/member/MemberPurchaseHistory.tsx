@@ -9,6 +9,7 @@ import { usePermissions } from '@/lib/usePermissions';
 import { member } from '@/lib/api';
 import { designService } from '@/lib/api';
 import moment from 'moment';
+import { ProductItemTag } from '../common/ProductItemTag';
 
 interface MemberPurchaseHistoryProps {
   memberData: MemberData;
@@ -235,13 +236,16 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         return (
           <Space wrap>
             {value.map((item, idx) => (
-              <Tag key={idx}>
-                <span style={{ color: '#396293', fontWeight: 'bold' }}>{item?.designCode}</span>
-                {item?.color ? <span style={{ color: '#595959' }}> {item.color}</span> : null}
-                {item?.size ? <span style={{ color: '#595959' }}> {item.size}</span> : null}
-                {item?.stockType ? <span style={{ color: '#faad14', fontWeight: 'bold' }}> [{item.stockType}]</span> : null}
-                <span> - ${item?.price}</span>
-              </Tag>
+              <ProductItemTag 
+                key={idx} 
+                item={{
+                  designCode: item?.designCode,
+                  color: item?.color,
+                  size: item?.size,
+                  stockType: item?.stockType,
+                  price: item?.price
+                }} 
+              />
             ))}
           </Space>
         );

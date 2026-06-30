@@ -17,6 +17,7 @@ import PaymentMethodSaleDrawer from './PaymentMethodSaleDrawer';
 import CashInOutDrawer from './CashInOutDrawer';
 import OpeningClosingBalanceDrawer from './OpeningClosingBalanceDrawer';
 import { shops } from './PrintReceipt';
+import { ProductItemTag } from '../common/ProductItemTag';
 
 export default function BillManagement() {
   const { t } = useTranslation();
@@ -339,18 +340,7 @@ export default function BillManagement() {
             <div className="space-y-1">
               {itemList.map((it: any, idx: number) => (
                 <div key={`${it.code}-${idx}`} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
-                  <div className="flex-1">
-                    <span className="font-medium text-blue-600">{it.code}</span>
-                    {it.color && <span className="text-gray-600 ml-1">{it.color}</span>}
-                    {it.size && <span className="text-gray-600 ml-1">{it.size}</span>}
-                    {it.stockType === 'order' && <span className="text-yellow-600 font-bold ml-1">[ORDER]</span>}
-                    <span className="text-gray-500 ml-2">× {it.qty}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-gray-900">
-                      ${Number(it.finalPrice ?? it.price).toFixed(2)}
-                    </span>
-                  </div>
+                  <ProductItemTag item={it} />
                 </div>
               ))}
             </div>
@@ -481,16 +471,10 @@ export default function BillManagement() {
         }
         if (!Array.isArray(arr)) return <span>-</span>;
     
-  return (
+        return (
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {arr.map((it, idx) => (
-              <Tag key={`${it.code}-${idx}`}>
-                <span style={{color:"#396293",fontWeight:"bold"}}>{it.code}</span>
-                {it.color ? <span style={{color:"#595959"}}> {it.color}</span> : null}
-                {it.size ? <span style={{color:"#595959"}}> {it.size}</span> : null}
-                {it.stockType === 'order' ? <span style={{color:"#faad14",fontWeight:"bold"}}> [ORDER]</span> : null}
-                <span> × {it.qty} | ${Number(it.finalPrice ?? it.price).toFixed(2)}</span>
-              </Tag>
+              <ProductItemTag key={`${it.code}-${idx}`} item={it} />
             ))}
           </div>
         );
