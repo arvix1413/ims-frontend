@@ -438,14 +438,14 @@ export default function BillManagement() {
       dataIndex: 'id',
       key: 'id',
       width: 80,
-      fixed: 'left',
+      fixed: 'left' as 'left',
     },
     {
       title: t('itemCode'),
       dataIndex: 'refNo',
       key: 'refNo',
       width: 130,
-      fixed: 'left',
+      fixed: 'left' as 'left',
     },
     {
       title: t('item'),
@@ -564,7 +564,7 @@ export default function BillManagement() {
           dataIndex: 'id',
           key: 'reprint',
           width: 100,
-          fixed: 'right',
+          fixed: 'right' as 'right',
           render: (id: number) => (
             <Button onClick={() => handleReprint(id)}>
               reprint
@@ -575,7 +575,7 @@ export default function BillManagement() {
           title: t('operation'),
           key: 'action',
           width: 150,
-          fixed: 'right',
+          fixed: 'right' as 'right',
           render: (_: any, record: ReceiptData) => (
             <Button 
               type="primary" 
