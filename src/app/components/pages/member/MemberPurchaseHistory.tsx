@@ -503,13 +503,14 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                           design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
                         });
                         const list = res?.data?.content ?? [];
-                        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: list } }));
+                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: list, warehouseItems: prev[name]?.warehouseItems ?? [] } }));
                       } catch { /* ignore */ }
                     }, 350);
                   };
 
                   const handleCodeSelect = async (val: string, option: any) => {
                     try {
+                      if (!option.designId) return;
                       const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
@@ -618,13 +619,14 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         const res = await designService.getList({
                           design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
                         });
-                        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: res?.data?.content ?? [] } }));
+                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: res?.data?.content ?? [], warehouseItems: prev[name]?.warehouseItems ?? [] } }));
                       } catch { /* ignore */ }
                     }, 350);
                   };
 
                   const handleCodeSelect = async (val: string, option: any) => {
                     try {
+                      if (!option.designId) return;
                       const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
