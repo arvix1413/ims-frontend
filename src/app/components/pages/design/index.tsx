@@ -728,7 +728,6 @@ export default function Design() {
                     borderRadius: 12, 
                     boxShadow: "0 2px 12px 0 rgba(0,0,0,0.08)", 
                     overflow: "hidden",
-                    flexShrink: 0,
                     cursor: "pointer",
                     transition: "box-shadow 0.2s, transform 0.15s",
                     border: '1px solid #f0f0f0',
