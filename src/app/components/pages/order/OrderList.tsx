@@ -843,7 +843,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             },
           }}
         />
-        />
 
         {/* 打印按钮 */}
         <div style={{ 
