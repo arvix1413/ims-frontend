@@ -123,16 +123,6 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       key: 'size',
     },
     {
-      title: t('stock'),
-      dataIndex: 'stock',
-      key: 'stock',
-      render: (stock: number) => (
-        <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
-          {stock}
-        </span>
-      ),
-    },
-    {
       title: '店内仓',
       dataIndex: 'inStoreStock',
       key: 'inStoreStock',

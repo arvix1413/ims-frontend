@@ -386,9 +386,21 @@ export default function DesignDetail({
                   </Descriptions.Item>
                 )}
 
-                <Descriptions.Item label={t('stock')}>
-                  <span style={{ fontSize: 16, color: detailData.stock > 0 ? '#52c41a' : '#ff4d4f' }}>
-                    {detailData.stock}
+                <Descriptions.Item label="店内仓">
+                  <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0) > 0 ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
+                    {sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0)}
+                  </span>
+                </Descriptions.Item>
+
+                <Descriptions.Item label="代存仓">
+                  <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0) > 0 ? '#1890ff' : '#aaa', fontWeight: 'bold' }}>
+                    {sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0)}
+                  </span>
+                </Descriptions.Item>
+
+                <Descriptions.Item label="未付仓">
+                  <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0) > 0 ? '#faad14' : '#aaa', fontWeight: 'bold' }}>
+                    {sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0)}
                   </span>
                 </Descriptions.Item>
 
@@ -554,9 +566,23 @@ export default function DesignDetail({
                 )}
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{t('totalStock')}:</span>
-                  <span className={`font-bold ${detailData.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {detailData.stock}
+                  <span className="text-gray-600">店内仓:</span>
+                  <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                    {sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-600">代存仓:</span>
+                  <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0) > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
+                    {sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-600">未付仓:</span>
+                  <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0) > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
+                    {sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0)}
                   </span>
                 </div>
 

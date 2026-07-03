@@ -744,23 +744,28 @@ export default function Design() {
                     }}
                   />
                   <div style={{ width: "100%", display: "flex", padding: 15, justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 'bold', color: '#6b21a8' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#6b21a8' }}>
                         {item.design}
                       </h3>
-                      <div style={{ marginBottom: 5, fontSize: '14px', color: '#666' }}>
-                        {t('type')}：{item.type}
+                      <div style={{ marginBottom: 4, fontSize: '13px', color: '#888' }}>
+                        <span style={{ 
+                          display: 'inline-block', background: '#f0e6ff', color: '#6b21a8',
+                          borderRadius: 4, padding: '1px 7px', fontSize: 12, marginRight: 6
+                        }}>{item.type}</span>
+                        <span style={{ 
+                          display: 'inline-block',
+                          background: item.stock > 0 ? '#f6ffed' : '#fff2f0',
+                          color: item.stock > 0 ? '#52c41a' : '#ff4d4f',
+                          borderRadius: 4, padding: '1px 7px', fontSize: 12,
+                          border: `1px solid ${item.stock > 0 ? '#b7eb8f' : '#ffccc7'}`
+                        }}>库存 {item.stock || 0}</span>
                       </div>
-                      <div style={{ marginBottom: 5, fontSize: '14px', color: '#666' }}>
-                        {t('stock')}：{item.stock || 0}
-                      </div>
-                      <div style={{ fontSize: '14px', color: '#666' }}>
-                        {t('price')}：<span style={{ color: "#fa9829", fontWeight: 'bold' }}>
-                          ${item.salePrice || 0}
-                        </span>
+                      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#fa9829', marginTop: 4 }}>
+                        ${item.salePrice || 0}
                       </div>
                     </div>
-                    <RightOutlined style={{ color: "#b67c39", fontSize: 16 }} />
+                    <RightOutlined style={{ color: "#b67c39", fontSize: 16, flexShrink: 0, marginLeft: 8 }} />
                   </div>
                 </div>
               ))
