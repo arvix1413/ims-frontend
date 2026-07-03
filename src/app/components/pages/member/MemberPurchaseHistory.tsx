@@ -695,17 +695,17 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         </Form>
       </Drawer>
 
-      {/* {t('delete')}{t('confirm')}弹窗 */}
+      {/* 删除确认弹窗 */}
       <Modal
-        title="{t('delete')}{t('confirm')}"
+        title={t('delete') + t('confirm')}
         open={deleteModalVisible}
         onOk={handleDeleteConfirm}
         onCancel={() => setDeleteModalVisible(false)}
-        okText="{t('confirm')}{t('delete')}"
-        cancelText="{t('cancel')}"
+        okText={t('confirm') + t('delete')}
+        cancelText={t('cancel')}
         okButtonProps={{ danger: true }}
       >
-        <p>确定要{t('delete')}这条购买记录吗？此操作不可撤销。</p>
+        <p>确定要删除这条购买记录吗？此操作不可撤销。</p>
       </Modal>
     </div>
   );
