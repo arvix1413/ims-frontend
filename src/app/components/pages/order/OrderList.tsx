@@ -535,7 +535,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   });
 
   // 桌面端表格列定义
-  const columns: any[] = [
+  const columns = [
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',

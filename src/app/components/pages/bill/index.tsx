@@ -432,7 +432,7 @@ export default function BillManagement() {
   };
 
   // 表格列定义
-  const baseColumns: any[] = [
+  const baseColumns = [
     {
       title: t('receiptId'),
       dataIndex: 'id',
