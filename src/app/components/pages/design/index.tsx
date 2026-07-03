@@ -713,7 +713,7 @@ export default function Design() {
                   style={{ 
                     backgroundColor: "#fff", 
                     flex:"40%",
-                    height: 150, 
+                    minHeight: 150,
                     display: "flex", 
                     borderRadius: 10, 
                     boxShadow: "0 0 15px 0 #ddd", 
@@ -734,38 +734,51 @@ export default function Design() {
                 >
                   <img 
                     alt={item.design} 
-                    style={{ height: 150, width: 150, objectFit: 'cover' }} 
+                    style={{ height: '100%', minHeight: 150, width: 150, objectFit: 'cover', flexShrink: 0 }} 
                     src={API_CONFIG.BASE_URL + item.previewPhoto}
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
-                      if (!img.src.includes('placeholder-image.jpg') && !img.src.includes('data:image')) {
+                      if (!img.src.includes('data:image')) {
                         img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E';
                       }
                     }}
                   />
-                  <div style={{ width: "100%", display: "flex", padding: 15, justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 'bold', color: '#6b21a8' }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: '12px 14px', justifyContent: "space-between" }}>
+                    {/* 顶部：款号 + 类型标签 */}
+                    <div>
+                      <h3 style={{ margin: '0 0 5px 0', fontSize: '15px', fontWeight: 'bold', color: '#6b21a8' }}>
                         {item.design}
                       </h3>
-                      <div style={{ marginBottom: 4, fontSize: '13px', color: '#888' }}>
-                        <span style={{ 
-                          display: 'inline-block', background: '#f0e6ff', color: '#6b21a8',
-                          borderRadius: 4, padding: '1px 7px', fontSize: 12, marginRight: 6
-                        }}>{item.type}</span>
-                        <span style={{ 
-                          display: 'inline-block',
-                          background: item.stock > 0 ? '#f6ffed' : '#fff2f0',
-                          color: item.stock > 0 ? '#52c41a' : '#ff4d4f',
-                          borderRadius: 4, padding: '1px 7px', fontSize: 12,
-                          border: `1px solid ${item.stock > 0 ? '#b7eb8f' : '#ffccc7'}`
-                        }}>库存 {item.stock || 0}</span>
-                      </div>
-                      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#fa9829', marginTop: 4 }}>
-                        ${item.salePrice || 0}
-                      </div>
+                      <span style={{ 
+                        display: 'inline-block', background: '#f0e6ff', color: '#6b21a8',
+                        borderRadius: 4, padding: '1px 7px', fontSize: 11, marginBottom: 8
+                      }}>{item.type}</span>
                     </div>
-                    <RightOutlined style={{ color: "#b67c39", fontSize: 16, flexShrink: 0, marginLeft: 8 }} />
+
+                    {/* 中部：三仓库存 */}
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                      {[
+                        { label: '店内', value: item.inStoreStock ?? 0, color: '#52c41a', bg: '#f6ffed', border: '#b7eb8f' },
+                        { label: '代存', value: item.tempStoreStock ?? 0, color: '#1890ff', bg: '#e6f4ff', border: '#91caff' },
+                        { label: '未付', value: item.unpaidStock ?? 0, color: '#faad14', bg: '#fffbe6', border: '#ffe58f' },
+                      ].map(({ label, value, color, bg, border }) => (
+                        <div key={label} style={{
+                          flex: 1, textAlign: 'center', background: bg,
+                          border: `1px solid ${border}`, borderRadius: 5, padding: '3px 4px'
+                        }}>
+                          <div style={{ fontSize: 10, color: '#888', marginBottom: 1 }}>{label}</div>
+                          <div style={{ fontSize: 14, fontWeight: 'bold', color }}>{value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 底部：价格 + 箭头 */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fa9829' }}>
+                        ${item.salePrice || 0}
+                      </span>
+                      <RightOutlined style={{ color: "#b67c39", fontSize: 14 }} />
+                    </div>
                   </div>
                 </div>
               ))

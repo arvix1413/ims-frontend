@@ -86,6 +86,9 @@ export interface DesignItem {
   design: string;
   salePrice: string;
   stock: number;
+  inStoreStock: number;
+  tempStoreStock: number;
+  unpaidStock: number;
   previewPhoto: string;
 }
 
