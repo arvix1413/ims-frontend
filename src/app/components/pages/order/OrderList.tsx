@@ -827,7 +827,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <div className="hidden md:block">
+      <div className="hidden md:block" style={{ overflowX: 'auto' }}>
         <Table
           columns={columns}
           dataSource={data}
@@ -842,7 +842,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               fetchOrders(page);
             },
           }}
-          scroll={{ x: 1600, y: 2000 }}
+          scroll={{ x: 'max-content' }}
         />
 
         {/* 打印按钮 */}

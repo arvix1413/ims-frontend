@@ -424,7 +424,7 @@ export default function InventoryRecords() {
       {/* 数据展示 */}
       <Card style={{ borderRadius: 12 }}>
         <div className="hidden md:block">
-          <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={false} scroll={{ x: 1000 }} />
+          <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={false} scroll={{ x: 'max-content' }} />
           <div style={{ marginTop: 16, textAlign: 'right' }}>
             <Pagination current={pagination.current} pageSize={pagination.pageSize} total={pagination.total}
               onChange={p => fetchData(p)} showSizeChanger={false} showQuickJumper
