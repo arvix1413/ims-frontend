@@ -473,7 +473,23 @@ export default function Design() {
 
   // 渲染移动端商品卡片
   const renderMobileCard = (item: DesignItem) => (
-    <Card size="small" className="shadow-sm">
+    <Card 
+      size="small" 
+      className="shadow-sm"
+      style={{ 
+        cursor: "pointer",
+        transition: "transform 0.2s, box-shadow 0.2s"
+      }}
+      onClick={() => toDetail(item)}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "";
+      }}
+    >
       <div className="flex gap-3">
         <div className="flex-shrink-0">
           {item.previewPhoto ? (
@@ -507,12 +523,7 @@ export default function Design() {
               )}
             </div>
 
-            <Button
-              type="primary"
-              onClick={() => toDetail(item)}
-            >
-              {t('viewDetails')}
-            </Button>
+            <RightOutlined style={{ color: "#b67c39", fontSize: 16, alignSelf: "center" }} />
           </div>
         </div>
       </div>
@@ -707,7 +718,18 @@ export default function Design() {
                     borderRadius: 10, 
                     boxShadow: "0 0 15px 0 #ddd", 
                     overflow: "hidden",
-                    flexShrink: 0
+                    flexShrink: 0,
+                    cursor: "pointer",
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                  }}
+                  onClick={() => toDetail(item)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 8px 24px 0 #ccc";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 0 15px 0 #ddd";
                   }}
                 >
                   <img 
@@ -721,7 +743,7 @@ export default function Design() {
                       }
                     }}
                   />
-                  <div style={{ width: "100%", display: "flex", padding: 15, justifyContent: "space-between" }}>
+                  <div style={{ width: "100%", display: "flex", padding: 15, justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: 'bold', color: '#6b21a8' }}>
                         {item.design}
@@ -738,20 +760,7 @@ export default function Design() {
                         </span>
                       </div>
                     </div>
-                    <div 
-                      style={{ 
-                        cursor: "pointer", 
-                        display: "flex", 
-                        alignItems: "center", 
-                        color: "#b67c39", 
-                        fontSize: 15, 
-                        fontWeight: 600,
-                      }}
-                      onClick={() => toDetail(item)}
-                    >
-                      {t('viewDetail')}
-                      <RightOutlined style={{ marginLeft: 4 }} />
-                    </div>
+                    <RightOutlined style={{ color: "#b67c39", fontSize: 16 }} />
                   </div>
                 </div>
               ))
