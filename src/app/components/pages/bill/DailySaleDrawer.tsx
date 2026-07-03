@@ -197,7 +197,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
               bordered
               rowKey="date"
               loading={loading}
-              scroll={{ x: 1500 }}
+              scroll={{ x: "100%" }}
             />
           </div>
         ),
@@ -227,7 +227,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
               bordered
               rowKey="date"
               loading={loading}
-              scroll={{ x: 1500 }}
+              scroll={{ x: "100%" }}
             />
           </div>
         ),
