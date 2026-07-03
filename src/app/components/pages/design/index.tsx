@@ -6,6 +6,7 @@ import { PlusOutlined, MinusCircleOutlined, ExclamationCircleOutlined, SearchOut
 import ColorSelect from '../../ColorSelect';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
+import { API_CONFIG } from '@/config/constants';
 import { DesignItem, DesignListRequest, SearchPageParams, DesignDetail as DesignDetailType, ModifyDesignRequest, typeList, colorList, fabricList, sizeList, WAREHOUSE, CreateDesignRequest } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import { useIsMobile } from '@/lib/useIsMobile';
@@ -477,7 +478,7 @@ export default function Design() {
         <div className="flex-shrink-0">
           {item.previewPhoto ? (
             <Image
-              src={dev_url + item.previewPhoto}
+              src={API_CONFIG.BASE_URL + item.previewPhoto}
               alt={item.design}
               width={80}
               height={80}
@@ -712,7 +713,7 @@ export default function Design() {
                   <img 
                     alt={item.design} 
                     style={{ height: 150, width: 150, objectFit: 'cover' }} 
-                    src={dev_url + item.previewPhoto}
+                    src={API_CONFIG.BASE_URL + item.previewPhoto}
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
                       if (!img.src.includes('placeholder-image.jpg') && !img.src.includes('data:image')) {

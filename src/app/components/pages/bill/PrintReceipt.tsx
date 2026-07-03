@@ -5,7 +5,7 @@ import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, noti
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData } from '@/lib/types';
-import { receipt, designService, customerApi, member } from '@/lib/api';
+import { receipt, designService, customerApi, member, item as itemApi } from '@/lib/api';
 import { PACKAGE_TOPUP_MAP } from '@/config/constants';
 import moment from 'moment';
 
@@ -224,7 +224,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
           try {
             await member.topUp({
               id: itemForm.customerId,
-              amount: topUpAmount,
+              balance: topUpAmount,
+              saler: itemForm.cashier || '',
               remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
             });
             notification.success({ 

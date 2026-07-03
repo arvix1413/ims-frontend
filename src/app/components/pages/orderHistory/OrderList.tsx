@@ -6,6 +6,7 @@ import { MoreOutlined, EditOutlined, DeleteOutlined, SendOutlined, CheckOutlined
 import { useTranslation } from 'react-i18next';
 import { OrderData, ModifyOrderRequest, colorList, sizeList, WAREHOUSE } from '@/lib/types';
 import { order } from '@/lib/api';
+import { API_CONFIG } from '@/config/constants';
 import moment from 'moment';
 
 interface OrderListProps {
