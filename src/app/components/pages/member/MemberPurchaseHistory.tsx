@@ -429,7 +429,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 1500 }}
         />
         
         {/* 分页 */}

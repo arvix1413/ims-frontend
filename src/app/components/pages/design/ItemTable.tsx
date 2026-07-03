@@ -264,7 +264,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
         rowKey="id"
         pagination={false}
         size="small"
-        scroll={{ x: 800 }}
+        scroll={{ x: 1500 }}
       />
 
       <Drawer

@@ -554,7 +554,7 @@ export default function MemberManagement() {
             rowKey="id"
             loading={loading}
             pagination={false}
-            scroll={{ x: 800 }}
+            scroll={{ x: 1500 }}
             rowSelection={{
               type: 'checkbox',
               selectedRowKeys,

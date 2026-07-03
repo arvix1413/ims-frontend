@@ -225,7 +225,7 @@ export default function PaymentMethodSaleDrawer({ visible, onClose }: PaymentMet
               bordered
               rowKey="date"
               loading={loading}
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: 1500 }}
             />
           </div>
         ),
@@ -255,7 +255,7 @@ export default function PaymentMethodSaleDrawer({ visible, onClose }: PaymentMet
               bordered
               rowKey="date"
               loading={loading}
-              scroll={{ x: 'max-content' }}
+              scroll={{ x: 1500 }}
             />
           </div>
         ),

@@ -195,7 +195,7 @@ export default function MemberTopUpHistory({ onBackToList }: MemberTopUpHistoryP
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 800 }}
+          scroll={{ x: 1500 }}
         />
         
         {/* 分页 */}
