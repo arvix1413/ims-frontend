@@ -104,17 +104,13 @@ export default function UniversalTable({
 
   // 构建最终列配置
   const finalColumns = [
-    ...columns.map((col, index) => ({
-      ...col,
-        fixed: index === 0 ? ('left' as const) : undefined,
-    })),
+    ...columns.map((col) => ({ ...col })),
     ...(actions.length > 0
       ? [
           {
             title: t('operation'),
             key: 'action',
             width: actions.length > maxVisibleActions ? 200 : 150,
-            fixed: 'right' as const,
             render: (_: any, record: any) => handleActions(record),
           },
         ]
@@ -173,11 +169,7 @@ export default function UniversalTable({
         loading={loading}
         rowKey={rowKey}
         pagination={pagination}
-        scroll={{
-          x: 'max-content',
-          y: 800,
-          ...scroll,
-        }}
+        scroll={scroll}
         size={size}
         bordered={bordered}
       />
