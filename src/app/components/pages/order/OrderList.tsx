@@ -622,6 +622,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       dataIndex: 'orderedBy',
       key: 'orderedBy',
       width: 100,
+    }, {
+      title: t('orderRemark'),
+      dataIndex: 'remark',
+      key: 'remark',
+      width: 150,
+      ellipsis: true,
     }] : []),
     {
       title: t('status'),
