@@ -626,10 +626,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
-      width: 200,
-      ellipsis: {
-        showTitle: true,
-      },
+      width: 220,
+      render: (text: string) => (
+        <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
+      ),
     }] : []),
     {
       title: t('status'),
