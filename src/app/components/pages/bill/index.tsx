@@ -607,7 +607,6 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: "100%" }}
         />
       ),
     },
@@ -621,7 +620,6 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: "100%" }}
         />
       ),
     },

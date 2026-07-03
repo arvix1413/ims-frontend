@@ -251,7 +251,6 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: "100%" }}
         />
       ),
     },
@@ -265,7 +264,6 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: "100%" }}
         />
       ),
     },

@@ -262,7 +262,6 @@ export default function EmployeeHistory() {
             rowKey="id"
             loading={loading}
             pagination={false}
-            scroll={{ x: "100%" }}
           />
           
           {/* 分页 */}

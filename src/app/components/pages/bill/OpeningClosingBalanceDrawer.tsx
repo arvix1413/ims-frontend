@@ -260,7 +260,6 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
               showTotal: (total, range) => 
                 `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
             }}
-            scroll={{ x: "100%" }}
           />
         </div>
       ),
@@ -321,7 +320,6 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
               showTotal: (total, range) => 
                 `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
             }}
-            scroll={{ x: "100%" }}
           />
         </div>
       ),
