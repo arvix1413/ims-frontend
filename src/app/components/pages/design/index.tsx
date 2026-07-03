@@ -720,7 +720,9 @@ export default function Design() {
                   key={`${item.id}-${index}`} 
                   style={{ 
                     backgroundColor: "#fff", 
-                    flex:"40%",
+                    flexBasis: "calc(50% - 10px)",
+                    flexGrow: 0,
+                    flexShrink: 0,
                     minHeight: 130,
                     display: "flex", 
                     borderRadius: 12, 
