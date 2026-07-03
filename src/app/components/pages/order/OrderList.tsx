@@ -842,7 +842,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               fetchOrders(page);
             },
           }}
-          scroll={{ x: 1200, y: 2000 }}
+          scroll={{ x: 1600, y: 2000 }}
         />
 
         {/* 打印按钮 */}

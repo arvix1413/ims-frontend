@@ -437,13 +437,15 @@ export default function BillManagement() {
       title: t('receiptId'),
       dataIndex: 'id',
       key: 'id',
-      width: 100,
+      width: 80,
+      fixed: 'left' as const,
     },
     {
       title: t('itemCode'),
       dataIndex: 'refNo',
       key: 'refNo',
-      width: 150,
+      width: 130,
+      fixed: 'left' as const,
     },
     {
       title: t('item'),
@@ -562,6 +564,7 @@ export default function BillManagement() {
           dataIndex: 'id',
           key: 'reprint',
           width: 100,
+          fixed: 'right' as const,
           render: (id: number) => (
             <Button onClick={() => handleReprint(id)}>
               reprint
@@ -604,7 +607,7 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 1700 }}
+          scroll={{ x: 1500 }}
         />
       ),
     },
@@ -618,7 +621,7 @@ export default function BillManagement() {
           rowKey="id"
           loading={loading}
           pagination={false}
-          scroll={{ x: 1700 }}
+          scroll={{ x: 1500 }}
         />
       ),
     },
