@@ -779,6 +779,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           )}
           
           {!isLogisticsUser && (
+            <Form.Item name="remark" label={t('orderRemark')} className="md:w-48 mb-4">
+              <Input placeholder={t('pleaseEnterRemark')} />
+            </Form.Item>
+          )}
+          
+          {!isLogisticsUser && (
             <Form.Item name="paymentFlag" label="付款状态" className="md:w-48 mb-4">
               <Select placeholder="选择付款状态">
                 <Select.Option value="PAID">PAID（已付）</Select.Option>
