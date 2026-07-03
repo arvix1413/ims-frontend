@@ -514,16 +514,24 @@ export default function Design() {
               <h3 className="text-sm font-semibold text-gray-800 truncate">
                 {item.design}
               </h3>
-              <div>{t('type')}: {item.type}</div>
-              <div className="text-gray-400">{t('stock')}: {item.stock || 0}</div>
+              <div className="text-xs text-gray-500">{item.type}</div>
+              <div className="flex gap-3 mt-1">
+                {[
+                  { label: '店内', value: item.inStoreStock ?? 0, color: '#16a34a' },
+                  { label: '代存', value: item.tempStoreStock ?? 0, color: '#2563eb' },
+                  { label: '未付', value: item.unpaidStock ?? 0, color: '#d97706' },
+                ].map(({ label, value, color }) => (
+                  <span key={label} style={{ fontSize: 11, color: value > 0 ? color : '#9ca3af' }}>
+                    {label} <strong>{value}</strong>
+                  </span>
+                ))}
+              </div>
               {item.salePrice && (
-                <div className="text-orange-600 font-semibold">
+                <div className="text-orange-600 font-semibold mt-1">
                   ${item.salePrice}
                 </div>
               )}
             </div>
-
-            <RightOutlined style={{ color: "#b67c39", fontSize: 16, alignSelf: "center" }} />
           </div>
         </div>
       </div>
