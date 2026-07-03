@@ -489,6 +489,10 @@ export interface PrintReceiptItem {
   discountPercent: number;
   discount: number;
   finalPrice: number;
+  color?: string;
+  size?: string;
+  itemId?: number | null;
+  stockType?: 'order' | 'inStock';  // order或in stock标识
 }
 
 export interface PrintReceiptPayment {
@@ -509,6 +513,15 @@ export interface PrintReceiptRequest {
   customerName?: string;
   customerPhone?: string;
 }
+
+// Package充值配置
+export const PACKAGE_TOPUP_MAP: Record<number, number> = {
+  1200: 1350,
+  1800: 2200,
+  2800: 3500,
+  3800: 5000,
+  5000: 6750,
+} as const;
 
 // 打印标签相关类型
 export interface PrintLabelRequest {
@@ -705,6 +718,10 @@ export interface ItemData {
   stock: number;
   warehouseName: string;
   createDate: string;
+  inStoreStock: number;      // 店内仓
+  tempStoreStock: number;    // 代存仓
+  unpaidStock: number;       // 未付仓
+  damagedStock: number;      // 损耗仓
 }
 
 // 创建订单请求参数
@@ -715,9 +732,12 @@ export interface CreateOrderRequest {
   remark: string;
   paymentStatus: number;
   status: string;
-  statusChangeUserId?: number; // 状态变更操作人ID
-  statusChangeUserName?: string; // 状态变更操作人名字
-  statusChangeTime?: string; // 状态变更时间 (格式: YYYY-MM-DD HH:mm:ss)
+  customerContact?: string;   // 姓名电话
+  paymentFlag?: string;       // PAID / UNPAID
+  orderedBy?: string;         // 订货人
+  statusChangeUserId?: number;
+  statusChangeUserName?: string;
+  statusChangeTime?: string;
 }
 
 // 创建商品请求参数
@@ -755,6 +775,9 @@ export interface OrderData {
   status: string;
   paymentStatus: number;
   createDate: string;
+  customerContact?: string;    // 姓名电话
+  paymentFlag?: string;        // PAID/UNPAID
+  orderedBy?: string;          // 订货人
   pendingDate?: string; // 旧字段，保留兼容性
   operator?: string; // 旧字段，保留兼容性
   statusChangeUserId?: number; // 状态变更操作人ID
@@ -792,6 +815,9 @@ export interface ModifyOrderRequest {
   remark?: string;
   amount?: number;
   id: number;
+  customerContact?: string;
+  paymentFlag?: string;
+  orderedBy?: string;
   pendingDate?: string; // 旧字段，保留兼容性
   status?: string;
   operator?: string; // 旧字段，保留兼容性

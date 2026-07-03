@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Button, Modal, Drawer, Form, InputNumber, Input, message, App, Select, Space, Divider } from 'antd';
+import { Table, Button, Drawer, Form, InputNumber, Input, message, App, Select } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ItemData, CreateOrderRequest } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import { item, order } from '@/lib/api';
+import OrderForm from '@/app/components/shared/OrderForm';
 
 interface ItemTableProps {
   data: ItemData[];
@@ -88,9 +89,12 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
           itemId: currentItem.id,
           amount: values.amount,
           type: 0,
-          remark: values.remark,
+          remark: values.remark || '',
           paymentStatus: -1,
           status: '0',
+          customerContact: values.customerContact || '',
+          paymentFlag: values.paymentFlag || 'UNPAID',
+          orderedBy: values.orderedBy || '',
           statusChangeUserId: userInfo?.id || 0,
           statusChangeUserName: userInfo?.name || '未知用户',
           statusChangeTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -125,6 +129,36 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       render: (stock: number) => (
         <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
           {stock}
+        </span>
+      ),
+    },
+    {
+      title: '店内仓',
+      dataIndex: 'inStoreStock',
+      key: 'inStoreStock',
+      render: (stock: number) => (
+        <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
+          {stock || 0}
+        </span>
+      ),
+    },
+    {
+      title: '代存仓',
+      dataIndex: 'tempStoreStock',
+      key: 'tempStoreStock',
+      render: (stock: number) => (
+        <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
+          {stock || 0}
+        </span>
+      ),
+    },
+    {
+      title: '未付仓',
+      dataIndex: 'unpaidStock',
+      key: 'unpaidStock',
+      render: (stock: number) => (
+        <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
+          {stock || 0}
         </span>
       ),
     },
@@ -230,7 +264,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
         rowKey="id"
         pagination={false}
         size="small"
-        scroll={{ x: 400 }}
+        scroll={{ x: 800 }}
       />
 
       <Drawer
@@ -279,34 +313,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
           layout="vertical"
           onFinish={handleOrderSubmit}
         >
-          <Form.Item
-            label={t('amount')}
-            name="amount"
-            rules={[
-              { required: true, message: t('pleaseEnter') + t('amount') },
-              { type: 'number', min: 1, message: t('amount') + t('mustBeGreaterThanZero') }
-            ]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={1}
-              precision={0}
-              placeholder={t('amount')}
-            />
-          </Form.Item>
-          
-          <Form.Item
-            label={t('remark')}
-            name="remark"
-            rules={[
-              { required: true, message: t('pleaseEnter') + t('remark') },
-              { whitespace: true, message: t('remark') + t('cannotBeEmpty') }
-            ]}
-          >
-            <Input
-              placeholder={t('remark')}
-            />
-          </Form.Item>
+          <OrderForm />
           
           <Form.Item>
             <Button type="primary" htmlType="submit" block>

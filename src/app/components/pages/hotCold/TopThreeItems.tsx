@@ -3,8 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { HotColdItem } from '@/lib/types';
-
-const dev_url = 'http://119.28.104.20';
+import { API_CONFIG } from '@/config/constants';
 
 interface TopThreeItemsProps {
   hotData: HotColdItem[];
@@ -34,7 +33,7 @@ export default function TopThreeItems({ hotData, coldData }: TopThreeItemsProps)
                     border: '1px solid #f0f0f0'
                   }}
                   alt={t('productImage')}
-                  src={dev_url + item.previewPhoto}
+                  src={API_CONFIG.BASE_URL + item.previewPhoto}
                   onError={(e) => {
                     const img = e.target as HTMLImageElement;
                     // 防止无限循环：如果已经是 placeholder 就不再设置
@@ -73,7 +72,7 @@ export default function TopThreeItems({ hotData, coldData }: TopThreeItemsProps)
                     border: '1px solid #f0f0f0'
                   }}
                   alt={t('productImage')}
-                  src={dev_url + item.previewPhoto}
+                  src={API_CONFIG.BASE_URL + item.previewPhoto}
                   onError={(e) => {
                     const img = e.target as HTMLImageElement;
                     // 防止无限循环：如果已经是 placeholder 就不再设置

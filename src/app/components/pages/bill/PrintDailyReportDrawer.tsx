@@ -38,8 +38,6 @@ export default function PrintDailyReportDrawer({ visible, onClose }: PrintDailyR
         shop: "Slady Studio Pte. Ltd.",
         date: selectedDate
       };
-      console.log(params);
-      
       
       await printService.printDailyReport(params);
       notification.success({ message: '打印每日结单成功' });

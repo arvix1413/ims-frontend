@@ -8,8 +8,10 @@ import { DesignDetail as DesignDetailType, typeList, ItemData, CreateItemRequest
 import { usePermissions } from '@/lib/usePermissions';
 import { useIsMobile } from '@/lib/useIsMobile';
 import { item, order } from '@/lib/api';
+import { API_CONFIG } from '@/config/constants';
 import ItemTable from './ItemTable';
 import ColorSelect from '../../ColorSelect';
+import OrderForm from '@/app/components/shared/OrderForm';
 import { sizeList } from '@/lib/types';
 
 interface DesignDetailProps {
@@ -39,13 +41,11 @@ export default function DesignDetail({
 }: DesignDetailProps) {
   const { t } = useTranslation();
   const { isSaler, isAdmin, canUseFeature, userInfo } = usePermissions();
-  const dev_url = 'http://119.28.104.20';
   const isMobile = useIsMobile();
   
   // 库存相关状态
   const [itemsLoading, setItemsLoading] = useState(false);
   const [sl2Items, setSl2Items] = useState<ItemData[]>([]);
-  const [liveItems, setLiveItems] = useState<ItemData[]>([]);
   const [createDrawerVisible, setCreateDrawerVisible] = useState(false);
   const [createForm] = Form.useForm();
 
@@ -61,7 +61,6 @@ export default function DesignDetail({
   
   const warehouseOptions = [
     { label: WAREHOUSE.SL, value: WAREHOUSE.SL },
-    { label: WAREHOUSE.LIVE, value: WAREHOUSE.LIVE },
   ];
 
   // 获取库存数据
@@ -72,16 +71,10 @@ export default function DesignDetail({
     try {
       const searchPage = { desc: 1, page: 1, pageSize: 99, sort: '' };
       
-      const [sl2Response, liveResponse] = await Promise.all([
-        item.getList({ designId, warehouseName: 'SL二店', searchPage }),
-        item.getList({ designId, warehouseName: 'Live直播间', searchPage }),
-      ]);
+      const sl2Response = await item.getList({ designId, warehouseName: 'SL二店', searchPage });
 
       if (sl2Response.code === 200) {
         setSl2Items(sl2Response.data);
-      }
-      if (liveResponse.code === 200) {
-        setLiveItems(liveResponse.data);
       }
     } catch (error) {
       console.error('获取库存数据失败:', error);
@@ -173,9 +166,12 @@ export default function DesignDetail({
           itemId: currentItem.id,
           amount: values.amount,
           type: 0,
-          remark: values.remark,
+          remark: values.remark || '',
           paymentStatus: -1,
           status: '0',
+          customerContact: values.customerContact || '',
+          paymentFlag: values.paymentFlag || 'UNPAID',
+          orderedBy: values.orderedBy || '',
           statusChangeUserId: userInfo?.id || 0,
           statusChangeUserName: userInfo?.name || '未知用户',
           statusChangeTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -332,7 +328,7 @@ export default function DesignDetail({
           <div style={{ display: 'flex', gap: '40px', maxHeight: '400px' }}>
             <div style={{ flexShrink: 0 }}>
               <img 
-                src={dev_url + detailData.previewPhoto}
+                src={API_CONFIG.BASE_URL + detailData.previewPhoto}
                 alt={detailData.design}
                 style={{ 
                   width: 200, 
@@ -464,17 +460,6 @@ export default function DesignDetail({
                 />
               </div>
             </div>
-            
-            <div>
-              <h4 style={{ marginBottom: 12, fontSize: 16, fontWeight: 600, color: '#333' }}>Live直播间</h4>
-              <ItemTable
-                data={liveItems}
-                loading={itemsLoading}
-                warehouseName="Live直播间"
-                designId={detailData?.id || 0}
-                onRefresh={handleRefreshItems}
-              />
-            </div>
           </Spin>
         </div>
       </div>
@@ -517,7 +502,7 @@ export default function DesignDetail({
           <div className="space-y-4">
             <div className="text-center">
               <Image
-                src={dev_url + detailData.previewPhoto}
+                src={API_CONFIG.BASE_URL + detailData.previewPhoto}
                 alt={detailData.design}
                 width={200}
                 height={200}
@@ -635,28 +620,11 @@ export default function DesignDetail({
               items={[
                 {
                   key: 'sl2',
-                  label: t('slStore2'),
+                  label: 'SL二店',
                   children: (
                     <div className="space-y-2">
                       {sl2Items.length > 0 ? (
                         sl2Items.map((itemData, index) => (
-                          <div key={index}>
-                            {renderMobileItemCard(itemData)}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-center text-gray-500 py-4">{t('noStockData')}</div>
-                      )}
-                    </div>
-                  ),
-                },
-                {
-                  key: 'live',
-                  label: t('liveStream'),
-                  children: (
-                    <div className="space-y-2">
-                      {liveItems.length > 0 ? (
-                        liveItems.map((itemData, index) => (
                           <div key={index}>
                             {renderMobileItemCard(itemData)}
                           </div>
@@ -1012,24 +980,7 @@ export default function DesignDetail({
           }
         >
           <Form form={orderForm} layout="vertical">
-            <Form.Item
-              name="amount"
-              label={t('quantity')}
-              rules={[
-                { required: true, message: t('pleaseEnterQuantity') },
-                { type: 'number', min: 1, message: t('quantityMustBePositive') }
-              ]}
-            >
-              <InputNumber size="large" style={{ width: '100%' }} min={1} />
-            </Form.Item>
-
-            <Form.Item
-              name="remark"
-              label={t('remark')}
-              rules={[{ required: true, message: t('pleaseEnterRemark') }]}
-            >
-              <Input size="large" placeholder={t('pleaseEnterRemark')} />
-            </Form.Item>
+            <OrderForm size="large" />
           </Form>
         </Drawer>
       )}

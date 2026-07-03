@@ -73,7 +73,6 @@ export default function Design() {
   
   const scrollListRef = useRef<HTMLDivElement>(null);
   const savedScrollPosition = useRef<number>(0);
-  const dev_url = 'http://119.28.104.20';
 
   // 获取商品列表数据
   const fetchDesignList = useCallback(async (page: number = 1, reset: boolean = false) => {

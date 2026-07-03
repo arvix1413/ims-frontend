@@ -5,8 +5,7 @@ import { Table, Tabs } from 'antd';
 import { FireOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { HotColdItem } from '@/lib/types';
-
-const dev_url = 'http://119.28.104.20';
+import { API_CONFIG } from '@/config/constants';
 
 interface HotColdTableProps {
   hotData: HotColdItem[];
@@ -56,7 +55,7 @@ export default function HotColdTable({
             border: '1px solid #f0f0f0'
           }}
           alt={t('productImage')}
-          src={dev_url + photo}
+          src={API_CONFIG.BASE_URL + photo}
           onError={(e) => {
             const img = e.target as HTMLImageElement;
             // 防止无限循环：如果已经是 placeholder 就不再设置

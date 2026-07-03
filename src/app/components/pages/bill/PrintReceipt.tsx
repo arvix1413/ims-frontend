@@ -5,7 +5,8 @@ import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, noti
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData } from '@/lib/types';
-import { receipt, designService, customerApi, item as itemApi } from '@/lib/api';
+import { receipt, designService, customerApi, member } from '@/lib/api';
+import { PACKAGE_TOPUP_MAP } from '@/config/constants';
 import moment from 'moment';
 
 interface PrintReceiptProps {
@@ -164,6 +165,28 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     const payment = itemForm.paymentList?.reduce((total: any, current: any) => total + parseFloat(current.amount), 0);
     const phone = normalizePhone(itemForm.customerPhone);
     const name = (itemForm.customerName || '').trim();
+    
+    // 处理package充值
+    const packageItems = itemForm.item?.filter((item: any) => item.code && item.code.startsWith('Package'));
+    let shouldTopUp = false;
+    let topUpAmount = 0;
+    let packageAmount = 0;
+    
+    if (packageItems && packageItems.length > 0 && phone) {
+      // 计算Package充值金额
+      for (const pkg of packageItems) {
+        const match = pkg.code.match(/Package(\d+)/);
+        if (match) {
+          const packageValue = parseInt(match[1]);
+          if (PACKAGE_TOPUP_MAP[packageValue]) {
+            packageAmount += packageValue;
+            topUpAmount += PACKAGE_TOPUP_MAP[packageValue];
+            shouldTopUp = true;
+          }
+        }
+      }
+    }
+    
     const newItem: PrintReceiptRequest = {
       ...itemForm,
       gst: 0,
@@ -172,9 +195,14 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       address: shop === 1 ? 'Raffles City (#03-29B)' : 'Raffles Place (#04-24/25)',
       item: itemForm.item?.map((item: any) => ({ 
         ...item, 
-        finalPrice: calcFinalPrice(item.price, item.discountPercent, item.discount, item.qty) 
+        finalPrice: calcFinalPrice(item.price, item.discountPercent, item.discount, item.qty),
+        color: item.color || '',
+        size: item.size || '',
+        itemId: item.itemId || null,
+        stockType: item.stockType || 'inStock'
       }))
     };
+    
     if (!phone && !(itemForm.customerId > 0)) {
       delete newItem.customerId;
       delete newItem.customerName;
@@ -188,16 +216,39 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
 
     if (payment.toFixed(2) === totalPrice.toFixed(2)) {
       try {
+        // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
         await receipt.print(newItem);
-        notification.success({ message: t('printReceiptSuccess') });
+        
+        // 如果有package充值且有客户电话
+        if (shouldTopUp && phone && itemForm.customerId) {
+          try {
+            await member.topUp({
+              id: itemForm.customerId,
+              amount: topUpAmount,
+              remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
+            });
+            notification.success({ 
+              message: `销售订单创建成功！已为会员充值$${topUpAmount}` 
+            });
+          } catch (error) {
+            console.error('会员充值失败:', error);
+            notification.warning({ 
+              message: '销售订单创建成功，但会员充值失败',
+              description: '请手动为会员充值'
+            });
+          }
+        } else {
+          notification.success({ message: '销售订单创建成功' });
+        }
+        
         if (onPrintSuccess) {
           onPrintSuccess();
         } else {
           onBackToList();
         }
       } catch (error) {
-        console.error('打印失败:', error);
-        notification.error({ message: '打印失败' });
+        console.error('创建销售订单失败:', error);
+        notification.error({ message: '创建销售订单失败' });
       }
     } else {
       notification.error({ message: 'Payment Amount is not equal to Total Price' });
@@ -635,7 +686,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       </Form>
 
       <div style={{ marginTop: 20 }}>
-        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish}>{t('confirm')}</Button>
+        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish}>创建销售订单</Button>
         <Button onClick={onReset}>{t('reset')}</Button>
       </div>
     </div>

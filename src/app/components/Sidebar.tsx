@@ -8,7 +8,6 @@ import {
   Users, 
   Truck, 
   History, 
-  TrendingUp, 
   MessageSquare, 
   Package, 
   Clock, 
@@ -45,7 +44,7 @@ export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsC
     { name: 'employeeManagement', icon: Users, color: 'text-stone-600', bgColor: 'bg-stone-50', hoverColor: 'group-hover:text-stone-700' },
     { name: 'orderManagement', icon: Truck, color: 'text-green-600', bgColor: 'bg-green-50', hoverColor: 'group-hover:text-green-700' },
     // { name: 'orderHistory', icon: History, color: 'text-purple-600', bgColor: 'bg-purple-50', hoverColor: 'group-hover:text-purple-700' },
-    { name: 'hotColdItems', icon: TrendingUp, color: 'text-red-600', bgColor: 'bg-red-50', hoverColor: 'group-hover:text-red-700' },
+    // 爆/冷款已移除（暂无用处，未来看报表）
     { name: 'inventoryRecords', icon: Package, color: 'text-indigo-600', bgColor: 'bg-indigo-50', hoverColor: 'group-hover:text-indigo-700' },
     { name: 'employeeHistory', icon: Clock, color: 'text-teal-600', bgColor: 'bg-teal-50', hoverColor: 'group-hover:text-teal-700' },
     { name: 'billManagement', icon: CreditCard, color: 'text-yellow-600', bgColor: 'bg-yellow-50', hoverColor: 'group-hover:text-yellow-700' },

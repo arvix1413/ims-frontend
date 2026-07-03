@@ -22,16 +22,12 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
 
   // 获取价格
   const getPrice = useCallback(async () => {
-    console.log('aaa');
-    
     const data = form.getFieldsValue();
     if (data.code) {
       try {
         const res = await designService.getDesignDetail({ design: data.code });
-        console.log(res.data);
 
         if (res.code === 200 && res.data && res.data.length > 0) {
-          
           form.setFieldsValue({ salePrice: res.data[0].salePrice });
         }
       } catch (error) {

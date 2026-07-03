@@ -1,16 +1,13 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_ENDPOINTS } from './endpoints';
+import { API_CONFIG } from '@/config/constants';
 import { UserListResponse, CreateUserRequest, ModifyUserRequest, PaginationParams, UserListRequest, DesignListResponse, DesignListRequest, DesignDetailResponse, ModifyDesignRequest, CreateDesignRequest, CreateItemRequest, SearchPageParams, ItemData, CreateOrderRequest, OrderPageRequest, OrderPageResponse, ModifyOrderRequest, HotColdListResponse, HotColdListRequest, InventoryRecordResponse, InventoryRecordRequest, CustomerListResponse, CustomerListRequest, CustomerPageResponse, CustomerData, CreateCustomerRequest, ModifyCustomerRequest, MemberListResponse, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseResponse, MemberPurchaseRequest, CreateMemberRequest, CreatePurchaseRecordRequest, MemberPurchaseHistoryRequest, MemberPurchaseHistoryResponse, EmployeeOperationLogResponse, EmployeeOperationLogRequest, ReceiptListResponse, ReceiptListRequest, PrintReceiptRequest, PrintLabelRequest, PrintDailyReportRequest, DailySaleRequest, DailySaleResponse, CashListResponse, CashListRequest, CreateCashRequest, CashDrawerListResponse, CashDrawerListRequest, CreateCashDrawerRequest, UserBasicResponse, MemberPageResponse } from './types';
 import GlobalNotification from './notificationUtils';
 
-// API基础配置
-const API_BASE_URL = 'http://119.28.104.20';
-// const API_BASE_URL = 'http://10.10.20.34:10000';
-
 // 创建axios实例
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 1000000,
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -132,22 +129,12 @@ export const api = {
 
     // 创建用户
     create: async (data: CreateUserRequest): Promise<ApiResponse> => {
-      console.log('API调用 - 创建用户:', {
-        url: API_ENDPOINTS.USER.CREATE,
-        method: 'PUT',
-        data: data
-      });
       const response = await apiClient.put<ApiResponse>(API_ENDPOINTS.USER.CREATE, data);
       return response.data;
     },
 
     // 修改用户
     modify: async (data: ModifyUserRequest): Promise<ApiResponse> => {
-      console.log('API调用 - 修改用户:', {
-        url: API_ENDPOINTS.USER.MODIFY,
-        method: 'PUT',
-        data: data
-      });
       const response = await apiClient.put<ApiResponse>(API_ENDPOINTS.USER.MODIFY, data);
       return response.data;
     },

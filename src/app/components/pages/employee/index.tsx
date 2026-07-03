@@ -128,7 +128,6 @@ export default function EmployeeManagement() {
 
   // 提交表单
   const handleSubmit = async (values: any) => {
-    console.log('handleSubmit被调用，表单提交的values:', values);
     try {
       if (editingUser) {
         // 编辑用户
@@ -137,7 +136,6 @@ export default function EmployeeManagement() {
           name: values.name,
           type: values.type,
         };
-        console.log('修改用户参数:', modifyData);
         const response = await api.user.modify(modifyData);
         if (response.code === 200) {
           message.success(t('modifySuccess'));
@@ -158,7 +156,6 @@ export default function EmployeeManagement() {
           type: values.type,
           password: values.password,
         };
-        console.log('创建用户参数:', createData);
         const response = await api.user.create(createData);
         if (response.code === 200) {
           message.success(t('createSuccess'));

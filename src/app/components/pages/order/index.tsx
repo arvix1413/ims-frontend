@@ -13,7 +13,6 @@ import { DesignDetail as DesignDetailType } from '@/lib/types';
 export default function Order() {
   const { t } = useTranslation();
   const [activeKey, setActiveKey] = useState('sl2');
-  const sladyRef = useRef<any>(null);
   const sl2Ref = useRef<any>(null);
   const liveRef = useRef<any>(null);
   
@@ -25,7 +24,7 @@ export default function Order() {
 
   // 刷新当前选中的订单列表
   const handleRefresh = () => {
-    const currentRef = activeKey === 'slady' ? sladyRef : activeKey === 'sl2' ? sl2Ref : liveRef;
+    const currentRef = activeKey === 'sl2' ? sl2Ref : liveRef;
     if (currentRef.current) {
       currentRef.current.refresh();
     }
@@ -100,18 +99,6 @@ export default function Order() {
         <OrderList
           ref={liveRef}
           warehouseName={WAREHOUSE.LIVE}
-          onRefresh={() => handleRefresh()}
-          onViewDesignDetail={handleViewDesignDetail}
-        />
-      ),
-    },
-    {
-      key: 'slady',
-      label: WAREHOUSE.SLADY,
-      children: (
-        <OrderList
-          ref={sladyRef}
-          warehouseName={WAREHOUSE.SLADY}
           onRefresh={() => handleRefresh()}
           onViewDesignDetail={handleViewDesignDetail}
         />

@@ -16,13 +16,13 @@ const zhTranslations = {
   
   // Sidebar
   designManagement: '商品管理',
-  orderManagement: '订单管理',
+  orderManagement: '进货订单',
   hotColdItems: '爆/冷款',
-  inventoryRecords: '库存修改记录',
-  memberManagement: '会员管理',
+  inventoryRecords: '库存记录',
+  memberManagement: '会员订单',
   customerManagement: '客户管理',
   employeeHistory: '员工操作历史记录',
-  billManagement: '账单管理',
+  billManagement: '销售订单',
   customerName: '客户姓名',
   customerPhone: '客户电话',
   createCustomer: '新建客户',
@@ -347,9 +347,9 @@ const zhTranslations = {
   
   // Bill Management
   billList: '账单列表',
-  printReceipt: '打印账单',
-  printReceiptSuccess: '打印账单成功',
-  printReceiptFailed: '打印账单失败',
+  printReceipt: '创建销售订单',
+  printReceiptSuccess: '销售订单创建成功',
+  printReceiptFailed: '销售订单创建失败',
   printLabel: '打印标签',
   paymentMethod: '支付方式',
   addPaymentMethod: '添加支付方式',
@@ -524,7 +524,7 @@ const enTranslations = {
   memberManagement: 'Member Management',
   customerManagement: 'Customer Management',
   employeeHistory: 'Employee History',
-  billManagement: 'Bill Management',
+  billManagement: 'Sales Orders',
   customerName: 'Customer Name',
   customerPhone: 'Customer Phone',
   createCustomer: 'Create Customer',
@@ -849,9 +849,9 @@ const enTranslations = {
   
   // Bill Management
   billList: 'Bill List',
-  printReceipt: 'Print Receipt',
-  printReceiptSuccess: 'Print receipt successful',
-  printReceiptFailed: 'Print receipt failed',
+  printReceipt: 'Create Sales Order',
+  printReceiptSuccess: 'Sales order created successfully',
+  printReceiptFailed: 'Failed to create sales order',
   printLabel: 'Print Label',
   paymentMethod: 'Payment Method',
   addPaymentMethod: 'Add Payment Method',

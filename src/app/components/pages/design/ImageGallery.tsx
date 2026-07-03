@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Spin, notification, message,Image as AntdImage } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { API_CONFIG } from '@/config/constants';
 import {
   DndContext,
   closestCenter,
@@ -48,7 +49,6 @@ export default function ImageGallery({
   onImageModify
 }: ImageGalleryProps) {
   const { t } = useTranslation();
-  const dev_url = 'http://119.28.104.20';
   
   const [imagesLoading, setImagesLoading] = useState(false);
   const [imgList, setImgList] = useState<string[]>([]);
@@ -75,7 +75,7 @@ export default function ImageGallery({
   const updateSortedImageList = useCallback(() => {
     const existingImages = restList.map((src, index) => ({
       id: `existing-${src}-${index}`,
-      src: dev_url + src,
+      src: API_CONFIG.BASE_URL + src,
       type: 'existing' as const,
       originalPath: src,
       originalIndex: index
@@ -90,7 +90,7 @@ export default function ImageGallery({
     }));
     
     setSortedImageList([...existingImages, ...uploadedImages]);
-  }, [restList, uploadList, dev_url]);
+  }, [restList, uploadList]);
 
   useEffect(() => {
     updateSortedImageList();
@@ -126,7 +126,7 @@ export default function ImageGallery({
 
   useEffect(() => {
     if (currentFolderPath) {
-      setCover([{ url: dev_url + coverPath } as UploadFile]);
+      setCover([{ url: API_CONFIG.BASE_URL + coverPath } as UploadFile]);
       fetchImageList(currentFolderPath);
     }
   }, [currentFolderPath, coverPath]);
@@ -240,7 +240,7 @@ export default function ImageGallery({
 
   const handleDownloadImages = async () => {
     try {
-      window.open(dev_url + currentFolderPath);
+      window.open(API_CONFIG.BASE_URL + currentFolderPath);
     } catch (error) {
       console.error('Download failed:', error);
       notification.error({
@@ -343,9 +343,9 @@ export default function ImageGallery({
               {t('coverColon')}
               <AntdImage 
                 style={{ width: 200 }} 
-                src={cover[0]?.url || dev_url + coverPath}
+                src={cover[0]?.url || API_CONFIG.BASE_URL + coverPath}
                 alt={t('cover')}
-                preview={{src:dev_url + coverPath}}
+                preview={{src:API_CONFIG.BASE_URL + coverPath}}
               />
             </section>
             <section style={{ display: "flex", flexWrap: "wrap", marginTop: 20 }}>
@@ -354,9 +354,9 @@ export default function ImageGallery({
                 <div key={res} style={{ width: 200, marginRight: 20, cursor: "pointer" }}>
                   <AntdImage 
                     style={{ width: "100%" }} 
-                    src={dev_url + res}
+                    src={API_CONFIG.BASE_URL + res}
                     alt={t('productImage')}
-                    preview={{src:dev_url + res}}
+                    preview={{src:API_CONFIG.BASE_URL + res}}
                   />
                 </div>
               ))}

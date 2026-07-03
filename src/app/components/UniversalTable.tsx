@@ -206,7 +206,6 @@ export default function UniversalTable({
                 type="primary"
                 loading={editDrawer.loading}
                 onClick={() => {
-                  console.log('确认按钮被点击');
                   editDrawer.form.submit();
                 }}
               >

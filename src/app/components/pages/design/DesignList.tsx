@@ -6,6 +6,7 @@ import { SearchOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { DesignItem } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
+import { API_CONFIG } from '@/config/constants';
 import TypeMultiSelect from '../../TypeMultiSelect';
 import TypeQuickSelect from '../../TypeQuickSelect';
 
@@ -51,7 +52,6 @@ export default function DesignList({
   const { t } = useTranslation();
   const { canUseFeature } = usePermissions();
   const scrollListRef = useRef<HTMLDivElement>(null);
-  const dev_url = 'http://119.28.104.20';
 
   // 多选类型变化处理
   const handleTypeChange = (value: string[]) => {
@@ -173,7 +173,7 @@ export default function DesignList({
               <img 
                 alt={item.design} 
                 style={{ height: 150, width: 150, objectFit: 'cover' }} 
-                src={dev_url + item.previewPhoto}
+                src={API_CONFIG.BASE_URL + item.previewPhoto}
                 onError={(e) => {
                   const img = e.target as HTMLImageElement;
                   // 防止无限循环：如果已经是 placeholder 就不再设置

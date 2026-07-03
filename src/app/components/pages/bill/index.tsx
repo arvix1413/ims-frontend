@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider } from 'antd';
+import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select } from 'antd';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ReceiptData, ReceiptListRequest } from '@/lib/types';
@@ -690,6 +690,21 @@ export default function BillManagement() {
             <Form.Item name="item" label="搜索产品">
               <Input placeholder={t('itemCode')} style={{ width: 200 }} />
             </Form.Item>
+            <Form.Item name="customerPhone" label="电话">
+              <Input placeholder="客户电话" style={{ width: 150 }} />
+            </Form.Item>
+            <Form.Item name="color" label="颜色">
+              <Input placeholder="颜色" style={{ width: 120 }} />
+            </Form.Item>
+            <Form.Item name="size" label="尺码">
+              <Input placeholder="尺码" style={{ width: 100 }} />
+            </Form.Item>
+            <Form.Item name="stockType" label="类型">
+              <Select placeholder="Order/In Stock" style={{ width: 150 }} allowClear>
+                <Select.Option value="order">Order</Select.Option>
+                <Select.Option value="inStock">In Stock</Select.Option>
+              </Select>
+            </Form.Item>
             <Form.Item name="createDate" label={t('createTime')}>
               <DatePicker.RangePicker 
                 placeholder={[t('startTime'), t('endTime')]} 
@@ -761,6 +776,21 @@ export default function BillManagement() {
           <Form form={form} layout="vertical" onFinish={handleSearch}>
             <Form.Item name="item" label={t('searchProduct')}>
               <Input placeholder={t('itemCode')} size="large" />
+            </Form.Item>
+            <Form.Item name="customerPhone" label="电话">
+              <Input placeholder="客户电话" size="large" />
+            </Form.Item>
+            <Form.Item name="color" label="颜色">
+              <Input placeholder="颜色" size="large" />
+            </Form.Item>
+            <Form.Item name="size" label="尺码">
+              <Input placeholder="尺码" size="large" />
+            </Form.Item>
+            <Form.Item name="stockType" label="类型">
+              <Select placeholder="Order/In Stock" size="large" allowClear>
+                <Select.Option value="order">Order</Select.Option>
+                <Select.Option value="inStock">In Stock</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item name="createDate" label={t('createTime')}>
               <DatePicker.RangePicker 

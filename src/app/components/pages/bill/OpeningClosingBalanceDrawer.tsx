@@ -149,10 +149,7 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
 
   // 删除现金抽屉余额记录
   const handleDelete = async (record: CashDrawerData) => {
-    console.log('删除按钮被点击', record);
-    
     try {
-      console.log('开始删除记录', record.id);
       await cashDrawerService.delete(record.id);
       message.success(t('删除成功'));
       fetchData(pagination.current);
@@ -199,7 +196,6 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
           danger 
           icon={<DeleteOutlined />} 
           onClick={() => {
-            console.log('按钮点击事件触发', record);
             handleDelete(record);
           }}
         >{t('delete')}</Button>

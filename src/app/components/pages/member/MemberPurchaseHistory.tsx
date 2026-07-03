@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, message, Pagination, Space, Tag, Row, Drawer, Form, Input, InputNumber, DatePicker, notification, Modal } from 'antd';
+import { Table, Button, Card, message, Pagination, Space, Tag, Row, Drawer, Form, Input, InputNumber, DatePicker, notification, Modal, Select, AutoComplete } from 'antd';
 import { ArrowLeftOutlined, PlusOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { MemberData, MemberPurchaseRecord, MemberPurchaseRequest, CreatePurchaseRecordRequest } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
-import { member } from '@/lib/api';
+import { member, item as itemApi } from '@/lib/api';
 import { designService } from '@/lib/api';
+import { STAFF_LIST } from '@/config/constants';
 import moment from 'moment';
 import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 
@@ -32,6 +33,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
   const [refundDrawerVisible, setRefundDrawerVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<MemberPurchaseRecord | null>(null);
+
+  // 缓存各行的搜索选项和仓库库存
+  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[] }>>({});
+  const codeSearchTimers = React.useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   // 获取购买记录
   const fetchPurchaseHistory = async (page = 1, searchParams: any = {}) => {
@@ -387,8 +392,20 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
           layout="inline"
           onFinish={handleSearch}
         >
-          <Form.Item name="designCode" label={t('designCode') || '商品代码'}>
-            <Input placeholder={t('pleaseEnterDesignCode') || '请输入商品代码'} style={{ width: 200 }} />
+          <Form.Item name="designCode" label="商品代码">
+            <Input placeholder="请输入商品代码" style={{ width: 150 }} />
+          </Form.Item>
+          <Form.Item name="color" label="颜色">
+            <Input placeholder="颜色" style={{ width: 120 }} />
+          </Form.Item>
+          <Form.Item name="size" label="尺码">
+            <Input placeholder="尺码" style={{ width: 100 }} />
+          </Form.Item>
+          <Form.Item name="stockType" label="类型">
+            <Select placeholder="Order/In Stock" style={{ width: 150 }} allowClear>
+              <Select.Option value="order">Order</Select.Option>
+              <Select.Option value="inStock">In Stock</Select.Option>
+            </Select>
           </Form.Item>
           
           <Form.Item>
@@ -431,12 +448,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         </div>
       </Card>
 
-      {/* {t('add')}购买记录抽屉 */}
+      {/* 新增购买记录抽屉 */}
       <Drawer
         title={t('add')+'购买记录'}
         open={createDrawerVisible}
         onClose={() => setCreateDrawerVisible(false)}
-        width={800}
+        width={900}
       >
         <Form form={form} layout="vertical" initialValues={{ status: 1, subscription: [1] }}>
           <Form.Item name="purchaseDate" label="购买日期" rules={[{ required: true, message: '请选择购买日期' }]}>
@@ -452,67 +469,97 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     添加商品
                   </Button>
                 </Form.Item>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'designCode']}
-                      rules={[{ required: true, message: '请输入商品代码' }]}
-                    >
-                      <Input
-                        placeholder="商品代码"
-                        style={{ width: 180 }}
-                        onBlur={async (e) => {
-                          const code = e.target.value;
-                          if (!code) return;
-                          try {
-                            const res = await designService.getDesignDetail({ design: code });
-                            if (res.code === 200 && res.data?.length > 0) {
-                              const d = res.data[0];
-                              const designs = form.getFieldValue('designs') || [];
-                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '', stockType: d.stockType ?? '' };
-                              form.setFieldsValue({ designs: [...designs] });
-                              notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
-                            } else {
-                              notification.warning({ message: '未找到对应商品' });
-                            }
-                          } catch { notification.error({ message: '查询失败' }); }
-                        }}
-                      />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'color']}>
-                      <Input placeholder="颜色" style={{ width: 120 }} />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'size']}>
-                      <Input placeholder="尺码" style={{ width: 100 }} />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'stockType']}>
-                      <Input placeholder="ORDER/IN STOCK" style={{ width: 140 }} />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'price']}
-                      rules={[{ required: true, message: '请输入价格' }]}
-                    >
-                      <InputNumber placeholder="价格" min={0} style={{ width: 140 }} />
-                    </Form.Item>
-                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: "red" }} />
-                  </Space>
-                ))}
+                {fields.map(({ key, name, ...restField }) => {
+                  const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
+                  const cur = (form.getFieldValue('designs') || [])[name] || {};
+                  const colorOptions = [...new Set(cache.warehouseItems.map((i: any) => i.color).filter(Boolean))];
+                  const sizeOptions = [...new Set(
+                    cache.warehouseItems
+                      .filter((i: any) => !cur.color || i.color === cur.color)
+                      .map((i: any) => i.size).filter(Boolean)
+                  )];
+
+                  const handleCodeSearch = (val: string) => {
+                    if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    if (!val) return;
+                    codeSearchTimers.current[name] = setTimeout(async () => {
+                      try {
+                        const res = await designService.getList({
+                          design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
+                        });
+                        const list = res?.data?.content ?? [];
+                        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: list } }));
+                      } catch { /* ignore */ }
+                    }, 350);
+                  };
+
+                  const handleCodeSelect = async (val: string, option: any) => {
+                    try {
+                      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      const items = res?.data ?? [];
+                      const firstColor = items[0]?.color ?? '';
+                      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
+                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+                      const designs = form.getFieldValue('designs') || [];
+                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock' };
+                      form.setFieldsValue({ designs: [...designs] });
+                    } catch { notification.error({ message: '获取库存失败' }); }
+                  };
+
+                  const handleColorChange = (val: string) => {
+                    const items = cache.warehouseItems;
+                    const firstSize = items.find((i: any) => i.color === val)?.size ?? '';
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], color: val, size: firstSize };
+                    form.setFieldsValue({ designs: [...designs] });
+                  };
+
+                  return (
+                    <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
+                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: '请输入商品代码' }]}>
+                        <AutoComplete
+                          style={{ width: 180 }}
+                          placeholder="商品代码"
+                          options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
+                          onSearch={handleCodeSearch}
+                          onSelect={handleCodeSelect}
+                          filterOption={false}
+                          allowClear
+                        />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'color']}>
+                        <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'size']}>
+                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} allowClear />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
+                        <Select style={{ width: 130 }}>
+                          <Select.Option value="inStock">In Stock</Select.Option>
+                          <Select.Option value="order">Order</Select.Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
+                        <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                    </Space>
+                  );
+                })}
               </>
             )}
           </Form.List>
-          
-          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请输入销售员' }]}>
-            <Input />
+
+          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请选择销售员' }]}>
+            <Select placeholder="请选择销售员">
+              {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            </Select>
           </Form.Item>
           <Form.Item name="remark" label="支付详情" rules={[{ required: true, message: '请输入支付详情' }]}>
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={handleCreateSubmit} block>
-              {t('confirm')}{t('add')}
-            </Button>
+            <Button type="primary" onClick={handleCreateSubmit} block>{t('confirm')}{t('add')}</Button>
           </Form.Item>
         </Form>
       </Drawer>
@@ -522,7 +569,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         title="退还"
         open={refundDrawerVisible}
         onClose={() => setRefundDrawerVisible(false)}
-        width={800}
+        width={900}
       >
         <Form form={form} layout="vertical" initialValues={{ status: 1, subscription: [1] }}>
           <Form.Item name="purchaseDate" label="购买日期" rules={[{ required: true, message: '请选择购买日期' }]}>
@@ -538,67 +585,95 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     添加商品
                   </Button>
                 </Form.Item>
-                {fields.map(({ key, name, ...restField }) => (
-                  <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'designCode']}
-                      rules={[{ required: true, message: '请输入商品代码' }]}
-                    >
-                      <Input
-                        placeholder="商品代码"
-                        style={{ width: 180 }}
-                        onBlur={async (e) => {
-                          const code = e.target.value;
-                          if (!code) return;
-                          try {
-                            const res = await designService.getDesignDetail({ design: code });
-                            if (res.code === 200 && res.data?.length > 0) {
-                              const d = res.data[0];
-                              const designs = form.getFieldValue('designs') || [];
-                              designs[name] = { ...designs[name], price: parseFloat(d.salePrice ?? 0), color: d.color?.[0] ?? '', size: d.size?.[0] ?? '', stockType: d.stockType ?? '' };
-                              form.setFieldsValue({ designs: [...designs] });
-                              notification.success({ message: `已匹配：${d.design}，售价 $${d.salePrice}` });
-                            } else {
-                              notification.warning({ message: '未找到对应商品' });
-                            }
-                          } catch { notification.error({ message: '查询失败' }); }
-                        }}
-                      />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'color']}>
-                      <Input placeholder="颜色" style={{ width: 120 }} />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'size']}>
-                      <Input placeholder="尺码" style={{ width: 100 }} />
-                    </Form.Item>
-                    <Form.Item {...restField} name={[name, 'stockType']}>
-                      <Input placeholder="ORDER/IN STOCK" style={{ width: 140 }} />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'price']}
-                      rules={[{ required: true, message: '请输入价格' }]}
-                    >
-                      <InputNumber placeholder="价格" min={0} style={{ width: 140 }} />
-                    </Form.Item>
-                    <MinusCircleOutlined onClick={() => remove(name)} style={{ color: "red" }} />
-                  </Space>
-                ))}
+                {fields.map(({ key, name, ...restField }) => {
+                  const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
+                  const cur = (form.getFieldValue('designs') || [])[name] || {};
+                  const colorOptions = [...new Set(cache.warehouseItems.map((i: any) => i.color).filter(Boolean))];
+                  const sizeOptions = [...new Set(
+                    cache.warehouseItems
+                      .filter((i: any) => !cur.color || i.color === cur.color)
+                      .map((i: any) => i.size).filter(Boolean)
+                  )];
+
+                  const handleCodeSearch = (val: string) => {
+                    if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    if (!val) return;
+                    codeSearchTimers.current[name] = setTimeout(async () => {
+                      try {
+                        const res = await designService.getList({
+                          design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
+                        });
+                        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: res?.data?.content ?? [] } }));
+                      } catch { /* ignore */ }
+                    }, 350);
+                  };
+
+                  const handleCodeSelect = async (val: string, option: any) => {
+                    try {
+                      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      const items = res?.data ?? [];
+                      const firstColor = items[0]?.color ?? '';
+                      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
+                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+                      const designs = form.getFieldValue('designs') || [];
+                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock' };
+                      form.setFieldsValue({ designs: [...designs] });
+                    } catch { notification.error({ message: '获取库存失败' }); }
+                  };
+
+                  const handleColorChange = (val: string) => {
+                    const firstSize = cache.warehouseItems.find((i: any) => i.color === val)?.size ?? '';
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], color: val, size: firstSize };
+                    form.setFieldsValue({ designs: [...designs] });
+                  };
+
+                  return (
+                    <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
+                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: '请输入商品代码' }]}>
+                        <AutoComplete
+                          style={{ width: 180 }}
+                          placeholder="商品代码"
+                          options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
+                          onSearch={handleCodeSearch}
+                          onSelect={handleCodeSelect}
+                          filterOption={false}
+                          allowClear
+                        />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'color']}>
+                        <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'size']}>
+                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} allowClear />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
+                        <Select style={{ width: 130 }}>
+                          <Select.Option value="inStock">In Stock</Select.Option>
+                          <Select.Option value="order">Order</Select.Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
+                        <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                    </Space>
+                  );
+                })}
               </>
             )}
           </Form.List>
           
-          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请输入销售员' }]}>
-            <Input />
+          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请选择销售员' }]}>
+            <Select placeholder="请选择销售员">
+              {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            </Select>
           </Form.Item>
           <Form.Item name="remark" label="支付详情" rules={[{ required: true, message: '请输入支付详情' }]}>
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={handleRefundSubmit} block>
-              {t('confirm')}退还
-            </Button>
+            <Button type="primary" onClick={handleRefundSubmit} block>{t('confirm')}退还</Button>
           </Form.Item>
         </Form>
       </Drawer>

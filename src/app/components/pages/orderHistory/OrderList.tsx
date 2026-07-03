@@ -13,8 +13,6 @@ interface OrderListProps {
   onRefresh: () => void;
 }
 
-const dev_url = 'http://119.28.104.20';
-
 const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh }, ref) => {
   const { t } = useTranslation();
   const { modal } = App.useApp();
@@ -48,7 +46,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
 
   // 获取订单数据
   const fetchOrders = async (page = 1, searchParams: any = {}) => {
-    console.log('fetchOrders called with page:', page, 'searchParams:', searchParams); // 调试信息
     setLoading(true);
     try {
       const formValues = searchForm.getFieldsValue();
@@ -99,14 +96,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
   // 暴露给父组件的方法
   useImperativeHandle(ref, () => ({
     refresh: () => {
-      console.log('refresh called via ref'); // 调试信息
       fetchOrders(1);
     }
   }));
 
   // 初始化数据
   useEffect(() => {
-    console.log('useEffect triggered for warehouseName:', warehouseName); // 调试信息
     fetchOrders();
   }, [warehouseName]);
 
@@ -215,7 +210,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
         await order.modify(modifyData);
         message.success('修改订单成功');
         setEditDrawerVisible(false);
-        console.log('Calling onRefresh after modify order'); // 调试信息
         onRefresh();
       }
     } catch (error) {
@@ -381,7 +375,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
         <img 
           style={{ height: 150, width: 120, objectFit: 'cover' }} 
           alt="" 
-          src={dev_url + item}
+          src={API_CONFIG.BASE_URL + item}
           onError={(e) => {
             const img = e.target as HTMLImageElement;
             // 防止无限循环：如果已经是 placeholder 就不再设置

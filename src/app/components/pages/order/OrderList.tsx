@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { OrderData, ModifyOrderRequest, colorList, sizeList, WAREHOUSE, OrderStatusHistory } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import { order } from '@/lib/api';
-import moment from 'moment';
+import { API_CONFIG, STAFF_LIST, PAYMENT_STATUS } from '@/config/constants';
+import StatusRenderer from '@/app/components/shared/StatusRenderer';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import { useNotification } from '@/lib/notificationManager';
@@ -15,16 +16,11 @@ import { useNotification } from '@/lib/notificationManager';
 // 设置 dayjs 的 locale
 dayjs.locale('zh-cn');
 
-// 店员列表
-const salerList = ['Serene', 'Yen', 'Xiao Li', 'Gabrielle', 'Staff'];
-
 interface OrderListProps {
   warehouseName: string;
   onRefresh: () => void;
   onViewDesignDetail?: (designId: number) => void;
 }
-
-const dev_url = 'http://119.28.104.20';
 
 const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, onViewDesignDetail }, ref) => {
   const { t } = useTranslation();
@@ -100,7 +96,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
 
   // 获取订单数据
   const fetchOrders = async (page = 1, searchParams: any = {}) => {
-    console.log('fetchOrders called with page:', page, 'searchParams:', searchParams);
     setLoading(true);
     try {
       const formValues = searchForm.getFieldsValue();
@@ -150,14 +145,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   // 暴露给父组件的方法
   useImperativeHandle(ref, () => ({
     refresh: () => {
-      console.log('refresh called via ref');
       fetchOrders(1);
     }
   }));
 
-  // 初始化数据
   useEffect(() => {
-    console.log('useEffect triggered for warehouseName:', warehouseName);
     fetchOrders();
   }, [warehouseName]);
 
@@ -203,9 +195,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         params.endDate = formValues.dateRange[1].endOf('day').format('YYYY-MM-DD HH:mm:ss');
         delete params.dateRange;
         const res = await order.export(params);
-        console.log(res);
         if (res.code === 200) {
-          window.open(dev_url + res.data);
+          window.open(API_CONFIG.BASE_URL + res.data);
           notification.success(t('exportSuccess') || '导出成功');
         } else {
           notification.error(res.msg);
@@ -292,6 +283,9 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       color: orderData.color,
       remark: orderData.remark,
       amount: orderData.amount,
+      customerContact: orderData.customerContact || '',
+      paymentFlag: orderData.paymentFlag || 'UNPAID',
+      orderedBy: orderData.orderedBy || '',
     });
     setEditDrawerVisible(true);
   };
@@ -307,12 +301,14 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           remark: values.remark,
           amount: values.amount,
           id: selectedOrder.id,
+          customerContact: values.customerContact,
+          paymentFlag: values.paymentFlag,
+          orderedBy: values.orderedBy,
         };
         
         await order.modify(modifyData);
         message.success(t('modifySuccess') || '修改订单成功');
         setEditDrawerVisible(false);
-        console.log('Calling onRefresh after modify order');
         onRefresh();
       }
     } catch (error) {
@@ -336,7 +332,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             status: '5',
             statusChangeUserId: userInfo?.id || 0,
             statusChangeUserName: userInfo?.name || '未知用户',
-            statusChangeTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+            statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
           message.success(t('voidSuccess') || '订单已作废');
           onRefresh();
@@ -408,13 +404,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     setDrawerKey(Date.now()); // 更新 key 强制重新渲染
     
     const currentDayjs = dayjs();
-    setSelectedDateTime(currentDayjs); // 设置当前时间
-    
-    console.log('当前用户信息:', userInfo);
-    console.log('创建新的 dayjs:', currentDayjs);
-    console.log('dayjs format:', currentDayjs.format('YYYY-MM-DD HH:mm:ss'));
-    console.log('dayjs valueOf:', currentDayjs.valueOf());
-    console.log('dayjs toDate:', currentDayjs.toDate());
+    setSelectedDateTime(currentDayjs);
     
     // 清空表单
     sentForm.resetFields();
@@ -444,7 +434,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             status,
             statusChangeUserId: userInfo?.id || 0,
             statusChangeUserName: userInfo?.name || '未知用户',
-            statusChangeTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+            statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
           message.success(`${statusText}成功`);
           onRefresh();
@@ -471,7 +461,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             status: '0',
             statusChangeUserId: userInfo?.id || 0,
             statusChangeUserName: userInfo?.name || '未知用户',
-            statusChangeTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+            statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
           message.success('重置状态成功');
           onRefresh();
@@ -555,7 +545,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         <img 
           style={{ height: 100, width: 80, objectFit: 'cover', cursor: 'pointer' }} 
           alt="" 
-          src={dev_url + item}
+          src={API_CONFIG.BASE_URL + item}
           onClick={() => {
             if (onViewDesignDetail) {
               const designId = (record as any).designId;
@@ -610,13 +600,28 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('time'),
       dataIndex: 'date',
       width: 110,
-      render: (data: string) => moment(data).format('YYYY-MM-DD'),
+      render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
-      title: t('orderRemark'),
-      dataIndex: 'remark',
-      key: 'remark',
+      title: '姓名电话',
+      dataIndex: 'customerContact',
+      key: 'customerContact',
       width: 150,
+    }, {
+      title: '付款',
+      dataIndex: 'paymentFlag',
+      key: 'paymentFlag',
+      width: 80,
+      render: (flag: string) => (
+        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
+          {flag || 'UNPAID'}
+        </span>
+      ),
+    }, {
+      title: '订货人',
+      dataIndex: 'orderedBy',
+      key: 'orderedBy',
+      width: 100,
     }] : []),
     {
       title: t('status'),
@@ -652,7 +657,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           {/* 商品图片 */}
           <div className="flex-shrink-0">
             <Image
-              src={dev_url + order.previewPhoto}
+              src={API_CONFIG.BASE_URL + order.previewPhoto}
               alt={order.design}
               width={60}
               height={60}
@@ -682,7 +687,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               </div>
               <div className="flex items-center justify-between">
                 <span>{t('orderAmount')}: {order.amount}</span>
-                <span>{t('time')}: {moment(order.date).format('MM-DD HH:mm')}</span>
+                <span>{t('time')}: {dayjs(order.date).format('MM-DD HH:mm')}</span>
               </div>
               {order.statusHistory && (
                 <div className="mt-2 p-2 bg-gray-50 rounded">
@@ -693,6 +698,19 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               {order.remark && (
                 <div className="text-gray-500">
                   {t('orderRemark')}: {order.remark}
+                </div>
+              )}
+              {order.customerContact && (
+                <div className="text-gray-600">
+                  姓名电话: {order.customerContact}
+                </div>
+              )}
+              {order.paymentFlag && (
+                <div>
+                  <span style={{ color: order.paymentFlag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold' }}>
+                    {order.paymentFlag}
+                  </span>
+                  {order.orderedBy && <span className="text-gray-500 ml-2">订货人: {order.orderedBy}</span>}
                 </div>
               )}
             </div>
@@ -755,8 +773,17 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           </Form.Item>
           
           {!isLogisticsUser && (
-            <Form.Item name="remark" label={t('orderRemark')} className="md:w-48 mb-4">
-              <Input placeholder={t('pleaseEnterRemark')} />
+            <Form.Item name="customerContact" label="姓名电话" className="md:w-48 mb-4">
+              <Input placeholder="请输入姓名或电话" />
+            </Form.Item>
+          )}
+          
+          {!isLogisticsUser && (
+            <Form.Item name="paymentFlag" label="付款状态" className="md:w-48 mb-4">
+              <Select placeholder="选择付款状态">
+                <Select.Option value="PAID">PAID（已付）</Select.Option>
+                <Select.Option value="UNPAID">UNPAID（未付）</Select.Option>
+              </Select>
             </Form.Item>
           )}
           
@@ -922,6 +949,34 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           </Form.Item>
           
           <Form.Item
+            name="customerContact"
+            label="姓名电话"
+          >
+            <Input placeholder="姓名 / 电话" />
+          </Form.Item>
+          
+          <Form.Item
+            name="paymentFlag"
+            label="付款状态"
+          >
+            <Select placeholder="选择付款状态">
+              <Select.Option value="PAID">PAID（已付）</Select.Option>
+              <Select.Option value="UNPAID">UNPAID（未付）</Select.Option>
+            </Select>
+          </Form.Item>
+          
+          <Form.Item
+            name="orderedBy"
+            label="订货人"
+          >
+            <Select placeholder="请选择订货人">
+              {STAFF_LIST.map(s => (
+                <Select.Option key={s} value={s}>{s}</Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          
+          <Form.Item
             name="amount"
             label={t('orderAmount')}
             rules={[
@@ -990,7 +1045,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             rules={[{ required: true, message: '请选择操作人' }]}
           >
             <Select placeholder="请选择操作人">
-              {salerList.map(s => (
+              {STAFF_LIST.map(s => (
                 <Select.Option key={s} value={s}>{s}</Select.Option>
               ))}
             </Select>
@@ -1008,8 +1063,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               placeholder="请选择时间"
               value={selectedDateTime}
               onChange={(date) => {
-                console.log('DatePicker onChange:', date);
-                console.log('DatePicker onChange toDate:', date?.toDate());
                 setSelectedDateTime(date);
               }}
             />

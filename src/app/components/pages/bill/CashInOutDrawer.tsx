@@ -149,10 +149,7 @@ export default function CashInOutDrawer({ visible, onClose }: CashInOutDrawerPro
 
   // 删除现金进出记录
   const handleDelete = async (record: CashData) => {
-    console.log('删除按钮被点击', record);
-    
     try {
-      console.log('开始删除记录', record.id);
       await cashService.delete(record.id);
       message.success(t('删除成功'));
       fetchData(pagination.current);
@@ -210,7 +207,6 @@ export default function CashInOutDrawer({ visible, onClose }: CashInOutDrawerPro
           danger 
           icon={<DeleteOutlined />} 
           onClick={() => {
-            console.log('按钮点击事件触发', record);
             handleDelete(record);
           }}
         >{t('delete')}</Button>
