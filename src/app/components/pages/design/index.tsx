@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button, Drawer, Form, InputNumber, Select, Space, Divider, App, notification, message, Input, Card, Row, Col, Spin, Image, Tag, Upload } from 'antd';
-import { PlusOutlined, MinusCircleOutlined, ExclamationCircleOutlined, SearchOutlined, RightOutlined, UploadOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusCircleOutlined, ExclamationCircleOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
 import ColorSelect from '../../ColorSelect';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
@@ -713,28 +713,30 @@ export default function Design() {
                   style={{ 
                     backgroundColor: "#fff", 
                     flex:"40%",
-                    minHeight: 150,
+                    minHeight: 130,
                     display: "flex", 
-                    borderRadius: 10, 
-                    boxShadow: "0 0 15px 0 #ddd", 
+                    borderRadius: 12, 
+                    boxShadow: "0 2px 12px 0 rgba(0,0,0,0.08)", 
                     overflow: "hidden",
                     flexShrink: 0,
                     cursor: "pointer",
-                    transition: "transform 0.2s, box-shadow 0.2s",
+                    transition: "box-shadow 0.2s, transform 0.15s",
+                    border: '1px solid #f0f0f0',
                   }}
                   onClick={() => toDetail(item)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 8px 24px 0 #ccc";
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(107,33,168,0.12)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 0 15px 0 #ddd";
+                    e.currentTarget.style.boxShadow = "0 2px 12px 0 rgba(0,0,0,0.08)";
                   }}
                 >
+                  {/* 图片 */}
                   <img 
                     alt={item.design} 
-                    style={{ height: '100%', minHeight: 150, width: 150, objectFit: 'cover', flexShrink: 0 }} 
+                    style={{ width: 130, minHeight: 130, objectFit: 'cover', flexShrink: 0 }} 
                     src={API_CONFIG.BASE_URL + item.previewPhoto}
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
@@ -743,41 +745,45 @@ export default function Design() {
                       }
                     }}
                   />
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: '12px 14px', justifyContent: "space-between" }}>
-                    {/* 顶部：款号 + 类型标签 */}
-                    <div>
-                      <h3 style={{ margin: '0 0 5px 0', fontSize: '15px', fontWeight: 'bold', color: '#6b21a8' }}>
+
+                  {/* 内容区 */}
+                  <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
+                    {/* 款号 + 价格 同行 */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.design}
-                      </h3>
+                      </span>
+                      <span style={{ fontSize: 17, fontWeight: 700, color: '#f97316', flexShrink: 0 }}>
+                        ${item.salePrice || 0}
+                      </span>
+                    </div>
+
+                    {/* 类型标签 */}
+                    <div style={{ marginTop: 4 }}>
                       <span style={{ 
-                        display: 'inline-block', background: '#f0e6ff', color: '#6b21a8',
-                        borderRadius: 4, padding: '1px 7px', fontSize: 11, marginBottom: 8
+                        background: '#ede9fe', color: '#6d28d9',
+                        borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 600,
+                        letterSpacing: '0.3px'
                       }}>{item.type}</span>
                     </div>
 
-                    {/* 中部：三仓库存 */}
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                    {/* 三仓库存：一行紧凑点状显示 */}
+                    <div style={{ display: 'flex', gap: 12, marginTop: 10, alignItems: 'center' }}>
                       {[
-                        { label: '店内', value: item.inStoreStock ?? 0, color: '#52c41a', bg: '#f6ffed', border: '#b7eb8f' },
-                        { label: '代存', value: item.tempStoreStock ?? 0, color: '#1890ff', bg: '#e6f4ff', border: '#91caff' },
-                        { label: '未付', value: item.unpaidStock ?? 0, color: '#faad14', bg: '#fffbe6', border: '#ffe58f' },
-                      ].map(({ label, value, color, bg, border }) => (
-                        <div key={label} style={{
-                          flex: 1, textAlign: 'center', background: bg,
-                          border: `1px solid ${border}`, borderRadius: 5, padding: '3px 4px'
-                        }}>
-                          <div style={{ fontSize: 10, color: '#888', marginBottom: 1 }}>{label}</div>
-                          <div style={{ fontSize: 14, fontWeight: 'bold', color }}>{value}</div>
+                        { label: '店内', value: item.inStoreStock ?? 0, color: '#16a34a' },
+                        { label: '代存', value: item.tempStoreStock ?? 0, color: '#2563eb' },
+                        { label: '未付', value: item.unpaidStock ?? 0, color: '#d97706' },
+                      ].map(({ label, value, color }) => (
+                        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ 
+                            width: 6, height: 6, borderRadius: '50%', 
+                            background: value > 0 ? color : '#d1d5db', 
+                            flexShrink: 0, display: 'inline-block'
+                          }} />
+                          <span style={{ fontSize: 12, color: '#6b7280' }}>{label}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: value > 0 ? color : '#9ca3af' }}>{value}</span>
                         </div>
                       ))}
-                    </div>
-
-                    {/* 底部：价格 + 箭头 */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#fa9829' }}>
-                        ${item.salePrice || 0}
-                      </span>
-                      <RightOutlined style={{ color: "#b67c39", fontSize: 14 }} />
                     </div>
                   </div>
                 </div>
