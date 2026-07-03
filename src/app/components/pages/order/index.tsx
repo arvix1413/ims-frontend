@@ -120,6 +120,7 @@ export default function Order() {
         onEditDrawerClose={() => setEditDrawerVisible(false)}
         onEditSubmit={() => {}}
         editForm={editForm}
+        hideEditDelete={true}
       />
     );
   }

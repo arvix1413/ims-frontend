@@ -521,7 +521,7 @@ const enTranslations = {
   orderManagement: 'Order Management',
   hotColdItems: 'Hot/Cold Items',
   inventoryRecords: 'Inventory Records',
-  memberManagement: 'Member Management',
+  memberManagement: 'Member Orders',
   customerManagement: 'Customer Management',
   employeeHistory: 'Employee History',
   billManagement: 'Sales Orders',

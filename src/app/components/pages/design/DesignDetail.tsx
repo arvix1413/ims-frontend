@@ -25,6 +25,7 @@ interface DesignDetailProps {
   onEditDrawerClose: () => void;
   onEditSubmit: () => void;
   editForm: any;
+  hideEditDelete?: boolean; // 是否隐藏编辑删除按钮（进货订单详情页不需要）
 }
 
 export default function DesignDetail({
@@ -37,7 +38,8 @@ export default function DesignDetail({
   editDrawerVisible,
   onEditDrawerClose,
   onEditSubmit,
-  editForm
+  editForm,
+  hideEditDelete = false
 }: DesignDetailProps) {
   const { t } = useTranslation();
   const { isSaler, isAdmin, canUseFeature, userInfo } = usePermissions();
@@ -299,7 +301,7 @@ export default function DesignDetail({
             {t('backToList')}
           </Button>
 
-          {!isSaler() && (
+          {!isSaler() && !hideEditDelete && (
             <div>
               <Button 
                 type="primary" 
@@ -475,7 +477,7 @@ export default function DesignDetail({
           {t('backToList')}
         </Button>
 
-        {!isSaler() && (
+        {!isSaler() && !hideEditDelete && (
           <div className="flex gap-3 mb-4">
             <Button 
               type="primary" 
