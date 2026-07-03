@@ -123,10 +123,18 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
   const handleCreateSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      if (!values.designs || values.designs.length === 0) {
+        notification.error({
+          message: '请添加商品',
+          description: '至少需要添加一件商品',
+        });
+        return;
+      }
       
       // 计算总金额
-      const sum = values.designs.reduce((total: number, item: any) => {
-        return total + (item.price || 0);
+      const sum = (values.designs as any[]).reduce((total: number, item: any) => {
+        return total + (Number(item?.price) || 0);
       }, 0);
 
       const params: CreatePurchaseRecordRequest = {
@@ -169,10 +177,18 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
   const handleRefundSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      if (!values.designs || values.designs.length === 0) {
+        notification.error({
+          message: '请添加商品',
+          description: '至少需要添加一件商品',
+        });
+        return;
+      }
       
       // 计算总金额（负数）
-      const sum = values.designs.reduce((total: number, item: any) => {
-        return total + (item.price || 0);
+      const sum = (values.designs as any[]).reduce((total: number, item: any) => {
+        return total + (Number(item?.price) || 0);
       }, 0);
 
       const params: CreatePurchaseRecordRequest = {

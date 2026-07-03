@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, InputNumber, DatePicker, notification, Space, Tag, Row, Dropdown, Menu } from 'antd';
+import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, InputNumber, DatePicker, notification, Space, Tag, Row, Dropdown } from 'antd';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, MoreOutlined, DollarOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { MemberData, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseRecord, MemberPurchaseRequest, CreateMemberRequest } from '@/lib/types';
@@ -429,34 +429,44 @@ export default function MemberManagement() {
       width: 80,
       fixed: 'right' as const,
       render: (_: any, record: MemberData) => {
-        const menuItems = [
-          <Menu.Item key="modify" icon={<EditOutlined />} onClick={() => handleModify(record)}>
-            {t('modify')}
-          </Menu.Item>,
-          <Menu.Item key="topUp" icon={<PlusOutlined />} onClick={() => handleTopUp(record)}>
-            {t('topUp')}
-          </Menu.Item>,
-          <Menu.Item key="detail" icon={<EyeOutlined />} onClick={() => handleViewPurchase(record)}>
-            {t('detailRecord')}
-          </Menu.Item>,
+        const menuItems: any[] = [
+          {
+            key: 'modify',
+            icon: <EditOutlined />,
+            label: t('modify'),
+            onClick: () => handleModify(record),
+          },
+          {
+            key: 'topUp',
+            icon: <PlusOutlined />,
+            label: t('topUp'),
+            onClick: () => handleTopUp(record),
+          },
+          {
+            key: 'detail',
+            icon: <EyeOutlined />,
+            label: t('detailRecord'),
+            onClick: () => handleViewPurchase(record),
+          },
         ];
 
         // 只有有删除权限的用户才能看到删除选项
         if (canUseFeature('deleteMember')) {
           menuItems.push(
-            <Menu.Divider key="divider" />,
-            <Menu.Item key="delete" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record)}>
-              {t('delete')}
-            </Menu.Item>
+            { type: 'divider' as const },
+            {
+              key: 'delete',
+              danger: true,
+              icon: <DeleteOutlined />,
+              label: t('delete'),
+              onClick: () => handleDelete(record),
+            }
           );
         }
 
-        const menu = <Menu>{menuItems}</Menu>;
-
         return (
-          <Dropdown overlay={menu} trigger={['click']}>
-            <Button type="link" icon={<MoreOutlined />}>
-            </Button>
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+            <Button type="link" icon={<MoreOutlined />} />
           </Dropdown>
         );
       },

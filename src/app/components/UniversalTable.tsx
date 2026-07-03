@@ -10,7 +10,6 @@ import {
   Form,
   Card,
   Dropdown,
-  Menu,
   message,
 } from 'antd';
 import {
@@ -70,21 +69,14 @@ export default function UniversalTable({
       const visibleActions = actions.slice(0, maxVisibleActions - 1);
       const hiddenActions = actions.slice(maxVisibleActions - 1);
 
-      const menu = (
-        <Menu>
-          {hiddenActions.map((action) => (
-            <Menu.Item
-              key={action.key}
-              icon={action.icon}
-              danger={action.danger}
-              disabled={action.disabled}
-              onClick={() => action.onClick(record)}
-            >
-              {action.label}
-            </Menu.Item>
-          ))}
-        </Menu>
-      );
+      const menuItems = hiddenActions.map((action) => ({
+        key: action.key,
+        icon: action.icon,
+        danger: action.danger,
+        disabled: action.disabled,
+        label: action.label,
+        onClick: () => action.onClick(record),
+      }));
 
       return (
         <Space size="middle">
@@ -100,7 +92,7 @@ export default function UniversalTable({
               {action.label}
             </Button>
           ))}
-          <Dropdown overlay={menu} trigger={['click']}>
+          <Dropdown menu={{ items: menuItems }} trigger={['click']}>
             <Button type="link" icon={<MoreOutlined />}>
               更多
             </Button>
