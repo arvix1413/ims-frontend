@@ -432,20 +432,20 @@ export default function BillManagement() {
   };
 
   // 表格列定义
-  const baseColumns = [
+  const baseColumns: any[] = [
     {
       title: t('receiptId'),
       dataIndex: 'id',
       key: 'id',
       width: 80,
-      fixed: 'left' as const,
+      fixed: 'left',
     },
     {
       title: t('itemCode'),
       dataIndex: 'refNo',
       key: 'refNo',
       width: 130,
-      fixed: 'left' as const,
+      fixed: 'left',
     },
     {
       title: t('item'),
@@ -564,7 +564,7 @@ export default function BillManagement() {
           dataIndex: 'id',
           key: 'reprint',
           width: 100,
-          fixed: 'right' as const,
+          fixed: 'right',
           render: (id: number) => (
             <Button onClick={() => handleReprint(id)}>
               reprint
@@ -575,7 +575,7 @@ export default function BillManagement() {
           title: t('operation'),
           key: 'action',
           width: 150,
-          fixed: 'right' as const,
+          fixed: 'right',
           render: (_: any, record: ReceiptData) => (
             <Button 
               type="primary" 

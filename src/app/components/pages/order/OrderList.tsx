@@ -535,12 +535,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   });
 
   // 桌面端表格列定义
-  const columns = [
+  const columns: any[] = [
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
       width: 120,
-      fixed: 'left' as const,
+      fixed: 'left',
       render: (item: string, record: OrderData) => (
         <img 
           style={{ height: 100, width: 80, objectFit: 'cover', cursor: 'pointer' }} 
@@ -566,7 +566,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       dataIndex: 'design',
       key: 'design',
       width: 120,
-      fixed: 'left' as const,
+      fixed: 'left',
     },
     {
       title: t('orderPrice'),
@@ -647,7 +647,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('operation'),
       key: 'action',
       width: 80,
-      fixed: 'right' as const,
+      fixed: 'right',
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<MoreOutlined />} />
