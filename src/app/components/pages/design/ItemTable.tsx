@@ -52,7 +52,11 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
 
   const handleModifyStock = (itemData: ItemData) => {
     setCurrentItem(itemData);
-    stockForm.setFieldsValue({ stock: itemData.stock });
+    stockForm.setFieldsValue({
+      inStoreStock: itemData.inStoreStock ?? 0,
+      tempStoreStock: itemData.tempStoreStock ?? 0,
+      unpaidStock: itemData.unpaidStock ?? 0,
+    });
     setStockDrawerVisible(true);
   };
 
@@ -60,7 +64,12 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
     try {
       const values = await stockForm.validateFields();
       if (currentItem) {
-        await item.modifyStock(currentItem.id, values.stock);
+        await item.modifyWarehouseStock(
+          currentItem.id,
+          values.inStoreStock ?? 0,
+          values.tempStoreStock ?? 0,
+          values.unpaidStock ?? 0,
+        );
         message.success(t('stockModifySuccess'));
         setStockDrawerVisible(false);
         onRefresh();
@@ -262,27 +271,31 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
         onClose={() => setStockDrawerVisible(false)}
         width={400}
       >
-        <Form
-          form={stockForm}
-          layout="vertical"
-          onFinish={handleStockSubmit}
-        >
+        <Form form={stockForm} layout="vertical" onFinish={handleStockSubmit}>
+          <div style={{ marginBottom: 16, padding: '8px 12px', background: '#f5f5f5', borderRadius: 6, fontSize: 13, color: '#666' }}>
+            {currentItem?.color} / {currentItem?.size}
+          </div>
           <Form.Item
-            label={t('stockQuantity')}
-            name="stock"
-            rules={[
-              { required: true, message: t('pleaseEnter') + t('stockQuantity') },
-              { type: 'number', min: 0, message: t('stockQuantity') + t('cannotBeLessThanZero') }
-            ]}
+            label="店内仓"
+            name="inStoreStock"
+            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
           >
-            <InputNumber
-              style={{ width: '100%' }}
-              min={0}
-              precision={0}
-              placeholder={t('stockQuantity')}
-            />
+            <InputNumber style={{ width: '100%' }} min={0} precision={0} />
           </Form.Item>
-          
+          <Form.Item
+            label="代存仓"
+            name="tempStoreStock"
+            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+          >
+            <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+          </Form.Item>
+          <Form.Item
+            label="未付仓"
+            name="unpaidStock"
+            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+          >
+            <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               {t('confirmModify')}

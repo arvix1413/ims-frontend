@@ -263,6 +263,12 @@ export const item = {
     const response = await apiClient.put<ApiResponse>(`/item/modify-stock?id=${id}&stock=${stock}`);
     return response.data;
   },
+
+  // 按三仓分别修改库存
+  modifyWarehouseStock: async (id: number, inStoreStock: number, tempStoreStock: number, unpaidStock: number): Promise<ApiResponse> => {
+    const response = await apiClient.put<ApiResponse>(`/item/modify-warehouse-stock?id=${id}&inStoreStock=${inStoreStock}&tempStoreStock=${tempStoreStock}&unpaidStock=${unpaidStock}`);
+    return response.data;
+  },
   
   // 创建商品
   create: async (params: CreateItemRequest): Promise<ApiResponse> => {

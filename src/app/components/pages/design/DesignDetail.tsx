@@ -131,7 +131,11 @@ export default function DesignDetail({
   // 移动端库存操作
   const handleModifyStock = (itemData: ItemData) => {
     setCurrentItem(itemData);
-    stockForm.setFieldsValue({ stock: itemData.stock });
+    stockForm.setFieldsValue({
+      inStoreStock: itemData.inStoreStock ?? 0,
+      tempStoreStock: itemData.tempStoreStock ?? 0,
+      unpaidStock: itemData.unpaidStock ?? 0,
+    });
     setStockDrawerVisible(true);
   };
 
@@ -139,7 +143,12 @@ export default function DesignDetail({
     try {
       const values = await stockForm.validateFields();
       if (currentItem) {
-        await item.modifyStock(currentItem.id, values.stock);
+        await item.modifyWarehouseStock(
+          currentItem.id,
+          values.inStoreStock ?? 0,
+          values.tempStoreStock ?? 0,
+          values.unpaidStock ?? 0,
+        );
         message.success(t('stockModifySuccess'));
         setStockDrawerVisible(false);
         handleRefreshItems();
@@ -959,7 +968,7 @@ export default function DesignDetail({
         <Drawer
           title={t('modifyStock')}
           placement="bottom"
-          height="50%"
+          height="55%"
           onClose={() => setStockDrawerVisible(false)}
           open={stockDrawerVisible}
           footer={
@@ -974,15 +983,17 @@ export default function DesignDetail({
           }
         >
           <Form form={stockForm} layout="vertical">
-            <Form.Item
-              name="stock"
-              label={t('stockQuantity')}
-              rules={[
-                { required: true, message: t('pleaseEnterStockQuantity') },
-                { type: 'number', min: 0, message: t('stockQuantityMustBePositive') }
-              ]}
-            >
-              <InputNumber size="large" style={{ width: '100%' }} min={0} />
+            <div style={{ marginBottom: 12, fontSize: 13, color: '#666' }}>
+              {currentItem?.color} / {currentItem?.size}
+            </div>
+            <Form.Item name="inStoreStock" label="店内仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
+            </Form.Item>
+            <Form.Item name="tempStoreStock" label="代存仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
+            </Form.Item>
+            <Form.Item name="unpaidStock" label="未付仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
+              <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
             </Form.Item>
           </Form>
         </Drawer>
