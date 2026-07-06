@@ -515,6 +515,7 @@ export interface PrintReceiptRequest {
   customerId?: number;
   customerName?: string;
   customerPhone?: string;
+  memberId?: number;
 }
 
 // Package充值配置

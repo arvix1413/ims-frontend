@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData } from '@/lib/types';
+import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData } from '@/lib/types';
 import { receipt, designService, customerApi, member, item as itemApi } from '@/lib/api';
 import { PACKAGE_TOPUP_MAP } from '@/config/constants';
 import moment from 'moment';
@@ -27,7 +27,7 @@ const calcFinalPrice = (price: number = 0, discountPercent: number = 0, discount
 
 export const shops = ['',  'Slady Fashion Pte. Ltd.','SL Studio Pte. Ltd.',];
 export const saler = ['Serene', 'Yen', 'Xiao Li','Gabrielle','Staff'];
-export const paymentList = ['Bank Transfer/Pay Now','PayLah', 'Wechat Pay', 'Alipay', 'Cash', 'Nets', 'VISA', 'Master', 'Union', 'Slady Voucher', 'AMEX', 'Mall Voucher'];
+export const paymentList = ['Bank Transfer/Pay Now','PayLah', 'Wechat Pay', 'Alipay', 'Cash', 'Nets', 'VISA', 'Master', 'Union', 'Slady Voucher', 'AMEX', 'Mall Voucher', 'Member Balance'];
 
 let index = 0;
 
@@ -41,6 +41,9 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const [newPayment, setNewPayment] = useState(paymentList);
   const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
   const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
+  const [memberOptions, setMemberOptions] = useState<{ value: string; label: string; member: MemberData }[]>([]);
+  const memberSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // refs 持久化状态（不会触发重渲染）
   const addRef = useRef<((defaultValue?: any, insertIndex?: number) => void) | null>(null);
@@ -193,6 +196,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       totalPrice,
       store: shop,
       address: shop === 1 ? 'Raffles City (#03-29B)' : 'Raffles Place (#04-24/25)',
+      memberId: selectedMember?.id ?? undefined,
       item: itemForm.item?.map((item: any) => ({ 
         ...item, 
         finalPrice: calcFinalPrice(item.price, item.discountPercent, item.discount, item.qty),
@@ -324,6 +328,43 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     }
   };
 
+  const searchMembersByKeyword = (keyword: string) => {
+    if (!keyword || keyword.length < 1) {
+      setMemberOptions([]);
+      return;
+    }
+    if (memberSearchTimer.current) clearTimeout(memberSearchTimer.current);
+    memberSearchTimer.current = setTimeout(async () => {
+      try {
+        const res = await member.getList({
+          phone: keyword,
+          searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' },
+        });
+        const list: MemberData[] = Array.isArray(res.data) ? res.data : [];
+        setMemberOptions(
+          list.map((m) => ({
+            value: m.phone,
+            label: `${m.phone} — ${m.name} (余额: $${Number(m.balance ?? 0).toFixed(2)})`,
+            member: m,
+          }))
+        );
+      } catch (e) {
+        console.error('member search failed', e);
+      }
+    }, 300);
+  };
+
+  const onMemberSelect = (_value: string, option: { member?: MemberData }) => {
+    if (option?.member) {
+      setSelectedMember(option.member);
+    }
+  };
+
+  const onMemberClear = () => {
+    setSelectedMember(null);
+    setMemberOptions([]);
+  };
+
   const onReset = useCallback(() => {
     form.setFieldsValue({
       shop: shops[0], 
@@ -335,6 +376,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       customerPhone: undefined,
     });
     setCustomerOptions([]);
+    setSelectedMember(null);
+    setMemberOptions([]);
   }, [form]);
 
   const onPackage = useCallback((value: number) => {
@@ -417,6 +460,26 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         </div>
         <Form.Item name="customerName" label={t('customerName')} style={{ marginBottom: 24 }}>
           <Input style={{ width: 280 }} placeholder={t('customerName')} />
+        </Form.Item>
+
+        {/* 会员选择 */}
+        <Form.Item label="会员 (Member)" style={{ marginBottom: 8 }}>
+          <AutoComplete
+            style={{ width: 380 }}
+            options={memberOptions}
+            onSearch={searchMembersByKeyword}
+            onSelect={onMemberSelect}
+            onClear={onMemberClear}
+            allowClear
+            placeholder="输入电话搜索会员"
+            value={selectedMember ? `${selectedMember.phone} — ${selectedMember.name}` : undefined}
+          />
+          {selectedMember && (
+            <div style={{ marginTop: 6, fontSize: 13, color: '#1890ff' }}>
+              余额: <strong>${Number(selectedMember.balance ?? 0).toFixed(2)}</strong>
+              &nbsp;&nbsp;会员: <strong>{selectedMember.name}</strong>
+            </div>
+          )}
         </Form.Item>
 
         {/* Items 列表 */}
