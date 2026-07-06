@@ -844,13 +844,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <div className="hidden md:block">
+      <div className="hidden md:block" style={{ width: '100%', overflow: 'hidden' }}>
         <Table
           columns={columns}
           dataSource={data}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 1400 }}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
