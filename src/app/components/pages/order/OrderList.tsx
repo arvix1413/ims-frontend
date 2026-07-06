@@ -657,7 +657,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('operation'),
       key: 'action',
       width: 80,
-      fixed: 'right' as const,
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<MoreOutlined />} />
