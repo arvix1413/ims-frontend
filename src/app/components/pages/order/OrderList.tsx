@@ -562,20 +562,20 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       ),
     },
     {
-      title: t('orderCode'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderCode')}</div>,
       dataIndex: 'design',
       key: 'design',
       width: 150,
       fixed: 'left' as const,
     },
     {
-      title: t('orderPrice'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderPrice')}</div>,
       dataIndex: 'salePrice',
       key: 'salePrice',
       width: 100,
     },
     {
-      title: t('orderColor'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderColor')}</div>,
       dataIndex: 'color',
       key: 'color',
       width: 120,
@@ -585,40 +585,40 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       },
     },
     {
-      title: t('orderSize'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderSize')}</div>,
       dataIndex: 'size',
       key: 'size',
       width: 80,
     },
     {
-      title: t('orderAmount'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderAmount')}</div>,
       dataIndex: 'amount',
       key: 'amount',
       width: 80,
     },
     {
-      title: t('time'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('time')}</div>,
       dataIndex: 'date',
       width: 120,
       render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
-      title: '姓名电话',
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('customerContact')}</div>,
       dataIndex: 'customerContact',
       key: 'customerContact',
       width: 150,
     }, {
-      title: '订单类型',
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderType')}</div>,
       dataIndex: 'type',
       key: 'type',
       width: 90,
       render: (type: number) => (
         <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
-          {type === 0 ? '店补' : type === 1 ? '客定' : '-'}
+          {type === 0 ? t('storeSupply') : type === 1 ? t('customerOrder') : '-'}
         </span>
       ),
     }, {
-      title: '付款',
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('paymentStatus')}</div>,
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
       width: 90,
@@ -628,12 +628,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         </span>
       ),
     }, {
-      title: '订货人',
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderedBy')}</div>,
       dataIndex: 'orderedBy',
       key: 'orderedBy',
       width: 100,
     }, {
-      title: t('orderRemark'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderRemark')}</div>,
       dataIndex: 'remark',
       key: 'remark',
       width: 200,
@@ -642,19 +642,19 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       ),
     }] : []),
     {
-      title: t('status'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('status')}</div>,
       dataIndex: 'status',
       width: 100,
       render: (value: string) => renderStatus(value),
     },
     {
-      title: t('statusLog') || '日志',
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('statusLog')}</div>,
       dataIndex: 'statusHistory',
       width: 250,
       render: (value: string) => renderStatusHistory(value),
     },
     {
-      title: t('operation'),
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('operation')}</div>,
       key: 'action',
       width: 80,
       render: (_: any, record: OrderData) => (
@@ -719,13 +719,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               )}
               {order.customerContact && (
                 <div className="text-gray-600">
-                  姓名电话: {order.customerContact}
+                  {t('customerContact')}: {order.customerContact}
                 </div>
               )}
               {typeof order.type !== 'undefined' && (
                 <div>
                   <span style={{ color: order.type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold' }}>
-                    {order.type === 0 ? '店补' : '客定'}
+                    {order.type === 0 ? t('storeSupply') : t('customerOrder')}
                   </span>
                 </div>
               )}
@@ -734,7 +734,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                   <span style={{ color: order.paymentFlag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold' }}>
                     {order.paymentFlag}
                   </span>
-                  {order.orderedBy && <span className="text-gray-500 ml-2">订货人: {order.orderedBy}</span>}
+                  {order.orderedBy && <span className="text-gray-500 ml-2">{t('orderedBy')}: {order.orderedBy}</span>}
                 </div>
               )}
             </div>
@@ -797,8 +797,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           </Form.Item>
           
           {!isLogisticsUser && (
-            <Form.Item name="customerContact" label="姓名电话" className="md:w-48 mb-4">
-              <Input placeholder="请输入姓名或电话" />
+            <Form.Item name="customerContact" label={t('customerContact')} className="md:w-48 mb-4">
+              <Input placeholder={t('pleaseEnterName') + '/' + t('pleaseEnterPhone')} />
             </Form.Item>
           )}
           
@@ -809,10 +809,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           )}
           
           {!isLogisticsUser && (
-            <Form.Item name="paymentFlag" label="付款状态" className="md:w-48 mb-4">
-              <Select placeholder="选择付款状态">
-                <Select.Option value="PAID">PAID（已付）</Select.Option>
-                <Select.Option value="UNPAID">UNPAID（未付）</Select.Option>
+            <Form.Item name="paymentFlag" label={t('paymentStatus')} className="md:w-48 mb-4">
+              <Select placeholder={t('pleaseSelect') + t('paymentStatus')}>
+                <Select.Option value="PAID">PAID（{t('paid')}）</Select.Option>
+                <Select.Option value="UNPAID">UNPAID（{t('unpaid')}）</Select.Option>
               </Select>
             </Form.Item>
           )}
@@ -843,16 +843,17 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <Card className="hidden md:block" style={{ maxWidth: '76vw', width: '100%', overflow: 'hidden' }}>
+      <Card className="hidden md:block" style={{ maxWidth: '70vw', width: '100%', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <Table
             columns={columns}
             dataSource={data}
             loading={loading}
             rowKey="id"
-            scroll={{ x: 1200 }}
+            scroll={{ x: 1400 }}
             pagination={false}
-            style={{ minWidth: 1200 }}
+            style={{ minWidth: 1400 }}
+            size="small"
           />
         </div>
         
@@ -960,7 +961,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           <Form.Item
             name="size"
             label={t('orderSize')}
-            rules={[{ required: true, message: '请选择尺寸' }]}
+            rules={[{ required: true, message: t('pleaseSelectSize') }]}
           >
             <Select
               placeholder={t('pleaseSelectSize')}
@@ -971,7 +972,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           <Form.Item
             name="color"
             label={t('orderColor')}
-            rules={[{ required: true, message: '请选择颜色' }]}
+            rules={[{ required: true, message: t('pleaseSelectColor') }]}
           >
             <Select
               placeholder={t('pleaseSelectColor')}
@@ -988,26 +989,26 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           
           <Form.Item
             name="customerContact"
-            label="姓名电话"
+            label={t('customerContact')}
           >
-            <Input placeholder="姓名 / 电话" />
+            <Input placeholder={t('name') + ' / ' + t('phone')} />
           </Form.Item>
           
           <Form.Item
             name="paymentFlag"
-            label="付款状态"
+            label={t('paymentStatus')}
           >
-            <Select placeholder="选择付款状态">
-              <Select.Option value="PAID">PAID（已付）</Select.Option>
-              <Select.Option value="UNPAID">UNPAID（未付）</Select.Option>
+            <Select placeholder={t('pleaseSelect') + t('paymentStatus')}>
+              <Select.Option value="PAID">PAID（{t('paid')}）</Select.Option>
+              <Select.Option value="UNPAID">UNPAID（{t('unpaid')}）</Select.Option>
             </Select>
           </Form.Item>
           
           <Form.Item
             name="orderedBy"
-            label="订货人"
+            label={t('orderedBy')}
           >
-            <Select placeholder="请选择订货人">
+            <Select placeholder={t('pleaseSelect') + t('orderedBy')}>
               {STAFF_LIST.map(s => (
                 <Select.Option key={s} value={s}>{s}</Select.Option>
               ))}
@@ -1018,8 +1019,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             name="amount"
             label={t('orderAmount')}
             rules={[
-              { required: true, message: '请输入数量' },
-              { type: 'number', min: 1, message: '数量必须大于0' }
+              { required: true, message: t('pleaseEnterAmount') },
+              { type: 'number', min: 1, message: t('mustBeGreaterThanZero') }
             ]}
           >
             <InputNumber
@@ -1032,7 +1033,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           
           <Form.Item className="hidden md:block">
             <Button type="primary" htmlType="submit" block>
-              确认修改
+              {t('confirm') + t('modify')}
             </Button>
           </Form.Item>
         </Form>
@@ -1059,10 +1060,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         }
       >
         <div style={{ marginBottom: 16 }}>
-          <p>订单: <strong>{selectedOrder?.design}</strong></p>
-          <p>颜色: {selectedOrder?.color}</p>
-          <p>尺寸: {selectedOrder?.size}</p>
-          <p>数量: {selectedOrder?.amount}</p>
+          <p>{t('orderCode')}: <strong>{selectedOrder?.design}</strong></p>
+          <p>{t('orderColor')}: {selectedOrder?.color}</p>
+          <p>{t('orderSize')}: {selectedOrder?.size}</p>
+          <p>{t('orderAmount')}: {selectedOrder?.amount}</p>
         </div>
         
         <Form
@@ -1080,9 +1081,9 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           <Form.Item
             name="statusChangeUserName"
             label={t('operator')}
-            rules={[{ required: true, message: '请选择操作人' }]}
+            rules={[{ required: true, message: t('pleaseSelect') + t('operator') }]}
           >
-            <Select placeholder="请选择操作人">
+            <Select placeholder={t('pleaseSelect') + t('operator')}>
               {STAFF_LIST.map(s => (
                 <Select.Option key={s} value={s}>{s}</Select.Option>
               ))}
@@ -1098,7 +1099,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               showTime 
               format="YYYY-MM-DD HH:mm:ss"
               style={{ width: '100%' }}
-              placeholder="请选择时间"
+              placeholder={t('pleaseSelectTime')}
               value={selectedDateTime}
               onChange={(date) => {
                 setSelectedDateTime(date);

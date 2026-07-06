@@ -345,6 +345,16 @@ const zhTranslations = {
   manageEmployeeInfoAndPermissions: '管理系统员工信息和权限',
   totalRecordsCount: '共 {total} 条记录',
   
+  // Order Management additional translations
+  customerContact: '姓名电话',
+  orderType: '订单类型',
+  paymentStatus: '付款状态',
+  orderedBy: '订货人',
+  storeSupply: '店补',
+  paid: '已付',
+  unpaid: '未付',
+  pleaseSelectTime: '请选择时间',
+  
   // Bill Management
   billList: '账单列表',
   printReceipt: '创建销售订单',
@@ -846,6 +856,16 @@ const enTranslations = {
   question: '?',
   manageEmployeeInfoAndPermissions: 'Manage employee information and permissions',
   totalRecordsCount: 'Total {total} records',
+  
+  // Order Management additional translations
+  customerContact: 'Customer Contact',
+  orderType: 'Order Type',
+  paymentStatus: 'Payment Status',
+  orderedBy: 'Ordered By',
+  storeSupply: 'Store Supply',
+  paid: 'Paid',
+  unpaid: 'Unpaid',
+  pleaseSelectTime: 'Please select time',
   
   // Bill Management
   billList: 'Bill List',
