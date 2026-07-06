@@ -539,11 +539,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 100,
+      width: 80,
       fixed: 'left' as const,
       render: (item: string, record: OrderData) => (
         <img 
-          style={{ height: 80, width: 64, objectFit: 'cover', cursor: 'pointer' }} 
+          style={{ height: 60, width: 48, objectFit: 'cover', cursor: 'pointer' }} 
           alt="" 
           src={API_CONFIG.BASE_URL + item}
           onClick={() => {
@@ -565,20 +565,20 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderCode'),
       dataIndex: 'design',
       key: 'design',
-      width: 120,
+      width: 100,
       fixed: 'left' as const,
     },
     {
       title: t('orderPrice'),
       dataIndex: 'salePrice',
       key: 'salePrice',
-      width: 100,
+      width: 80,
     },
     {
       title: t('orderColor'),
       dataIndex: 'color',
       key: 'color',
-      width: 120,
+      width: 100,
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
@@ -588,32 +588,33 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderSize'),
       dataIndex: 'size',
       key: 'size',
-      width: 80,
+      width: 60,
     },
     {
       title: t('orderAmount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 80,
+      width: 60,
     },
     {
       title: t('time'),
       dataIndex: 'date',
-      width: 120,
-      render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
+      width: 100,
+      render: (data: string) => dayjs(data).format('MM-DD'),
     },
     ...(!isLogisticsUser ? [{
       title: '姓名电话',
       dataIndex: 'customerContact',
       key: 'customerContact',
-      width: 150,
+      width: 120,
+      ellipsis: true,
     }, {
-      title: '订单类型',
+      title: '类型',
       dataIndex: 'type',
       key: 'type',
-      width: 90,
+      width: 60,
       render: (type: number) => (
-        <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
+        <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 11 }}>
           {type === 0 ? '店补' : type === 1 ? '客定' : '-'}
         </span>
       ),
@@ -621,46 +622,46 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: '付款',
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 90,
+      width: 70,
       render: (flag: string) => (
-        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
-          {flag || 'UNPAID'}
+        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 11 }}>
+          {flag === 'PAID' ? 'PAID' : 'UNPAID'}
         </span>
       ),
     }, {
       title: '订货人',
       dataIndex: 'orderedBy',
       key: 'orderedBy',
-      width: 100,
+      width: 80,
+      ellipsis: true,
     }, {
       title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
-      width: 200,
-      render: (text: string) => (
-        <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
-      ),
+      width: 150,
+      ellipsis: true,
     }] : []),
     {
       title: t('status'),
       dataIndex: 'status',
-      width: 100,
+      width: 80,
       render: (value: string) => renderStatus(value),
     },
     {
-      title: t('statusLog') || '日志',
+      title: '日志',
       dataIndex: 'statusHistory',
-      width: 250,
+      width: 200,
+      ellipsis: true,
       render: (value: string) => renderStatusHistory(value),
     },
     {
       title: t('operation'),
       key: 'action',
-      width: 80,
+      width: 60,
       fixed: 'right' as const,
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
-          <Button type="text" icon={<MoreOutlined />} />
+          <Button type="text" icon={<MoreOutlined />} size="small" />
         </Dropdown>
       ),
     },
@@ -845,13 +846,14 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
 
       {/* 桌面端表格 */}
       <Card className="hidden md:block">
-        <div style={{ width: '100%', overflow: 'hidden' }}>
+        <div style={{ width: '100%' }}>
           <Table
             columns={columns}
             dataSource={data}
             loading={loading}
             rowKey="id"
-            scroll={{ x: 1400 }}
+            scroll={{ x: 1600, y: 600 }}
+            size="small"
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,
