@@ -844,23 +844,31 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <Card className="hidden md:block" style={{ overflow: 'hidden' }}>
-        <Table
-          columns={columns}
-          dataSource={data}
-          loading={loading}
-          rowKey="id"
-          scroll={{ x: 'max-content' }}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: false,
-            onChange: (page) => {
+      <Card className="hidden md:block">
+        <div style={{ width: '100%', overflowX: 'auto' }}>
+          <Table
+            columns={columns}
+            dataSource={data}
+            loading={loading}
+            rowKey="id"
+            scroll={{ x: 1800 }}
+            pagination={false}
+            style={{ minWidth: 1800 }}
+          />
+        </div>
+        
+        {/* 分页 */}
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <Pagination
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            showSizeChanger={false}
+            onChange={(page) => {
               fetchOrders(page);
-            },
-          }}
-        />
+            }}
+          />
+        </div>
 
         {/* 打印按钮 */}
         <div style={{ 
