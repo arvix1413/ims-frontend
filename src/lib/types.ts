@@ -779,6 +779,7 @@ export interface OrderData {
   status: string;
   paymentStatus: number;
   createDate: string;
+  type?: number;               // 订单类型：0-店补，1-客定
   customerContact?: string;    // 姓名电话
   paymentFlag?: string;        // PAID/UNPAID
   orderedBy?: string;          // 订货人

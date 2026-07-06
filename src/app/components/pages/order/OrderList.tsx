@@ -608,6 +608,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       key: 'customerContact',
       width: 150,
     }, {
+      title: '订单类型',
+      dataIndex: 'type',
+      key: 'type',
+      width: 80,
+      render: (type: number) => (
+        <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
+          {type === 0 ? '店补' : type === 1 ? '客定' : '-'}
+        </span>
+      ),
+    }, {
       title: '付款',
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
@@ -711,6 +721,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               {order.customerContact && (
                 <div className="text-gray-600">
                   姓名电话: {order.customerContact}
+                </div>
+              )}
+              {typeof order.type !== 'undefined' && (
+                <div>
+                  <span style={{ color: order.type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold' }}>
+                    {order.type === 0 ? '店补' : '客定'}
+                  </span>
                 </div>
               )}
               {order.paymentFlag && (
