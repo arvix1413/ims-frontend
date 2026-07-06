@@ -539,11 +539,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 80,
+      width: 120,
       fixed: 'left' as const,
       render: (item: string, record: OrderData) => (
         <img 
-          style={{ height: 60, width: 48, objectFit: 'cover', cursor: 'pointer' }} 
+          style={{ height: 80, width: 64, objectFit: 'cover', cursor: 'pointer' }} 
           alt="" 
           src={API_CONFIG.BASE_URL + item}
           onClick={() => {
@@ -565,20 +565,20 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderCode'),
       dataIndex: 'design',
       key: 'design',
-      width: 100,
+      width: 150,
       fixed: 'left' as const,
     },
     {
       title: t('orderPrice'),
       dataIndex: 'salePrice',
       key: 'salePrice',
-      width: 80,
+      width: 100,
     },
     {
       title: t('orderColor'),
       dataIndex: 'color',
       key: 'color',
-      width: 100,
+      width: 120,
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
@@ -588,33 +588,32 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderSize'),
       dataIndex: 'size',
       key: 'size',
-      width: 60,
+      width: 80,
     },
     {
       title: t('orderAmount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 60,
+      width: 80,
     },
     {
       title: t('time'),
       dataIndex: 'date',
-      width: 100,
-      render: (data: string) => dayjs(data).format('MM-DD'),
+      width: 120,
+      render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
       title: '姓名电话',
       dataIndex: 'customerContact',
       key: 'customerContact',
-      width: 120,
-      ellipsis: true,
+      width: 150,
     }, {
-      title: '类型',
+      title: '订单类型',
       dataIndex: 'type',
       key: 'type',
-      width: 60,
+      width: 90,
       render: (type: number) => (
-        <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 11 }}>
+        <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
           {type === 0 ? '店补' : type === 1 ? '客定' : '-'}
         </span>
       ),
@@ -622,46 +621,46 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: '付款',
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 70,
+      width: 90,
       render: (flag: string) => (
-        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 11 }}>
-          {flag === 'PAID' ? 'PAID' : 'UNPAID'}
+        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
+          {flag || 'UNPAID'}
         </span>
       ),
     }, {
       title: '订货人',
       dataIndex: 'orderedBy',
       key: 'orderedBy',
-      width: 80,
-      ellipsis: true,
+      width: 100,
     }, {
       title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
-      width: 150,
-      ellipsis: true,
+      width: 200,
+      render: (text: string) => (
+        <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
+      ),
     }] : []),
     {
       title: t('status'),
       dataIndex: 'status',
-      width: 80,
+      width: 100,
       render: (value: string) => renderStatus(value),
     },
     {
-      title: '日志',
+      title: t('statusLog') || '日志',
       dataIndex: 'statusHistory',
-      width: 200,
-      ellipsis: true,
+      width: 250,
       render: (value: string) => renderStatusHistory(value),
     },
     {
       title: t('operation'),
       key: 'action',
-      width: 60,
+      width: 80,
       fixed: 'right' as const,
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
-          <Button type="text" icon={<MoreOutlined />} size="small" />
+          <Button type="text" icon={<MoreOutlined />} />
         </Dropdown>
       ),
     },
@@ -845,44 +844,41 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <Card className="hidden md:block">
-        <div style={{ width: '100%' }}>
-          <Table
-            columns={columns}
-            dataSource={data}
-            loading={loading}
-            rowKey="id"
-            scroll={{ x: 1600, y: 600 }}
-            size="small"
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-              showSizeChanger: false,
-              onChange: (page) => {
-                fetchOrders(page);
-              },
-            }}
-          />
+      <Card className="hidden md:block" style={{ overflow: 'hidden' }}>
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          rowKey="id"
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: false,
+            onChange: (page) => {
+              fetchOrders(page);
+            },
+          }}
+        />
 
-          {/* 打印按钮 */}
-          <div style={{ 
-            marginTop: 16, 
-            textAlign: 'center',
-            padding: '16px 0',
-            borderTop: '1px solid #f0f0f0'
-          }}>
-            <Button 
-              type="primary" 
-              icon={<PrinterOutlined />}
-              onClick={handlePrint}
-              loading={printLoading}
-              disabled={printLoading}
-              size="large"
-            >
-              {printLoading ? '打印中...' : '打印'}
-            </Button>
-          </div>
+        {/* 打印按钮 */}
+        <div style={{ 
+          marginTop: 16, 
+          textAlign: 'center',
+          padding: '16px 0',
+          borderTop: '1px solid #f0f0f0'
+        }}>
+          <Button 
+            type="primary" 
+            icon={<PrinterOutlined />}
+            onClick={handlePrint}
+            loading={printLoading}
+            disabled={printLoading}
+            size="large"
+          >
+            {printLoading ? '打印中...' : '打印'}
+          </Button>
         </div>
       </Card>
 
