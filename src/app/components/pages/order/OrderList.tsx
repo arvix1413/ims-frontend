@@ -474,65 +474,79 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   };
 
   // 操作菜单
-  const getActionMenu = (orderData: OrderData) => ({
-    items: [
-      {
-        key: 'edit',
-        label: t('modifyOrder'),
-        icon: <EditOutlined />,
-        onClick: () => handleEdit(orderData),
-      },
-      {
-        key: 'void',
-        label: t('void') || 'Void',
-        icon: <CloseOutlined />,
-        danger: true,
-        onClick: () => handleVoid(orderData),
-      },
-      {
-        key: 'sent',
-        label: t('shipped'),
-        icon: <SendOutlined />,
-        onClick: () => handleSent(orderData),
-      },
-      {
-        key: 'ok',
-        label: t('completed'),
-        icon: <CheckOutlined />,
-        onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
-      },
-      {
-        key: 'arrived_not_picked_up',
-        label: t('arrivedNotPickedUp'),
-        icon: <ExclamationCircleOutlined />,
-        onClick: () => handleStatusChangeWithDate(orderData, '6', t('arrivedNotPickedUp')),
-      },
-      {
-        key: 'unpaid_try',
-        label: t('unpaidTry'),
-        icon: <ExclamationCircleOutlined />,
-        onClick: () => handleStatusChangeWithDate(orderData, '7', t('unpaidTry')),
-      },
-      {
-        key: 'out_of_stock',
-        label: t('outOfStock'),
-        icon: <ExclamationCircleOutlined />,
-        onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
-      },
-      {
-        key: 'damaged',
-        label: t('damaged'),
-        icon: <CloseOutlined />,
-        onClick: () => handleStatusChange(orderData, '4', t('damaged')),
-      },
-      {
-        key: 'reset',
-        label: t('resetStatus'),
-        icon: <ReloadOutlined />,
-        onClick: () => handleResetStatus(orderData),
-      },
-    ],
-  });
+  const getActionMenu = (orderData: OrderData) => {
+    const s = orderData.status;
+    // 作废(5)只能重置，缺货(3)不能转2/6/7
+    const isVoided = s === '5';
+    const isOutOfStock = s === '3';
+
+    return {
+      items: [
+        {
+          key: 'edit',
+          label: t('modifyOrder'),
+          icon: <EditOutlined />,
+          onClick: () => handleEdit(orderData),
+        },
+        {
+          key: 'void',
+          label: t('void') || 'Void',
+          icon: <CloseOutlined />,
+          danger: true,
+          disabled: isVoided,
+          onClick: () => handleVoid(orderData),
+        },
+        {
+          key: 'sent',
+          label: t('shipped'),
+          icon: <SendOutlined />,
+          disabled: isVoided,
+          onClick: () => handleSent(orderData),
+        },
+        {
+          key: 'ok',
+          label: t('completed'),
+          icon: <CheckOutlined />,
+          disabled: isVoided || isOutOfStock,
+          onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
+        },
+        {
+          key: 'arrived_not_picked_up',
+          label: t('arrivedNotPickedUp'),
+          icon: <ExclamationCircleOutlined />,
+          disabled: isVoided || isOutOfStock,
+          onClick: () => handleStatusChangeWithDate(orderData, '6', t('arrivedNotPickedUp')),
+        },
+        {
+          key: 'unpaid_try',
+          label: t('unpaidTry'),
+          icon: <ExclamationCircleOutlined />,
+          disabled: isVoided || isOutOfStock,
+          onClick: () => handleStatusChangeWithDate(orderData, '7', t('unpaidTry')),
+        },
+        {
+          key: 'out_of_stock',
+          label: t('outOfStock'),
+          icon: <ExclamationCircleOutlined />,
+          disabled: isVoided,
+          onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
+        },
+        {
+          key: 'damaged',
+          label: t('damaged'),
+          icon: <CloseOutlined />,
+          disabled: isVoided,
+          onClick: () => handleStatusChange(orderData, '4', t('damaged')),
+        },
+        {
+          key: 'reset',
+          label: t('resetStatus'),
+          icon: <ReloadOutlined />,
+          onClick: () => handleResetStatus(orderData),
+        },
+      ],
+    };
+  };
 
   // 桌面端表格列定义
   const columns = [
