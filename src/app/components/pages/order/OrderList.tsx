@@ -844,43 +844,45 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <div className="hidden md:block" style={{ width: '100%', overflow: 'hidden' }}>
-        <Table
-          columns={columns}
-          dataSource={data}
-          loading={loading}
-          rowKey="id"
-          scroll={{ x: 1400 }}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: false,
-            onChange: (page) => {
-              fetchOrders(page);
-            },
-          }}
-        />
+      <Card className="hidden md:block">
+        <div style={{ width: '100%', overflow: 'hidden' }}>
+          <Table
+            columns={columns}
+            dataSource={data}
+            loading={loading}
+            rowKey="id"
+            scroll={{ x: 1400 }}
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: false,
+              onChange: (page) => {
+                fetchOrders(page);
+              },
+            }}
+          />
 
-        {/* 打印按钮 */}
-        <div style={{ 
-          marginTop: 16, 
-          textAlign: 'center',
-          padding: '16px 0',
-          borderTop: '1px solid #f0f0f0'
-        }}>
-          <Button 
-            type="primary" 
-            icon={<PrinterOutlined />}
-            onClick={handlePrint}
-            loading={printLoading}
-            disabled={printLoading}
-            size="large"
-          >
-            {printLoading ? '打印中...' : '打印'}
-          </Button>
+          {/* 打印按钮 */}
+          <div style={{ 
+            marginTop: 16, 
+            textAlign: 'center',
+            padding: '16px 0',
+            borderTop: '1px solid #f0f0f0'
+          }}>
+            <Button 
+              type="primary" 
+              icon={<PrinterOutlined />}
+              onClick={handlePrint}
+              loading={printLoading}
+              disabled={printLoading}
+              size="large"
+            >
+              {printLoading ? '打印中...' : '打印'}
+            </Button>
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* 移动端卡片列表 */}
       <div className="md:hidden space-y-4">
