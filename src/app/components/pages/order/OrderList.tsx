@@ -539,11 +539,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 120,
-      fixed: 'left' as 'left',
+      width: 100,
+      fixed: 'left' as const,
       render: (item: string, record: OrderData) => (
         <img 
-          style={{ height: 100, width: 80, objectFit: 'cover', cursor: 'pointer' }} 
+          style={{ height: 80, width: 64, objectFit: 'cover', cursor: 'pointer' }} 
           alt="" 
           src={API_CONFIG.BASE_URL + item}
           onClick={() => {
@@ -566,7 +566,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       dataIndex: 'design',
       key: 'design',
       width: 120,
-      fixed: 'left' as 'left',
+      fixed: 'left' as const,
     },
     {
       title: t('orderPrice'),
@@ -578,7 +578,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderColor'),
       dataIndex: 'color',
       key: 'color',
-      width: 100,
+      width: 120,
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
@@ -599,7 +599,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('time'),
       dataIndex: 'date',
-      width: 110,
+      width: 120,
       render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
@@ -611,7 +611,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: '订单类型',
       dataIndex: 'type',
       key: 'type',
-      width: 80,
+      width: 90,
       render: (type: number) => (
         <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
           {type === 0 ? '店补' : type === 1 ? '客定' : '-'}
@@ -621,7 +621,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: '付款',
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 80,
+      width: 90,
       render: (flag: string) => (
         <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
           {flag || 'UNPAID'}
@@ -636,7 +636,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
-      width: 220,
+      width: 200,
       render: (text: string) => (
         <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
       ),
@@ -644,7 +644,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('status'),
       dataIndex: 'status',
-      width: 130,
+      width: 100,
       render: (value: string) => renderStatus(value),
     },
     {
@@ -657,7 +657,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('operation'),
       key: 'action',
       width: 80,
-      fixed: 'right' as 'right',
+      fixed: 'right' as const,
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<MoreOutlined />} />
@@ -844,12 +844,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <div className="hidden md:block" style={{ overflowX: 'auto' }}>
+      <div className="hidden md:block">
         <Table
           columns={columns}
           dataSource={data}
           loading={loading}
           rowKey="id"
+          scroll={{ x: 'max-content' }}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
