@@ -176,7 +176,7 @@ export default function DesignDetail({
         const orderData: CreateOrderRequest = {
           itemId: currentItem.id,
           amount: values.amount,
-          type: 0,
+          type: orderType === 'store' ? 0 : 1, // 0 店补， 1 客定
           remark: values.remark || '',
           paymentStatus: -1,
           status: '0',
