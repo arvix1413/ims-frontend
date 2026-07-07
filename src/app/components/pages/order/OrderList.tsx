@@ -843,7 +843,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             <DatePicker.RangePicker style={{ width: '100%' }} />
           </Form.Item>
           
-          <Form.Item className="mb-4">
+          <Form.Item className="mb-4" style={{ alignSelf: 'flex-end' }}>
             <Space>
               <Button type="primary" htmlType="submit">
                 {t('search')}
