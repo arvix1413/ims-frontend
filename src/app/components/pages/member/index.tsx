@@ -13,6 +13,7 @@ import MemberPurchaseHistory from './MemberPurchaseHistory';
 import AllMemberPurchaseHistory from './AllMemberPurchaseHistory';
 import MemberTopUpHistory from './MemberTopUpHistory';
 import { useInitialListRefresh } from '@/lib/useListRefresh';
+import SearchFormCard from '@/app/components/common/SearchFormCard';
 
 const MEMBER_PAGE_SIZE = 20;
 
@@ -518,43 +519,31 @@ export default function MemberManagement() {
         </div>
         
         {/* 搜索表单 */}
-        <Card style={{ marginBottom: 16 }}>
-          <Form
-            form={form}
-            layout="inline"
-            onFinish={handleSearch}
-          >
-            <Form.Item name="name" label={t('name')}>
-              <Input placeholder={t('pleaseEnterName')} style={{ width: 200 }} />
-            </Form.Item>
-            <Form.Item name="phone" label={t('phone')}>
-              <Input placeholder={t('pleaseEnterPhone')} style={{ width: 200 }} />
-            </Form.Item>
-            <Form.Item name="startDate" label={t('startDate')}>
-              <DatePicker style={{ width: 200 }} />
-            </Form.Item>
-            <Form.Item name="endDate" label={t('endDate')}>
-              <DatePicker style={{ width: 200 }} />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-                {t('search')}
-              </Button>
-            </Form.Item>
-            <Form.Item>
-              <Button onClick={handleReset} icon={<ReloadOutlined />}>
-                {t('reset')}
-              </Button>
-            </Form.Item>
-            {isAdmin() && (
-              <Form.Item>
-                <span style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff' }}>
-                  {t('选中会员总余额')}: ${totalBalance}
-                </span>
-              </Form.Item>
-            )}
-          </Form>
-        </Card>
+        <SearchFormCard
+          form={form}
+          onSearch={handleSearch}
+          onReset={handleReset}
+          extra={
+            isAdmin() ? (
+              <span style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff' }}>
+                {t('选中会员总余额')}: ${totalBalance}
+              </span>
+            ) : undefined
+          }
+        >
+          <Form.Item name="name" label={t('name')} style={{ minWidth: 200, marginBottom: 24 }}>
+            <Input placeholder={t('pleaseEnterName')} />
+          </Form.Item>
+          <Form.Item name="phone" label={t('phone')} style={{ minWidth: 200, marginBottom: 24 }}>
+            <Input placeholder={t('pleaseEnterPhone')} />
+          </Form.Item>
+          <Form.Item name="startDate" label={t('startDate')} style={{ minWidth: 200, marginBottom: 24 }}>
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="endDate" label={t('endDate')} style={{ minWidth: 200, marginBottom: 24 }}>
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+        </SearchFormCard>
 
         {/* 数据表格 */}
         <Card>

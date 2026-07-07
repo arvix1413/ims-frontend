@@ -18,6 +18,7 @@ import CashInOutDrawer from './CashInOutDrawer';
 import OpeningClosingBalanceDrawer from './OpeningClosingBalanceDrawer';
 import { shops } from './PrintReceipt';
 import { ProductItemTag } from '@/app/components/common/ProductItemTag';
+import SearchFormCard from '@/app/components/common/SearchFormCard';
 
 export default function BillManagement() {
   const { t } = useTranslation();
@@ -680,50 +681,35 @@ export default function BillManagement() {
         </div>
         
         {/* 搜索表单 */}
-        <Card style={{ marginBottom: 16 }}>
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSearch}
-            className="md:flex md:flex-wrap md:gap-4"
-          >
-            <Form.Item name="item" label="搜索产品" className="md:w-48 mb-4">
-              <Input placeholder={t('itemCode')} />
-            </Form.Item>
-            <Form.Item name="refNo" label="订单编号" className="md:w-48 mb-4">
-              <Input placeholder="订单编号 (如: OR260707)" />
-            </Form.Item>
-            <Form.Item name="customerPhone" label="电话" className="md:w-48 mb-4">
-              <Input placeholder="客户电话" />
-            </Form.Item>
-            <Form.Item name="color" label="颜色" className="md:w-32 mb-4">
-              <Input placeholder="颜色" />
-            </Form.Item>
-            <Form.Item name="size" label="尺码" className="md:w-32 mb-4">
-              <Input placeholder="尺码" />
-            </Form.Item>
-            <Form.Item name="stockType" label="类型" className="md:w-40 mb-4">
-              <Select placeholder="Order/In Stock" allowClear>
-                <Select.Option value="order">Order</Select.Option>
-                <Select.Option value="inStock">In Stock</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="createDate" label={t('createTime')} className="md:w-72 mb-4">
-              <DatePicker.RangePicker 
-                placeholder={[t('startTime'), t('endTime')]} 
-                style={{ width: '100%' }}
-              />
-            </Form.Item>
-            <Form.Item className="mb-4" style={{ alignSelf: 'flex-end' }}>
-              <Button type="primary" htmlType="submit" icon={<SearchOutlined />} style={{ marginRight: 8 }}>
-                {t('search')}
-              </Button>
-              <Button onClick={handleReset} icon={<ReloadOutlined />}>
-                {t('reset')}
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+        <SearchFormCard form={form} onSearch={handleSearch} onReset={handleReset}>
+          <Form.Item name="item" label="搜索产品" style={{ minWidth: 192, marginBottom: 24 }}>
+            <Input placeholder={t('itemCode')} />
+          </Form.Item>
+          <Form.Item name="refNo" label="订单编号" style={{ minWidth: 192, marginBottom: 24 }}>
+            <Input placeholder="订单编号 (如: OR260707)" />
+          </Form.Item>
+          <Form.Item name="customerPhone" label="电话" style={{ minWidth: 192, marginBottom: 24 }}>
+            <Input placeholder="客户电话" />
+          </Form.Item>
+          <Form.Item name="color" label="颜色" style={{ minWidth: 128, marginBottom: 24 }}>
+            <Input placeholder="颜色" />
+          </Form.Item>
+          <Form.Item name="size" label="尺码" style={{ minWidth: 128, marginBottom: 24 }}>
+            <Input placeholder="尺码" />
+          </Form.Item>
+          <Form.Item name="stockType" label="类型" style={{ minWidth: 160, marginBottom: 24 }}>
+            <Select placeholder="Order/In Stock" allowClear>
+              <Select.Option value="order">Order</Select.Option>
+              <Select.Option value="inStock">In Stock</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item name="createDate" label={t('createTime')} style={{ minWidth: 280, marginBottom: 24 }}>
+            <DatePicker.RangePicker
+              placeholder={[t('startTime'), t('endTime')]}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+        </SearchFormCard>
 
         {/* 数据表格 */}
         <Card style={{ maxWidth: '70vw', width: '100%', overflow: 'hidden' }}>
