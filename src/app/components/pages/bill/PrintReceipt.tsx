@@ -44,6 +44,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const [memberOptions, setMemberOptions] = useState<{ value: string; label: string; member: MemberData }[]>([]);
   const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // refs 持久化状态（不会触发重渲染）
   const addRef = useRef<((defaultValue?: any, insertIndex?: number) => void) | null>(null);
@@ -116,7 +117,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             const designId = design['id'];
 
             // 拉库存，填充颜色/尺码（与手动选择路径一致）
-            const warehouseName = shopRef.current === 1 ? 'SL二店' : 'Live直播间';
+            const warehouseName = shopRef.current === 1 ? 'Slady一店' : shopRef.current === 2 ? 'SL二店' : 'Live直播间';
             let warehouseItems: any[] = [];
             let firstColor = '';
             let firstSize = '';
@@ -164,6 +165,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   }, [form]);
 
   const onFinish = async () => {
+    if (submitting) return;
     const itemForm: any = form.getFieldsValue();
     const payment = itemForm.paymentList?.reduce((total: any, current: any) => total + parseFloat(current.amount), 0);
     const phone = normalizePhone(itemForm.customerPhone);
@@ -219,6 +221,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     }
 
     if (payment.toFixed(2) === totalPrice.toFixed(2)) {
+      setSubmitting(true);
       try {
         // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
         await receipt.print(newItem);
@@ -254,6 +257,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       } catch (error) {
         console.error('创建销售订单失败:', error);
         notification.error({ message: '创建销售订单失败' });
+      } finally {
+        setSubmitting(false);
       }
     } else {
       notification.error({ message: 'Payment Amount is not equal to Total Price' });
@@ -598,8 +603,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                   const handleCodeSelect = async (val: string, option: any) => {
                     const designId = option.designId;
                     const salePrice = option.salePrice;
-                    // 仓库映射：shop=1 → SL二店，shop=2 → Live直播间
-                    const warehouseName = shop === 1 ? 'SL二店' : 'Live直播间';
+                    // 仓库映射：shop=1 → Slady一店，shop=2 → SL二店，shop=3 → Live直播间
+                    const warehouseName = shop === 1 ? 'Slady一店' : shop === 2 ? 'SL二店' : 'Live直播间';
                     try {
                       const res = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const warehouseItems = res?.data ?? [];
@@ -808,7 +813,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       </Form>
 
       <div style={{ marginTop: 20 }}>
-        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish}>创建销售订单</Button>
+        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish} loading={submitting} disabled={submitting}>创建销售订单</Button>
         <Button onClick={onReset}>{t('reset')}</Button>
       </div>
     </div>
