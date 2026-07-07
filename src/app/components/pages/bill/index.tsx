@@ -726,12 +726,26 @@ export default function BillManagement() {
         </Card>
 
         {/* 数据表格 */}
-        <Card>
+        <Card style={{ maxWidth: '70vw', width: '100%', overflow: 'hidden' }}>
           <Tabs
             activeKey={activeTab}
             onChange={handleTabChange}
-            items={tabItems}
             size="large"
+            items={tabItems.map(tab => ({
+              ...tab,
+              children: (
+                <Table
+                  columns={columns}
+                  dataSource={data}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={false}
+                  scroll={{ x: 1400 }}
+                  size="small"
+                  sticky={true}
+                />
+              ),
+            }))}
           />
           
           {/* 分页 */}
