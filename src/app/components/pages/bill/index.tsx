@@ -564,7 +564,6 @@ export default function BillManagement() {
           dataIndex: 'id',
           key: 'reprint',
           width: 100,
-          fixed: 'right' as 'right',
           render: (id: number) => (
             <Button onClick={() => handleReprint(id)}>
               reprint
@@ -575,7 +574,6 @@ export default function BillManagement() {
           title: t('operation'),
           key: 'action',
           width: 150,
-          fixed: 'right' as 'right',
           render: (_: any, record: ReceiptData) => (
             <Button 
               type="primary" 
@@ -685,41 +683,40 @@ export default function BillManagement() {
         <Card style={{ marginBottom: 16 }}>
           <Form
             form={form}
-            layout="inline"
+            layout="vertical"
             onFinish={handleSearch}
+            className="md:flex md:flex-wrap md:gap-4"
           >
-            <Form.Item name="item" label="搜索产品">
-              <Input placeholder={t('itemCode')} style={{ width: 200 }} />
+            <Form.Item name="item" label="搜索产品" className="md:w-48 mb-4">
+              <Input placeholder={t('itemCode')} />
             </Form.Item>
-            <Form.Item name="customerPhone" label="电话">
-              <Input placeholder="客户电话" style={{ width: 150 }} />
+            <Form.Item name="customerPhone" label="电话" className="md:w-48 mb-4">
+              <Input placeholder="客户电话" />
             </Form.Item>
-            <Form.Item name="color" label="颜色">
-              <Input placeholder="颜色" style={{ width: 120 }} />
+            <Form.Item name="color" label="颜色" className="md:w-32 mb-4">
+              <Input placeholder="颜色" />
             </Form.Item>
-            <Form.Item name="size" label="尺码">
-              <Input placeholder="尺码" style={{ width: 100 }} />
+            <Form.Item name="size" label="尺码" className="md:w-32 mb-4">
+              <Input placeholder="尺码" />
             </Form.Item>
-            <Form.Item name="stockType" label="类型">
-              <Select placeholder="Order/In Stock" style={{ width: 150 }} allowClear>
+            <Form.Item name="stockType" label="类型" className="md:w-40 mb-4">
+              <Select placeholder="Order/In Stock" allowClear>
                 <Select.Option value="order">Order</Select.Option>
                 <Select.Option value="inStock">In Stock</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item name="createDate" label={t('createTime')}>
+            <Form.Item name="createDate" label={t('createTime')} className="md:w-72 mb-4">
               <DatePicker.RangePicker 
                 placeholder={[t('startTime'), t('endTime')]} 
-                style={{ width: 300 }}
+                style={{ width: '100%' }}
               />
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-              {t('search')}
+            <Form.Item className="mb-4" style={{ alignSelf: 'flex-end' }}>
+              <Button type="primary" htmlType="submit" icon={<SearchOutlined />} style={{ marginRight: 8 }}>
+                {t('search')}
               </Button>
-            </Form.Item>
-            <Form.Item>
               <Button onClick={handleReset} icon={<ReloadOutlined />}>
-              {t('reset')}
+                {t('reset')}
               </Button>
             </Form.Item>
           </Form>
