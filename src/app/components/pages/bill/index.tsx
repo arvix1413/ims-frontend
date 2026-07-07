@@ -330,7 +330,7 @@ export default function BillManagement() {
 
           {/* REFNO */}
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">{t('itemCode')}:</span>
+            <span className="text-sm text-gray-600">订单编号:</span>
             <span className="font-medium text-gray-900">{item.refNo}</span>
           </div>
 
@@ -441,7 +441,7 @@ export default function BillManagement() {
       fixed: 'left' as 'left',
     },
     {
-      title: t('itemCode'),
+      title: '订单编号',
       dataIndex: 'refNo',
       key: 'refNo',
       width: 130,
@@ -690,6 +690,9 @@ export default function BillManagement() {
             <Form.Item name="item" label="搜索产品" className="md:w-48 mb-4">
               <Input placeholder={t('itemCode')} />
             </Form.Item>
+            <Form.Item name="refNo" label="订单编号" className="md:w-48 mb-4">
+              <Input placeholder="订单编号 (如: OR260707)" />
+            </Form.Item>
             <Form.Item name="customerPhone" label="电话" className="md:w-48 mb-4">
               <Input placeholder="客户电话" />
             </Form.Item>
@@ -788,6 +791,9 @@ export default function BillManagement() {
           <Form form={form} layout="vertical" onFinish={handleSearch}>
             <Form.Item name="item" label={t('searchProduct')}>
               <Input placeholder={t('itemCode')} size="large" />
+            </Form.Item>
+            <Form.Item name="refNo" label="订单编号">
+              <Input placeholder="订单编号 (如: OR260707)" size="large" />
             </Form.Item>
             <Form.Item name="customerPhone" label="电话">
               <Input placeholder="客户电话" size="large" />
