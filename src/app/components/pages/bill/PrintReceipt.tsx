@@ -27,7 +27,7 @@ const calcFinalPrice = (price: number = 0, discountPercent: number = 0, discount
 
 export const shops = ['',  'Slady Fashion Pte. Ltd.','SL Studio Pte. Ltd.',];
 export const saler = ['Serene', 'Yen', 'Xiao Li','Gabrielle','Staff'];
-export const paymentList = ['Bank Transfer/Pay Now','PayLah', 'Wechat Pay', 'Alipay', 'Cash', 'Nets', 'VISA', 'Master', 'Union', 'Slady Voucher', 'AMEX', 'Mall Voucher', 'Member Balance'];
+export const paymentList = ['Bank Transfer/Pay Now','PayLah', 'Wechat Pay', 'Alipay', 'Cash', 'Nets', 'VISA', 'Master', 'Union', 'Slady Voucher', 'AMEX', 'Mall Voucher'];
 
 let index = 0;
 
@@ -39,11 +39,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const shopRef = useRef(1);
   const inputRef = useRef<InputRef>(null);
   const [newPayment, setNewPayment] = useState(paymentList);
-  const [personType, setPersonType] = useState<'customer' | 'member'>('customer');
   const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
-  const [memberOptions, setMemberOptions] = useState<{ value: string; label: string; member: MemberData }[]>([]);
   const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // refs 持久化状态（不会触发重渲染）
@@ -198,7 +195,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       totalPrice,
       store: shop,
       address: shop === 1 ? 'Raffles City (#03-29B)' : 'Raffles Place (#04-24/25)',
-      memberId: personType === 'member' && selectedMember ? selectedMember.id : undefined,
       item: itemForm.item?.map((item: any) => ({ 
         ...item, 
         finalPrice: calcFinalPrice(item.price, item.discountPercent, item.discount, item.qty),
@@ -282,16 +278,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       customerName: customer.name,
       customerPhone: customer.phone,
     });
-    setSelectedMember(null);
-  };
-
-  const applyMember = (member: MemberData) => {
-    form.setFieldsValue({
-      customerId: member.id,
-      customerName: member.name,
-      customerPhone: member.phone,
-    });
-    setSelectedMember(member);
   };
 
   const searchCustomersByPhone = (phone: string) => {
@@ -322,42 +308,9 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     }, 300);
   };
 
-  const searchMembersByPhone = (phone: string) => {
-    const normalized = normalizePhone(phone);
-    if (!normalized) {
-      setMemberOptions([]);
-      return;
-    }
-    if (phoneSearchTimer.current) clearTimeout(phoneSearchTimer.current);
-    phoneSearchTimer.current = setTimeout(async () => {
-      try {
-        const res = await member.getList({
-          phone: normalized,
-          searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' },
-        });
-        const list: MemberData[] = Array.isArray(res.data) ? res.data : [];
-        setMemberOptions(
-          list.map((m) => ({
-            value: m.phone,
-            label: `${m.phone} — ${m.name} (余额: $${Number(m.balance ?? 0).toFixed(2)})`,
-            member: m,
-          }))
-        );
-      } catch (e) {
-        console.error('member search failed', e);
-      }
-    }, 300);
-  };
-
   const onCustomerSelect = (value: string, option: { customer?: CustomerData }) => {
     if (option?.customer) {
       applyCustomer(option.customer);
-    }
-  };
-
-  const onMemberSelect = (value: string, option: { member?: MemberData }) => {
-    if (option?.member) {
-      applyMember(option.member);
     }
   };
 
@@ -366,27 +319,14 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     if (!phone) return;
     
     try {
-      if (personType === 'customer') {
-        const res = await customerApi.fetchByPhone(phone);
-        if (res.code === 200 && res.data) {
-          applyCustomer(res.data);
-        } else {
-          form.setFieldsValue({ customerId: undefined });
-        }
+      const res = await customerApi.fetchByPhone(phone);
+      if (res.code === 200 && res.data) {
+        applyCustomer(res.data);
       } else {
-        const res = await member.getList({
-          phone,
-          searchPage: { desc: 1, page: 1, pageSize: 1, sort: 'id' },
-        });
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          applyMember(res.data[0]);
-        } else {
-          form.setFieldsValue({ customerId: undefined });
-          setSelectedMember(null);
-        }
+        form.setFieldsValue({ customerId: undefined });
       }
     } catch (e) {
-      console.error('fetch person by phone failed', e);
+      console.error('fetch customer by phone failed', e);
     }
   };
 
@@ -401,9 +341,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       customerPhone: undefined,
     });
     setCustomerOptions([]);
-    setMemberOptions([]);
-    setSelectedMember(null);
-    setPersonType('customer');
   }, [form]);
 
   const onPackage = useCallback((value: number) => {
@@ -464,30 +401,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
           </Select>
         </Form.Item>
 
-        {/* 客户类型选择 */}
-        <Form.Item label="类型" style={{ marginBottom: 16 }}>
-          <Select 
-            value={personType} 
-            onChange={(value) => {
-              setPersonType(value);
-              // 切换类型时清空表单和选项
-              form.setFieldsValue({
-                customerId: undefined,
-                customerName: undefined,
-                customerPhone: undefined,
-              });
-              setCustomerOptions([]);
-              setMemberOptions([]);
-              setSelectedMember(null);
-            }}
-            style={{ width: 150 }}
-          >
-            <Select.Option value="customer">普通客户</Select.Option>
-            <Select.Option value="member">会员</Select.Option>
-          </Select>
-        </Form.Item>
-
-        {/* 根据类型显示不同的搜索框 */}
+        {/* 客户电话搜索 */}
         <Form.Item name="customerId" hidden><Input /></Form.Item>
         <div style={{ marginBottom: 8 }}>
           <Form.Item
@@ -495,55 +409,26 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             label="电话"
             style={{ marginBottom: 4 }}
           >
-            {personType === 'customer' ? (
-              <AutoComplete
-                style={{ width: 400 }}
-                options={customerOptions}
-                onSearch={searchCustomersByPhone}
-                onSelect={onCustomerSelect}
-                onBlur={onPhoneBlur}
-                onClear={() => {
-                  setCustomerOptions([]);
-                  setSelectedMember(null);
-                }}
-                allowClear
-                placeholder="输入电话搜索客户"
-              />
-            ) : (
-              <AutoComplete
-                style={{ width: 400 }}
-                options={memberOptions}
-                onSearch={searchMembersByPhone}
-                onSelect={onMemberSelect}
-                onBlur={onPhoneBlur}
-                onClear={() => {
-                  setMemberOptions([]);
-                  setSelectedMember(null);
-                }}
-                allowClear
-                placeholder="输入电话搜索会员"
-              />
-            )}
+            <AutoComplete
+              style={{ width: 400 }}
+              options={customerOptions}
+              onSearch={searchCustomersByPhone}
+              onSelect={onCustomerSelect}
+              onBlur={onPhoneBlur}
+              onClear={() => {
+                setCustomerOptions([]);
+              }}
+              allowClear
+              placeholder="输入电话搜索客户"
+            />
           </Form.Item>
           <div style={{ marginTop: 6, marginBottom: 16, color: 'rgba(0,0,0,0.45)', fontSize: 13, lineHeight: '20px' }}>
-            提示: 输入电话自动搜索{personType === 'customer' ? '客户' : '会员'}，无则创建
+            提示: 输入电话自动搜索客户，无则创建
           </div>
         </div>
         <Form.Item name="customerName" label="姓名" style={{ marginBottom: 24 }}>
           <Input style={{ width: 280 }} placeholder="姓名" />
         </Form.Item>
-
-        {/* 会员信息显示 */}
-        {personType === 'member' && selectedMember && (
-          <div style={{ marginBottom: 24, padding: 12, background: '#f0f9ff', borderRadius: 6, border: '1px solid #d1ecf1' }}>
-            <div style={{ fontSize: 14, color: '#1890ff', marginBottom: 4 }}>
-              <strong>💎 会员: {selectedMember.name}</strong>
-            </div>
-            <div style={{ fontSize: 13, color: '#666' }}>
-              电话: {selectedMember.phone} | 当前余额: <strong>${Number(selectedMember.balance ?? 0).toFixed(2)}</strong>
-            </div>
-          </div>
-        )}
 
         {/* Items 列表 */}
         <Form.List name="item">
