@@ -338,6 +338,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>会员购买记录</h2>
         </div>
         <div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate} style={{ marginRight: 8 }}>
+            新增购买记录
+          </Button>
           <Button icon={<MinusCircleOutlined />} onClick={handleRefund}>
             退还
           </Button>
