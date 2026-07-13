@@ -797,7 +797,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   );
 
   return (
-    <>
+    <div className="p-3 md:p-6">
       {/* 搜索表单 */}
       <Card className="mb-4">
         <Form
@@ -857,7 +857,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       </Card>
 
       {/* 桌面端表格 */}
-      <Card className="hidden md:block" style={{ width: '100%', overflow: 'auto' }}>
+      <div className="hidden md:block p-0">
         <Table
           columns={columns}
           dataSource={data}
@@ -900,7 +900,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             {printLoading ? '打印中...' : '打印'}
           </Button>
         </div>
-      </Card>
+      </div>
 
       {/* 移动端卡片列表 */}
       <div className="md:hidden space-y-4">
@@ -1126,7 +1126,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           </Form.Item>
         </Form>
       </Drawer>
-    </>
+    </div>
   );
 });
 

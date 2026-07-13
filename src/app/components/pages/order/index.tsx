@@ -126,7 +126,7 @@ export default function Order() {
   }
 
   return (
-    <div className="p-4 md:p-6 pb-20 md:pb-6">
+    <div>
       {/* 移动端顶部操作按钮 */}
       <div className="flex md:hidden items-center justify-between mb-4">
         <Button 
