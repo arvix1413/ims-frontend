@@ -139,7 +139,6 @@ export default function EmployeeHistory() {
       title: t('operationTime'),
       dataIndex: 'createDate',
       key: 'createDate',
-      fixed: 'right' as const,
       width: 200,
       render: (value: string) => moment(value).format('YYYY-MM-DD HH:mm:ss'),
     },
