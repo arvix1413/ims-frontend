@@ -77,7 +77,7 @@ function HomeContent() {
           />
           
           {/* Content - 移动端添加顶部padding */}
-          <div className="flex-1 md:pt-0">
+          <div className="flex-1 min-w-0 overflow-x-hidden md:pt-0">
             <Content activePage={activePage} sidebarCollapsed={sidebarCollapsed} setActivePage={setActivePage} />
           </div>
         </div>
