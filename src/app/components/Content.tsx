@@ -95,7 +95,7 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
   };
 
   return (
-    <main className={`flex-1 p-3 md:p-6 transition-all duration-300 ease-in-out md:min-w-[800px] w-full ${sidebarCollapsed ? 'ml-0' : ''}`}>
+    <main className={`flex-1 overflow-x-hidden p-3 md:p-6 transition-all duration-300 ease-in-out md:min-w-[800px] w-full ${sidebarCollapsed ? 'ml-0' : ''}`}>
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 md:min-h-[calc(100vh-120px)]">
         {renderPage()}
       </div>
