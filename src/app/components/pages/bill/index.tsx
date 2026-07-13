@@ -712,7 +712,7 @@ export default function BillManagement() {
         </SearchFormCard>
 
         {/* 数据表格 */}
-        <Card style={{ maxWidth: '70vw', width: '100%', overflow: 'hidden' }}>
+        <Card style={{ width: '100%', overflow: 'auto' }}>
           <Tabs
             activeKey={activeTab}
             onChange={handleTabChange}

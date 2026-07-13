@@ -253,7 +253,7 @@ export default function EmployeeHistory() {
       </Card>
 
       {/* 数据展示 */}
-      <Card style={{ borderRadius: 12 }}>
+      <Card style={{ borderRadius: 12, overflow: 'auto' }}>
         {/* 桌面端表格 */}
         <div className="hidden md:block">
           <Table

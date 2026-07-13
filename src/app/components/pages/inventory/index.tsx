@@ -422,7 +422,7 @@ export default function InventoryRecords() {
       </Card>
 
       {/* 数据展示 */}
-      <Card style={{ borderRadius: 12 }}>
+      <Card style={{ borderRadius: 12, overflow: 'auto' }}>
         <div className="hidden md:block">
           <Table
             columns={columns}
