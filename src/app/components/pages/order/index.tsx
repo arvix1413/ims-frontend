@@ -145,6 +145,8 @@ export default function Order() {
         items={tabItems}
         size="large"
         className="mobile-tabs"
+        style={{ margin: 0 }}
+        tabBarStyle={{ margin: '0 0 0 0', padding: '0 24px' }}
       />
     </div>
   );
