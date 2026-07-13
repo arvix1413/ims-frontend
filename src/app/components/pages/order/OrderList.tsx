@@ -797,7 +797,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   );
 
   return (
-    <div className="p-3 md:p-6 pt-0 md:pt-0">
+    <div className="p-3 md:p-6 pt-0 md:pt-0 overflow-hidden">
       {/* 搜索表单 */}
       <Card className="mb-4">
         <Form
