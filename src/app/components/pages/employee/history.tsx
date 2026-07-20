@@ -127,13 +127,18 @@ export default function EmployeeHistory() {
       key: 'uri',
       fixed: 'left' as const,
       width: 200,
-      render: (res: any) => res,
+      render: (res: any) => typeof res === 'string' ? res : (res ? String(res) : '-'),
     },
     {
       title: t('details'),
       dataIndex: 'body',
       key: 'body',
-      render: (value: any) => value,
+      render: (value: any) => {
+        if (value === null || value === undefined) return '-';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'object') return JSON.stringify(value);
+        return String(value);
+      },
     },
     {
       title: t('operationTime'),
