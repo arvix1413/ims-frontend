@@ -39,7 +39,13 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
         const res = await designService.getList({ design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' } });
         const content = res?.data?.content ?? [];
         if (Array.isArray(content)) {
-          setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: content } }));
+          setRowCache(prev => ({ 
+            ...prev, 
+            [name]: { 
+              codeOptions: content,
+              warehouseItems: prev[name]?.warehouseItems ?? []
+            } 
+          }));
         }
       } catch (err) {
         console.error('Failed to search design code:', err);
@@ -71,7 +77,6 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
     const curItems = returnForm.getFieldValue('items') || [];
     curItems[name] = { ...curItems[name], color: val, size: firstSize, itemId: firstItemId };
     returnForm.setFieldsValue({ items: [...curItems] });
-    setRowCache(prev => ({ ...prev, [name]: { ...prev[name] } }));
   };
 
   const handleSizeChange = (name: number, val: string) => {
