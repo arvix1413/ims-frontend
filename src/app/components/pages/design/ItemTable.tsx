@@ -55,7 +55,6 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
     stockForm.setFieldsValue({
       inStoreStock: itemData.inStoreStock ?? 0,
       tempStoreStock: itemData.tempStoreStock ?? 0,
-      unpaidStock: itemData.unpaidStock ?? 0,
     });
     setStockDrawerVisible(true);
   };
@@ -67,8 +66,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
         await item.modifyWarehouseStock(
           currentItem.id,
           values.inStoreStock ?? 0,
-          values.tempStoreStock ?? 0,
-          values.unpaidStock ?? 0,
+          values.tempStoreStock ?? 0
         );
         message.success(t('stockModifySuccess'));
         setStockDrawerVisible(false);
@@ -145,16 +143,6 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       title: '代存仓',
       dataIndex: 'tempStoreStock',
       key: 'tempStoreStock',
-      render: (stock: number) => (
-        <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
-          {stock || 0}
-        </span>
-      ),
-    },
-    {
-      title: '未付仓',
-      dataIndex: 'unpaidStock',
-      key: 'unpaidStock',
       render: (stock: number) => (
         <span style={{ color: stock > 0 ? '#52c41a' : '#ff4d4f' }}>
           {stock || 0}
@@ -285,13 +273,6 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
           <Form.Item
             label="代存仓"
             name="tempStoreStock"
-            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
-          >
-            <InputNumber style={{ width: '100%' }} min={0} precision={0} />
-          </Form.Item>
-          <Form.Item
-            label="未付仓"
-            name="unpaidStock"
             rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
           >
             <InputNumber style={{ width: '100%' }} min={0} precision={0} />

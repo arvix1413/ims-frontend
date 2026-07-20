@@ -115,7 +115,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       
       // 处理状态：如果为空则使用默认值（显示除了作废状态外的所有订单）
       if (!formValues.status || formValues.status.length === 0) {
-        params.status = ['0', '1', '2', '3', '4', '6', '7'];
+        params.status = ['0', '1', '2', '3', '4', '6'];
       }
       
       // 处理日期范围
@@ -186,7 +186,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       
       // 处理状态：如果为空则使用默认值（显示除了作废状态外的所有订单）
       if (!formValues.status || formValues.status.length === 0) {
-        params.status = ['0', '1', '2', '3', '4', '6', '7'];
+        params.status = ['0', '1', '2', '3', '4', '6'];
       }
       
       // 处理日期范围
@@ -222,7 +222,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       '4': { text: t('damaged'), color: '#722ed1' },
       '5': { text: t('void'), color: '#8c8c8c' },
       '6': { text: t('arrivedNotPickedUp'), color: '#fa8c16' },
-      '7': { text: t('unpaidTry'), color: '#eb2f96' },
     };
     
     const statusInfo = statusMap[status] || { text: '未知', color: '#d9d9d9' };
@@ -248,7 +247,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               '4': t('damaged'),
               '5': t('void'),
               '6': t('arrivedNotPickedUp'),
-              '7': t('unpaidTry'),
             };
             
             const fromStatusText = item.fromStatus ? statusMap[item.fromStatus] || item.fromStatus : '';
@@ -385,7 +383,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           '1': t('shippedSuccess') || '订单已发货',
           '2': t('completedSuccess') || '订单已完成',
           '6': t('arrivedNotPickedUpSuccess') || '已标记为货到未取',
-          '7': t('unpaidTrySuccess') || '已标记为未付try',
         };
         
         message.success(statusTextMap[targetStatus] || '状态更新成功');
@@ -516,13 +513,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           icon: <ExclamationCircleOutlined />,
           disabled: isVoided || isOutOfStock,
           onClick: () => handleStatusChangeWithDate(orderData, '6', t('arrivedNotPickedUp')),
-        },
-        {
-          key: 'unpaid_try',
-          label: t('unpaidTry'),
-          icon: <ExclamationCircleOutlined />,
-          disabled: isVoided || isOutOfStock,
-          onClick: () => handleStatusChangeWithDate(orderData, '7', t('unpaidTry')),
         },
         {
           key: 'out_of_stock',

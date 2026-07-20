@@ -134,7 +134,6 @@ export default function DesignDetail({
     stockForm.setFieldsValue({
       inStoreStock: itemData.inStoreStock ?? 0,
       tempStoreStock: itemData.tempStoreStock ?? 0,
-      unpaidStock: itemData.unpaidStock ?? 0,
     });
     setStockDrawerVisible(true);
   };
@@ -146,8 +145,7 @@ export default function DesignDetail({
         await item.modifyWarehouseStock(
           currentItem.id,
           values.inStoreStock ?? 0,
-          values.tempStoreStock ?? 0,
-          values.unpaidStock ?? 0,
+          values.tempStoreStock ?? 0
         );
         message.success(t('stockModifySuccess'));
         setStockDrawerVisible(false);
@@ -407,12 +405,6 @@ export default function DesignDetail({
                   </span>
                 </Descriptions.Item>
 
-                <Descriptions.Item label="未付仓">
-                  <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0) > 0 ? '#faad14' : '#aaa', fontWeight: 'bold' }}>
-                    {sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0)}
-                  </span>
-                </Descriptions.Item>
-
                 <Descriptions.Item label={t('hot')}>
                   {detailData.hot || 0}
                 </Descriptions.Item>
@@ -588,12 +580,7 @@ export default function DesignDetail({
                   </span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-gray-600">未付仓:</span>
-                  <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0) > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
-                    {sl2Items.reduce((s, i) => s + (i.unpaidStock || 0), 0)}
-                  </span>
-                </div>
+
 
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('hotness')}:</span>
@@ -992,9 +979,7 @@ export default function DesignDetail({
             <Form.Item name="tempStoreStock" label="代存仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
               <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
             </Form.Item>
-            <Form.Item name="unpaidStock" label="未付仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
-              <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
-            </Form.Item>
+
           </Form>
         </Drawer>
       )}

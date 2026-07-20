@@ -519,7 +519,6 @@ export default function Design() {
                 {[
                   { label: '店内', value: item.inStoreStock ?? 0, color: '#16a34a' },
                   { label: '代存', value: item.tempStoreStock ?? 0, color: '#2563eb' },
-                  { label: '未付', value: item.unpaidStock ?? 0, color: '#d97706' },
                 ].map(({ label, value, color }) => (
                   <span key={label} style={{ fontSize: 11, color: value > 0 ? color : '#9ca3af' }}>
                     {label} <strong>{value}</strong>
@@ -781,7 +780,6 @@ export default function Design() {
                       {[
                         { label: '店内', value: item.inStoreStock ?? 0, color: '#16a34a' },
                         { label: '代存', value: item.tempStoreStock ?? 0, color: '#2563eb' },
-                        { label: '未付', value: item.unpaidStock ?? 0, color: '#d97706' },
                       ].map(({ label, value, color }) => (
                         <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <span style={{ 

@@ -264,9 +264,9 @@ export const item = {
     return response.data;
   },
 
-  // 按三仓分别修改库存
-  modifyWarehouseStock: async (id: number, inStoreStock: number, tempStoreStock: number, unpaidStock: number): Promise<ApiResponse> => {
-    const response = await apiClient.put<ApiResponse>(`/item/modify-warehouse-stock?id=${id}&inStoreStock=${inStoreStock}&tempStoreStock=${tempStoreStock}&unpaidStock=${unpaidStock}`);
+  // 按二仓分别修改库存
+  modifyWarehouseStock: async (id: number, inStoreStock: number, tempStoreStock: number): Promise<ApiResponse> => {
+    const response = await apiClient.put<ApiResponse>(`/item/modify-warehouse-stock?id=${id}&inStoreStock=${inStoreStock}&tempStoreStock=${tempStoreStock}`);
     return response.data;
   },
   
