@@ -33,22 +33,56 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
 
   const handleCodeSearch = (name: number, val: string) => {
     if (codeTimers.current[name]) clearTimeout(codeTimers.current[name]);
-    if (!val) return;
+    if (!val) {
+      setRowCache(prev => ({ 
+        ...prev, 
+        [name]: { 
+          codeOptions: [],
+          warehouseItems: prev[name]?.warehouseItems ?? []
+        } 
+      }));
+      return;
+    }
     codeTimers.current[name] = setTimeout(async () => {
       try {
-        const res = await designService.getList({ design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' } });
-        const content = res?.data?.content ?? [];
-        if (Array.isArray(content)) {
-          setRowCache(prev => ({ 
-            ...prev, 
-            [name]: { 
-              codeOptions: content,
-              warehouseItems: prev[name]?.warehouseItems ?? []
-            } 
-          }));
+        const res = await designService.getList({ 
+          design: val, 
+          typeList: [], 
+          searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' } 
+        });
+        
+        // Validate response structure
+        if (!res) {
+          console.warn('API response is null or undefined');
+          return;
         }
+        
+        // Check if API returned success code
+        if (res.code !== 200) {
+          console.warn('API returned non-200 code:', res.code, res.msg);
+          return;
+        }
+        
+        // Extract content array from response
+        let content: any[] = [];
+        if (res.data) {
+          if (Array.isArray(res.data)) {
+            content = res.data;
+          } else if (res.data.content && Array.isArray(res.data.content)) {
+            content = res.data.content;
+          }
+        }
+        
+        setRowCache(prev => ({ 
+          ...prev, 
+          [name]: { 
+            codeOptions: content,
+            warehouseItems: prev[name]?.warehouseItems ?? []
+          } 
+        }));
       } catch (err) {
         console.error('Failed to search design code:', err);
+        // Don't throw error, just log it to prevent page crash
       }
     }, 350);
   };
