@@ -308,11 +308,13 @@ export interface TopUpMemberRequest {
 
 // 会员购买记录相关类型
 export interface PurchaseItem {
+  itemId?: number;     // t_item.id，用于精确定位库存
   designCode: string;
   price: number;
+  number?: number;     // 数量
   color?: string;
   size?: string;
-  stockType?: string; // ORDER 或 IN STOCK
+  stockType?: string;  // order 或 inStock
 }
 
 export interface MemberPurchaseRecord {
@@ -370,8 +372,13 @@ export interface CreateMemberRequest {
 export interface CreatePurchaseRecordRequest {
   purchaseDate: string;
   designs: Array<{
+    itemId?: number;      // t_item.id，inStock 时必填
     designCode: string;
+    color?: string;
+    size?: string;
+    number?: number;      // 数量，默认 1
     price: number;
+    stockType?: string;   // inStock | order
   }>;
   saler: string;
   remark: string;

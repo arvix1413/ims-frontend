@@ -139,7 +139,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       const params: CreatePurchaseRecordRequest = {
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'),
-        designs: values.designs,
+        designs: values.designs.map((design: any) => ({
+          ...design,
+          number: design.number || 1  // 确保有数量字段
+        })),
         saler: values.saler,
         remark: values.remark,
         memberId: memberData.id,
@@ -193,7 +196,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       const params: CreatePurchaseRecordRequest = {
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'),
-        designs: values.designs,
+        designs: values.designs.map((design: any) => ({
+          ...design,
+          number: design.number || 1  // 确保有数量字段
+        })),
         saler: values.saler,
         remark: values.remark,
         memberId: memberData.id,
@@ -514,19 +520,33 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
-                      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
+                      const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];
+                      const firstSize = firstItem?.size ?? '';
+                      const firstItemId = firstItem?.id ?? null;
                       setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
                       const designs = form.getFieldValue('designs') || [];
-                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock' };
+                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
                     } catch { notification.error({ message: '获取库存失败' }); }
                   };
 
                   const handleColorChange = (val: string) => {
                     const items = cache.warehouseItems;
-                    const firstSize = items.find((i: any) => i.color === val)?.size ?? '';
+                    const matchedItem = items.find((i: any) => i.color === val) ?? null;
+                    const firstSize = matchedItem?.size ?? '';
+                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], color: val, size: firstSize };
+                    designs[name] = { ...designs[name], color: val, size: firstSize, itemId };
+                    form.setFieldsValue({ designs: [...designs] });
+                  };
+
+                  const handleSizeChange = (val: string) => {
+                    const items = cache.warehouseItems;
+                    const currentColor = cur.color;
+                    const matchedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
+                    const itemId = matchedItem?.id ?? null;
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], size: val, itemId };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 
@@ -547,7 +567,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} allowClear />
+                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>
@@ -557,6 +577,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
                         <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
+                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
+                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
@@ -630,18 +656,33 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
-                      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
+                      const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];
+                      const firstSize = firstItem?.size ?? '';
+                      const firstItemId = firstItem?.id ?? null;
                       setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
                       const designs = form.getFieldValue('designs') || [];
-                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock' };
+                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
                     } catch { notification.error({ message: '获取库存失败' }); }
                   };
 
                   const handleColorChange = (val: string) => {
-                    const firstSize = cache.warehouseItems.find((i: any) => i.color === val)?.size ?? '';
+                    const items = cache.warehouseItems;
+                    const matchedItem = items.find((i: any) => i.color === val) ?? null;
+                    const firstSize = matchedItem?.size ?? '';
+                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], color: val, size: firstSize };
+                    designs[name] = { ...designs[name], color: val, size: firstSize, itemId };
+                    form.setFieldsValue({ designs: [...designs] });
+                  };
+
+                  const handleSizeChange = (val: string) => {
+                    const items = cache.warehouseItems;
+                    const currentColor = cur.color;
+                    const matchedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
+                    const itemId = matchedItem?.id ?? null;
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], size: val, itemId };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 
@@ -662,7 +703,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} allowClear />
+                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>
@@ -672,6 +713,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
                         <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
+                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
