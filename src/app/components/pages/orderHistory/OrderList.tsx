@@ -42,7 +42,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
     { value: "3", label: t('outOfStock') },
     { value: "4", label: t('damaged') },
     { value: "6", label: t('arrivedNotPickedUp') },
-    { value: "7", label: t('unpaidTry') },
   ];
 
   // 获取订单数据
@@ -176,7 +175,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
       '4': { text: t('damaged'), color: '#722ed1' },
       '5': { text: '已结单', color: '#52c41a' },
       '6': { text: t('arrivedNotPickedUp'), color: '#fa8c16' },
-      '7': { text: t('unpaidTry'), color: '#eb2f96' },
     };
     
     const statusInfo = statusMap[status] || { text: '未知', color: '#d9d9d9' };

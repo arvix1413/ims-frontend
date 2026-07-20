@@ -91,7 +91,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     { value: "4", label: t('damaged') },
     { value: "5", label: t('void') },
     { value: "6", label: t('arrivedNotPickedUp') },
-    { value: "7", label: t('unpaidTry') },
   ];
 
   // 获取订单数据

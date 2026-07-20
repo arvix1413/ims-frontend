@@ -36,7 +36,6 @@ test.describe('IMS 模块 E2E 验证', () => {
     expect(body).toContain('SL二店');
     expect(body).toContain('店内仓');
     expect(body).toContain('代存仓');
-    expect(body).toContain('未付仓');
     expect(body).not.toContain('Slady一店');
     console.log('✅ 模块一：商品管理详情页验证通过');
   });

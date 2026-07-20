@@ -207,7 +207,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
           // 从 rowCache 找当前库存，避免多余的 API 调用
           const allItems = Object.values(rowCache).flatMap(c => c.warehouseItems);
           const found = allItems.find((i: any) => i.id === it.itemId);
-          const currentStock = found?.stock ?? 0;
+          const currentStock = found?.inStoreStock ?? 0;
           const newStock = currentStock + (it.qty ?? 1);
           await itemApi.modifyStock(it.itemId, newStock);
         } catch (err) {
@@ -362,7 +362,7 @@ export default function InventoryRecords() {
     { title: t('color'), dataIndex: 'color', key: 'color', width: 100 },
     { title: t('size'), dataIndex: 'size', key: 'size', width: 80 },
     { title: t('warehouse'), dataIndex: 'warehouseName', key: 'warehouseName', width: 120 },
-    { title: t('originalStock'), dataIndex: 'stock', key: 'stock', width: 100,
+    { title: t('originalStock'), dataIndex: 'inStoreStock', key: 'inStoreStock', width: 100,
       render: (s: number) => <span style={{ fontWeight: 'bold' }}>{s}</span>
     },
     { title: t('newStock'), dataIndex: 'newStock', key: 'newStock', width: 100,
@@ -384,7 +384,7 @@ export default function InventoryRecords() {
             <span className="text-gray-500">{t('warehouse')}: <b>{item.warehouseName}</b></span>
           </div>
           <div className="bg-gray-50 rounded p-2 text-sm">
-            <span>{t('originalStock')}: <b>{item.stock}</b></span>
+            <span>{t('originalStock')}: <b>{item.inStoreStock}</b></span>
             <span className="ml-4">{t('newStock')}: <b style={{ color: item.newStock > 0 ? '#52c41a' : '#ff4d4f' }}>{item.newStock}</b></span>
           </div>
           <div className="text-xs text-gray-400 mt-1">{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}</div>

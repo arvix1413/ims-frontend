@@ -201,7 +201,7 @@ export default function DesignList({
                     {t('type')}：{item.type}
                   </div>
                   <div style={{ marginBottom: 5, fontSize: '14px', color: '#666' }}>
-                    {t('stock')}：{item.stock || 0}
+                    {t('stock')}：{item.inStoreStock || 0}
                   </div>
                   <div style={{ fontSize: '14px', color: '#666' }}>
                     {t('price')}：<span style={{ color: "#fa9829", fontWeight: 'bold' }}>

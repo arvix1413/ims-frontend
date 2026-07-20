@@ -23,7 +23,6 @@ export const PAYMENT_STATUS = {
 export const WAREHOUSE_TYPES = {
   IN_STORE: '店内仓',
   TEMP_STORE: '代存仓', 
-  UNPAID_STORE: '未付仓',
   DAMAGED_STORE: '损耗仓'
 } as const;
 
@@ -36,7 +35,6 @@ export const ORDER_STATUS_MAP = {
   '4': { text: '损坏', color: '#722ed1' },
   '5': { text: '已结单', color: '#52c41a' },
   '6': { text: '货到未取', color: '#fa8c16' },
-  '7': { text: '未付try', color: '#eb2f96' },
 } as const;
 
 // Package充值配置

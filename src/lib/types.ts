@@ -85,10 +85,8 @@ export interface DesignItem {
   type: string;
   design: string;
   salePrice: string;
-  stock: number;
   inStoreStock: number;
   tempStoreStock: number;
-  unpaidStock: number;
   previewPhoto: string;
 }
 
@@ -725,12 +723,10 @@ export interface ItemData {
   designId: number;
   color: string;
   size: string;
-  stock: number;
   warehouseName: string;
   createDate: string;
   inStoreStock: number;      // 店内仓
   tempStoreStock: number;    // 代存仓
-  unpaidStock: number;       // 未付仓
   damagedStock: number;      // 损耗仓
 }
 
@@ -756,7 +752,7 @@ export interface CreateItemRequest {
   warehouseName: string[];
   color: string[];
   size: string[];
-  stock: number;
+  inStoreStock: number;
 }
 
 // 订单状态历史记录

@@ -114,7 +114,7 @@ export default function DesignDetail({
         warehouseName: values.warehouseName,
         color: values.color,
         size: values.size,
-        stock: values.stock,
+        inStoreStock: values.stock,
       };
       
       await item.create(createData);
@@ -226,8 +226,8 @@ export default function DesignDetail({
             <div className="text-xs text-gray-500">{t('size')}: {itemData.size}</div>
           </div>
           <div className="text-right">
-            <div className={`text-sm font-bold ${itemData.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {t('stock')}: {itemData.stock}
+            <div className={`text-sm font-bold ${itemData.inStoreStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {t('stock')}: {itemData.inStoreStock}
             </div>
           </div>
         </div>
