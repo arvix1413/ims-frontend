@@ -89,14 +89,39 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
 
   const handleCodeSelect = async (name: number, val: string, option: any) => {
     try {
-      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+      if (!option || !option.designId) {
+        console.error('Invalid option selected:', option);
+        return;
+      }
+      
+      const res = await itemApi.getList({ 
+        designId: option.designId, 
+        warehouseName: 'SL二店', 
+        searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } 
+      });
+      
       const items = Array.isArray(res?.data) ? res.data : res?.data?.content ?? [];
       const firstColor = items[0]?.color ?? '';
-      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
-      const firstItemId = items.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
-      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+      const firstSize = items.find((i: any) => i?.color === firstColor)?.size ?? '';
+      const firstItemId = items.find((i: any) => i?.color === firstColor && i?.size === firstSize)?.id ?? null;
+      
+      setRowCache(prev => ({ 
+        ...prev, 
+        [name]: { 
+          codeOptions: prev[name]?.codeOptions ?? [], 
+          warehouseItems: items 
+        } 
+      }));
+      
       const curItems = returnForm.getFieldValue('items') || [];
-      curItems[name] = { ...curItems[name], code: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, itemId: firstItemId };
+      curItems[name] = { 
+        ...curItems[name], 
+        code: val, 
+        price: parseFloat(option.salePrice ?? 0), 
+        color: firstColor, 
+        size: firstSize, 
+        itemId: firstItemId 
+      };
       returnForm.setFieldsValue({ items: [...curItems] });
     } catch (err) {
       console.error('Failed to select design code:', err);
@@ -127,16 +152,23 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
       const values = await returnForm.validateFields();
       setLoading(true);
       for (const it of (values.items || [])) {
-        if (!it.itemId) { notification.warning({ message: t('itemNoStockRecord', { code: it.code }) }); continue; }
+        if (!it || !it.itemId) { 
+          if (it?.code) {
+            notification.warning({ message: t('itemNoStockRecord', { code: it.code }) }); 
+          }
+          continue; 
+        }
         try {
-          const allItems = Object.values(rowCache).flatMap(c => c.warehouseItems);
-          const found = allItems.find((i: any) => i.id === it.itemId);
+          const allItems = Object.values(rowCache || {})
+            .filter(c => c && Array.isArray(c.warehouseItems))
+            .flatMap(c => c.warehouseItems || []);
+          const found = allItems.find((i: any) => i?.id === it.itemId);
           const currentStock = found?.inStoreStock ?? 0;
           const newStock = currentStock + (it.qty ?? 1);
           await itemApi.modifyStock(it.itemId, newStock);
         } catch (err) {
           console.error('退货库存增加失败 itemId:', it.itemId, err);
-        // stock update failed, continue with other items
+          // stock update failed, continue with other items
         }
       }
       notification.success({ message: t('returnOrderSuccess') });
@@ -146,7 +178,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
       onSuccess();
     } catch (err: any) {
       if (!err?.errorFields) {
-      console.error('退货订单失败:', err);
+        console.error('退货订单失败:', err);
         notification.error({ message: t('returnOrderFailed') });
       }
     } finally {
@@ -212,7 +244,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
         </Form.List>
         <Form.Item name="operator" label={t('operator')} rules={[{ required: true, message: t('pleaseEnterOperator') }]}>
           <Select placeholder={t('pleaseEnterOperator')}>
-            {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            {(STAFF_LIST || []).map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
           </Select>
         </Form.Item>
       </Form>
