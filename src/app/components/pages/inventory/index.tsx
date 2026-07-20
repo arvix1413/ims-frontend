@@ -174,9 +174,20 @@ export default function InventoryRecords() {
 
       const response = await inventoryRecord.getList(params);
       if (response.code === 200) {
-        const processedData = response.data.content.map(item => {
+        const processedData = response.data.content.map((item: any) => {
           try {
-            return { ...JSON.parse(item.body), ...item };
+            const parsed = JSON.parse(item.body);
+            // 只取 body 里有用的展示字段，不覆盖 item 本身的字段
+            return {
+              design: parsed?.design,
+              color: parsed?.color,
+              size: parsed?.size,
+              warehouseName: parsed?.warehouseName,
+              previewPhoto: parsed?.previewPhoto,
+              inStoreStock: parsed?.inStoreStock,
+              newStock: parsed?.newStock,
+              ...item,  // item 字段优先（id, createDate 等）
+            };
           } catch {
             return item;
           }
