@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select, AutoComplete, InputNumber, notification } from 'antd';
+import React, { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
+import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select, AutoComplete, InputNumber, notification, Alert } from 'antd';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ReceiptData, ReceiptListRequest } from '@/lib/types';
@@ -22,9 +22,79 @@ import SearchFormCard from '@/app/components/common/SearchFormCard';
 import { STAFF_LIST } from '@/config/constants';
 
 // ────────────────────────────────────────────────────────────────
+// Error Boundary - 防止组件崩溃导致整个页面白屏
+// ────────────────────────────────────────────────────────────────
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      return (
+        <div style={{ padding: 24 }}>
+          <Alert
+            message="组件加载出错"
+            description={
+              <div>
+                <p>抱歉，此功能暂时遇到问题。请尝试：</p>
+                <ul>
+                  <li>刷新页面</li>
+                  <li>清除浏览器缓存</li>
+                  <li>联系技术支持</li>
+                </ul>
+                {this.state.error && (
+                  <details style={{ marginTop: 8, fontSize: 12, color: '#999' }}>
+                    <summary>错误详情（开发调试用）</summary>
+                    <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      {this.state.error.toString()}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            }
+            type="error"
+            showIcon
+            action={
+              <Button size="small" onClick={() => window.location.reload()}>
+                刷新页面
+              </Button>
+            }
+          />
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// ────────────────────────────────────────────────────────────────
 // 退货订单 Drawer（从库存记录页移入）
 // ────────────────────────────────────────────────────────────────
-function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; onClose: () => void; onSuccess: () => void }) {
+function ReturnOrderDrawerInner({ visible, onClose, onSuccess }: { visible: boolean; onClose: () => void; onSuccess: () => void }) {
   const { t } = useTranslation();
   const [returnForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -249,6 +319,15 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
         </Form.Item>
       </Form>
     </Drawer>
+  );
+}
+
+// 导出带 Error Boundary 包裹的组件
+function ReturnOrderDrawer(props: { visible: boolean; onClose: () => void; onSuccess: () => void }) {
+  return (
+    <ErrorBoundary>
+      <ReturnOrderDrawerInner {...props} />
+    </ErrorBoundary>
   );
 }
 
