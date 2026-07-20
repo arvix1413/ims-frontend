@@ -171,15 +171,20 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
               {fields.map(({ key, name, ...restField }) => {
                 const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
                 const cur = (returnForm.getFieldValue('items') || [])[name] || {};
-                const colorOptions = [...new Set(cache.warehouseItems.map((i: any) => i.color).filter(Boolean))];
-                const sizeOptions = [...new Set(cache.warehouseItems.filter((i: any) => !cur.color || i.color === cur.color).map((i: any) => i.size).filter(Boolean))];
+                const colorOptions = [...new Set((cache.warehouseItems || []).map((i: any) => i?.color).filter(Boolean))];
+                const sizeOptions = [...new Set((cache.warehouseItems || []).filter((i: any) => !cur.color || i?.color === cur.color).map((i: any) => i?.size).filter(Boolean))];
                 return (
                   <div key={key} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12, padding: 12, background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
                     <Form.Item {...restField} name={[name, 'code']} label={t('designCode')} rules={[{ required: true, message: t('pleaseEnterDesignCode') }]}>
                       <AutoComplete
                         style={{ width: 180 }}
                         placeholder={t('pleaseEnterDesignCode')}
-                        options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
+                        options={(cache.codeOptions || []).filter(d => d && d.design).map((d: any) => ({ 
+                          value: d.design, 
+                          label: `${d.design}  $${d.salePrice ?? 0}`, 
+                          designId: d.id, 
+                          salePrice: d.salePrice 
+                        }))}
                         onSearch={val => handleCodeSearch(name, val)}
                         onSelect={(val, opt) => handleCodeSelect(name, val, opt)}
                         filterOption={false}
@@ -187,10 +192,10 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
                       />
                     </Form.Item>
                     <Form.Item {...restField} name={[name, 'color']} label={t('color')}>
-                      <Select placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
+                      <Select placeholder={t('color')} style={{ width: 130 }} options={(colorOptions || []).map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
                     </Form.Item>
                     <Form.Item {...restField} name={[name, 'size']} label={t('size')}>
-                      <Select placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
+                      <Select placeholder={t('size')} style={{ width: 100 }} options={(sizeOptions || []).map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
                     </Form.Item>
                     <Form.Item {...restField} name={[name, 'qty']} label={t('qty')} initialValue={1} rules={[{ required: true, message: t('pleaseEnterAmount') }]}>
                       <InputNumber min={1} style={{ width: 80 }} />
