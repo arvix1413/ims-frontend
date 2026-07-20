@@ -152,6 +152,7 @@ export default function DailySaleDrawer({ visible, onClose }: DailySaleDrawerPro
       }
     } catch (error) {
       console.error('获取销售数据失败:', error);
+      message.error(t('fetchSalesDataFailed'));
     } finally {
       setLoading(false);
     }

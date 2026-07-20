@@ -86,8 +86,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
         });
       }
     } catch (error) {
-      console.error('获取订单数据失败:', error);
-      message.error('获取订单数据失败');
+      console.error('Failed to fetch orders:', error);
+      message.error(t('noOrderData'));
     } finally {
       setLoading(false);
     }
@@ -152,16 +152,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `订单列表_${warehouseName}_${moment().format('YYYY-MM-DD')}.xlsx`;
+      link.download = `order-list_${warehouseName}_${moment().format('YYYY-MM-DD')}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      message.success('导出成功');
+      message.success(t('exportSuccess'));
     } catch (error) {
-      console.error('导出失败:', error);
-      message.error('导出失败，请稍后重试');
+      console.error('Export failed:', error);
+      message.error(t('exportFailed'));
     }
   };
 
@@ -173,11 +173,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
       '2': { text: t('completed'), color: '#52c41a' },
       '3': { text: t('outOfStock'), color: '#ff4d4f' },
       '4': { text: t('damaged'), color: '#722ed1' },
-      '5': { text: '已结单', color: '#52c41a' },
+      '5': { text: t('completed'), color: '#52c41a' },
       '6': { text: t('arrivedNotPickedUp'), color: '#fa8c16' },
     };
     
-    const statusInfo = statusMap[status] || { text: '未知', color: '#d9d9d9' };
+    const statusInfo = statusMap[status] || { text: t('unknown'), color: '#d9d9d9' };
     return <span style={{ color: statusInfo.color, fontWeight: 'bold' }}>{statusInfo.text}</span>;
   };
 
@@ -207,32 +207,32 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
         };
         
         await order.modify(modifyData);
-        message.success('修改订单成功');
+        message.success(t('modifyOrderSuccess'));
         setEditDrawerVisible(false);
         onRefresh();
       }
     } catch (error) {
-      console.error('修改订单失败:', error);
-      message.error('修改订单失败，请稍后重试');
+      console.error('Modify order failed:', error);
+      message.error(t('modifyOrderFailed'));
     }
   };
 
   // 删除订单
   const handleDelete = (orderData: OrderData) => {
     modal.confirm({
-      title: '确认删除',
-      content: `确定要删除订单: ${orderData.design} ？`,
+      title: t('confirmDeleteOrder'),
+      content: `${t('sureDeleteOrder')}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.delete([orderData.id]);
-          message.success('删除订单成功');
+          message.success(t('deleteOrderSuccess'));
           onRefresh();
         } catch (error) {
-          console.error('删除订单失败:', error);
-          message.error('删除订单失败，请稍后重试');
+          console.error('Delete order failed:', error);
+          message.error(t('deleteOrderFailed'));
         }
       },
     });
@@ -255,13 +255,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           pendingDate: values.pendingDate,
           status: '1',
         });
-        message.success('订单已发货');
+        message.success(t('shipOrderSuccess'));
         setSentDrawerVisible(false);
         onRefresh();
       }
     } catch (error) {
-      console.error('发货失败:', error);
-      message.error('发货失败，请稍后重试');
+      console.error('Ship failed:', error);
+      message.error(t('shipOrderFailed'));
     }
   };
 
@@ -269,10 +269,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
   const handleStatusChange = (orderData: OrderData, status: string, statusText: string) => {
     modal.confirm({
       title: statusText,
-      content: `确认${statusText}: ${orderData.design} ？`,
+      content: `${t('confirm')}${statusText}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.modify({
@@ -280,11 +280,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
             status,
             pendingDate: '',
           } as any);
-          message.success(`${statusText}成功`);
+          message.success(`${statusText} ${t('success')}`);
           onRefresh();
         } catch (error) {
-          console.error(`${statusText}失败:`, error);
-          message.error(`${statusText}失败，请稍后重试`);
+          console.error(`${statusText} failed:`, error);
+          message.error(t('statusUpdateFailed'));
         }
       },
     });
@@ -293,11 +293,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
   // 重置状态
   const handleResetStatus = (orderData: OrderData) => {
     modal.confirm({
-      title: '重置状态',
-      content: `确认重置状态: ${orderData.design} ？`,
+      title: t('resetStatusText'),
+      content: `${t('confirmResetStatus')}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.modify({
@@ -305,11 +305,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
             status: '0',
             pendingDate: '',
           } as any);
-          message.success('重置状态成功');
+          message.success(t('resetStatusSuccess'));
           onRefresh();
         } catch (error) {
-          console.error('重置状态失败:', error);
-          message.error('重置状态失败，请稍后重试');
+          console.error('Reset status failed:', error);
+          message.error(t('resetStatusFailed'));
         }
       },
     });
@@ -320,44 +320,44 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
     items: [
       {
         key: 'edit',
-        label: '修改订单',
+        label: t('modifyOrder'),
         icon: <EditOutlined />,
         onClick: () => handleEdit(orderData),
       },
       {
         key: 'delete',
-        label: '删除订单',
+        label: t('deleteOrder'),
         icon: <DeleteOutlined />,
         danger: true,
         onClick: () => handleDelete(orderData),
       },
       {
         key: 'sent',
-        label: '发货',
+        label: t('shipped'),
         icon: <SendOutlined />,
         onClick: () => handleSent(orderData),
       },
       {
         key: 'ok',
-        label: '完成',
+        label: t('completed'),
         icon: <CheckOutlined />,
-        onClick: () => handleStatusChange(orderData, '2', '完成'),
+        onClick: () => handleStatusChange(orderData, '2', t('completed')),
       },
       {
         key: 'out_of_stock',
-        label: '缺货',
+        label: t('outOfStock'),
         icon: <ExclamationCircleOutlined />,
-        onClick: () => handleStatusChange(orderData, '3', '缺货'),
+        onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
       },
       {
         key: 'damaged',
-        label: '损坏',
+        label: t('damaged'),
         icon: <CloseOutlined />,
-        onClick: () => handleStatusChange(orderData, '4', '损坏'),
+        onClick: () => handleStatusChange(orderData, '4', t('damaged')),
       },
       {
         key: 'reset',
-        label: '重置状态',
+        label: t('resetStatus'),
         icon: <ReloadOutlined />,
         onClick: () => handleResetStatus(orderData),
       },
@@ -366,7 +366,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
 
   const columns = [
     {
-      title: '图片',
+      title: t('photo'),
       dataIndex: 'previewPhoto',
       width: 120,
       fixed: 'left' as const,
@@ -529,7 +529,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           onClick={handlePrint}
           size="large"
         >
-          打印
+          {t('print')}
         </Button>
       </div>
 
@@ -548,7 +548,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           <Form.Item
             name="size"
             label={t('orderSize')}
-            rules={[{ required: true, message: '请选择尺寸' }]}
+            rules={[{ required: true, message: t('pleaseSelectSize') }]}
           >
             <Select
               placeholder={t('pleaseSelectSize')}
@@ -559,7 +559,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           <Form.Item
             name="color"
             label={t('orderColor')}
-            rules={[{ required: true, message: '请选择颜色' }]}
+            rules={[{ required: true, message: t('pleaseSelectColor') }]}
           >
             <Select
               placeholder={t('pleaseSelectColor')}
@@ -578,8 +578,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
             name="amount"
             label={t('orderAmount')}
             rules={[
-              { required: true, message: '请输入数量' },
-              { type: 'number', min: 1, message: '数量必须大于0' }
+              { required: true, message: t('pleaseEnterAmount') },
+              { type: 'number', min: 1, message: t('mustBeGreaterThanZero') }
             ]}
           >
             <InputNumber
@@ -592,7 +592,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              确认修改
+              {t('confirmModify')}
             </Button>
           </Form.Item>
         </Form>
@@ -606,10 +606,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
         width={400}
       >
         <div style={{ marginBottom: 16 }}>
-          <p>订单: <strong>{selectedOrder?.design}</strong></p>
-          <p>颜色: {selectedOrder?.color}</p>
-          <p>尺寸: {selectedOrder?.size}</p>
-          <p>数量: {selectedOrder?.amount}</p>
+          <p>{t('orderCode')}: <strong>{selectedOrder?.design}</strong></p>
+          <p>{t('orderColor')}: {selectedOrder?.color}</p>
+          <p>{t('orderSize')}: {selectedOrder?.size}</p>
+          <p>{t('orderAmount')}: {selectedOrder?.amount}</p>
         </div>
         
         <Form
@@ -629,7 +629,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh },
           
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              确认发货
+              {t('confirmShipText')}
             </Button>
           </Form.Item>
         </Form>

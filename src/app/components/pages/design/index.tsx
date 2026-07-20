@@ -118,7 +118,7 @@ export default function Design() {
       }
     } catch (error) {
       console.error('获取商品列表失败:', error);
-    } finally {
+      message.error(t('fetchDesignDetailFailed')); finally {
       setLoading(false);
     }
   }, [searchQuery.typeList, searchQuery.design, searchQuery.hasStock]);
@@ -434,7 +434,7 @@ export default function Design() {
         }
       } else {
         notification.error({
-          message: '创建失败',
+          message: t('createFailed'),
           description: designResult.msg || t('createDesignFailed'),
           placement: 'topRight',
         });
@@ -451,7 +451,7 @@ export default function Design() {
         });
       } else {
         notification.error({
-          message: '创建失败',
+          message: t('createFailed'),
           description: error.message || t('createDesignFailedRetry'),
           placement: 'topRight',
         });

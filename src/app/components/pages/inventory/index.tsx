@@ -78,15 +78,15 @@ function PrintLabelPanel({ visible, onClose }: { visible: boolean; onClose: () =
       const { code, color, size, salePrice, count } = values;
       setLoading(true);
       await printService.printLabel({ code, color, size, salePrice: parseFloat(salePrice), store: shop, count: Number(count) });
-      notification.success({ message: '打印标签成功' });
+      notification.success({ message: t('printLabelSuccess') });
       labelForm.resetFields();
       setColorOptions([]);
       setSizeOptions([]);
       onClose();
     } catch (error: any) {
       if (!error?.errorFields) {
-        console.error('打印标签失败:', error);
-        notification.error({ message: '打印标签失败' });
+        console.error('Print label failed:', error);
+        notification.error({ message: t('printLabelFailed') });
       }
     } finally {
       setLoading(false);
@@ -117,23 +117,23 @@ function PrintLabelPanel({ visible, onClose }: { visible: boolean; onClose: () =
           ))}
         </section>
 
-        <Form.Item name="code" label={t('designCode')} rules={[{ required: true, message: '请输入商品代码' }]}>
+        <Form.Item name="code" label={t('designCode')} rules={[{ required: true, message: t('pleaseEnterProductCode3') }]}>
           <Input placeholder={t('pleaseEnterDesignCode')} onChange={e => handleCodeChange(e.target.value)} />
         </Form.Item>
 
-        <Form.Item name="color" label={t('color')} rules={[{ required: true, message: '请选择颜色' }]}>
-          <Select placeholder="请选择颜色" onChange={handleColorChange} options={colorOptions.map(c => ({ value: c, label: c }))} />
+        <Form.Item name="color" label={t('color')} rules={[{ required: true, message: t('pleaseSelectColor2') }]}>
+          <Select placeholder={t('pleaseSelectColor2')} onChange={handleColorChange} options={colorOptions.map(c => ({ value: c, label: c }))} />
         </Form.Item>
 
-        <Form.Item name="size" label={t('size')} rules={[{ required: true, message: '请选择尺码' }]}>
-          <Select placeholder="请选择尺码" options={sizeOptions.map(s => ({ value: s, label: s }))} />
+        <Form.Item name="size" label={t('size')} rules={[{ required: true, message: t('pleaseSelectSize2') }]}>
+          <Select placeholder={t('pleaseSelectSize2')} options={sizeOptions.map(s => ({ value: s, label: s }))} />
         </Form.Item>
 
-        <Form.Item name="salePrice" label={t('salePrice')} rules={[{ required: true, message: '请输入价格' }]}>
+        <Form.Item name="salePrice" label={t('salePrice')} rules={[{ required: true, message: t('pleaseEnterPrice2') }]}>
           <Input placeholder={t('pleaseEnterPrice')} type="number" />
         </Form.Item>
 
-        <Form.Item name="count" label={t('count')} rules={[{ required: true, type: 'number', min: 1, message: '请输入数量' }]}>
+        <Form.Item name="count" label={t('count')} rules={[{ required: true, type: 'number', min: 1, message: t('pleaseEnterQuantity2') }]}>
           <InputNumber min={1} step={1} style={{ width: '100%' }} />
         </Form.Item>
       </Form>
@@ -199,7 +199,7 @@ export default function InventoryRecords() {
         setPagination({ current: 1, pageSize: 20, total: 0 });
       }
     } catch (error) {
-      console.error('获取库存修改记录失败:', error);
+      console.error('Failed to get inventory records:', error);
       message.error(t('fetchInventoryRecordsFailed'));
       setData([]);
       setPagination({ current: 1, pageSize: 20, total: 0 });
@@ -261,10 +261,10 @@ export default function InventoryRecords() {
             <Input placeholder={t('pleaseEnterDesignCode')} />
           </Form.Item>
           <Form.Item name="color" label={t('color')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[120px]">
-            <Input placeholder="颜色" />
+            <Input placeholder={t('colorPlaceholder')} />
           </Form.Item>
           <Form.Item name="size" label={t('size')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[100px]">
-            <Input placeholder="尺寸" />
+            <Input placeholder={t('sizePlaceholder')} />
           </Form.Item>
           <Form.Item name="operateDate" label={t('operationTime')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[280px]">
             <DatePicker.RangePicker placeholder={[t('startTime'), t('endTime')]} className="w-full" />
@@ -273,7 +273,7 @@ export default function InventoryRecords() {
             <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>{t('search')}</Button>
             <Button onClick={() => { form.resetFields(); fetchData(1); }} icon={<ReloadOutlined />}>{t('reset')}</Button>
             {canUseFeature('printLabel') && (
-              <Button icon={<PrinterOutlined />} onClick={() => setPrintLabelVisible(true)}>打印标签</Button>
+              <Button icon={<PrinterOutlined />} onClick={() => setPrintLabelVisible(true)}>{t('printLabelButton')}</Button>
             )}
           </div>
         </Form>
@@ -313,7 +313,7 @@ export default function InventoryRecords() {
         </div>
       </Card>
 
-      {/* 打印标签 */}
+      {/* {t('printLabelPanel')} */}
       <PrintLabelPanel visible={printLabelVisible} onClose={() => setPrintLabelVisible(false)} />
     </div>
   );

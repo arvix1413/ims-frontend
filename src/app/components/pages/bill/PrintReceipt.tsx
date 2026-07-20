@@ -151,6 +151,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
           }
         }).catch((error) => {
           console.error('获取商品价格失败:', error);
+          // price fetch failed silently
         });
       } else {
         bufferRef.current += e.key;
@@ -237,12 +238,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
           } catch (error) {
             console.error('会员充值失败:', error);
             notification.warning({ 
-              message: '销售订单创建成功，但会员充值失败',
-              description: '请手动为会员充值'
+              message: t('printReceiptSuccessTopUpFailed'),
+              description: t('pleaseTopUpMemberManually')
             });
           }
         } else {
-          notification.success({ message: '销售订单创建成功' });
+          notification.success({ message: t('printReceiptSuccess') });
         }
         
         if (onPrintSuccess) {
@@ -252,7 +253,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         }
       } catch (error) {
         console.error('创建销售订单失败:', error);
-        notification.error({ message: '创建销售订单失败' });
+        notification.error({ message: t('printReceiptFailed') });
       } finally {
         setSubmitting(false);
       }
@@ -406,7 +407,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         <div style={{ marginBottom: 8 }}>
           <Form.Item
             name="customerPhone"
-            label="电话"
+            label={t('phoneNumber')}
             style={{ marginBottom: 4 }}
           >
             <AutoComplete
@@ -419,15 +420,15 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                 setCustomerOptions([]);
               }}
               allowClear
-              placeholder="输入电话搜索客户"
+              placeholder={t('customerPhoneLookup')}
             />
           </Form.Item>
           <div style={{ marginTop: 6, marginBottom: 16, color: 'rgba(0,0,0,0.45)', fontSize: 13, lineHeight: '20px' }}>
-            提示: 输入电话自动搜索客户，无则创建
+            {t('customerPhoneLookup')}
           </div>
         </div>
-        <Form.Item name="customerName" label="姓名" style={{ marginBottom: 24 }}>
-          <Input style={{ width: 280 }} placeholder="姓名" />
+        <Form.Item name="customerName" label={t('name')} style={{ marginBottom: 24 }}>
+          <Input style={{ width: 280 }} placeholder={t('name')} />
         </Form.Item>
 
         {/* Items 列表 */}
@@ -509,7 +510,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                       };
                       form.setFieldsValue({ item: [...currentItems] });
                     } catch {
-                      notification.error({ message: '获取库存失败' });
+                      notification.error({ message: t('fetchStockFailed') });
                     }
                   };
 
@@ -698,7 +699,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       </Form>
 
       <div style={{ marginTop: 20 }}>
-        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish} loading={submitting} disabled={submitting}>创建销售订单</Button>
+        <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish} loading={submitting} disabled={submitting}>{t('printReceipt')}</Button>
         <Button onClick={onReset}>{t('reset')}</Button>
       </div>
     </div>

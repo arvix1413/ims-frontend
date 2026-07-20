@@ -64,7 +64,7 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
       }
     } catch (error) {
       console.error('获取购买记录失败:', error);
-      message.error('获取购买记录失败');
+      message.error(t('fetchPurchaseRecordsFailed'));
       setPurchaseData([]);
     } finally {
       setLoading(false);
@@ -104,8 +104,8 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
         });
       }
     } catch (error) {
-      console.error('获取退还记录失败:', error);
-      message.error('获取退还记录失败');
+      console.error('Failed to get refund records:', error);
+      message.error(t('getRefundRecordsFailed'));
       setRefundData([]);
       setRefundPagination({
         current: 1,
@@ -283,7 +283,7 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
             onClick={onBackToList}
             style={{ marginRight: 16 }}
           >
-            返回列表
+            {t('backToList3')}
           </Button>
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>{t('allMemberPurchaseHistory')}</h2>
         </div>

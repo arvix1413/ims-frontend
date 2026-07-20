@@ -62,7 +62,7 @@ export default function EmployeeHistory() {
         });
       }
     } catch (error) {
-      console.error('获取员工操作历史记录失败:', error);
+      console.error('Failed to get employee history:', error);
       message.error(t('fetchEmployeeHistoryFailed'));
       setData([]);
       setPagination({
@@ -104,12 +104,12 @@ export default function EmployeeHistory() {
 
   // 获取API类型标签文本
   const getApiTypeText = (uri: string) => {
-    if (uri.includes('create') || uri.includes('add')) return '创建';
-    if (uri.includes('update') || uri.includes('modify') || uri.includes('edit')) return '修改';
-    if (uri.includes('delete') || uri.includes('remove')) return '删除';
-    if (uri.includes('login') || uri.includes('auth')) return '登录';
-    if (uri.includes('get') || uri.includes('list')) return '查询';
-    return '操作';
+    if (uri.includes('create') || uri.includes('add')) return t('createText');
+    if (uri.includes('update') || uri.includes('modify') || uri.includes('edit')) return t('modifyText');
+    if (uri.includes('delete') || uri.includes('remove')) return t('deleteText');
+    if (uri.includes('login') || uri.includes('auth')) return t('loginText');
+    if (uri.includes('get') || uri.includes('list')) return t('queryText');
+    return t('operationText');
   };
 
   // 表格列定义

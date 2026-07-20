@@ -45,7 +45,7 @@ export default function Order() {
       }
     } catch (error) {
       console.error('获取商品详情失败:', error);
-      message.error('获取商品详情失败');
+      message.error(t('fetchDesignDetailFailed'));
     } finally {
       setDetailLoading(false);
     }

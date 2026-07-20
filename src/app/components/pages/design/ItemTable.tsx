@@ -103,7 +103,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
           paymentFlag: values.paymentFlag || 'UNPAID',
           orderedBy: values.orderedBy || '',
           statusChangeUserId: userInfo?.id || 0,
-          statusChangeUserName: userInfo?.name || '未知用户',
+          statusChangeUserName: userInfo?.name || t('unknown'),
           statusChangeTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
         };
         
@@ -130,7 +130,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       key: 'size',
     },
     {
-      title: '店内仓',
+      title: t('inStoreStock'),
       dataIndex: 'inStoreStock',
       key: 'inStoreStock',
       render: (stock: number) => (
@@ -140,7 +140,7 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       ),
     },
     {
-      title: '代存仓',
+      title: t('tempStoreStock'),
       dataIndex: 'tempStoreStock',
       key: 'tempStoreStock',
       render: (stock: number) => (
@@ -264,16 +264,16 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
             {currentItem?.color} / {currentItem?.size}
           </div>
           <Form.Item
-            label="店内仓"
+            label={t('inStoreStock')}
             name="inStoreStock"
-            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+            rules={[{ type: 'number', min: 0, message: t('cannotBeLessThanZero') }]}
           >
             <InputNumber style={{ width: '100%' }} min={0} precision={0} />
           </Form.Item>
           <Form.Item
-            label="代存仓"
+            label={t('tempStoreStock')}
             name="tempStoreStock"
-            rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+            rules={[{ type: 'number', min: 0, message: t('cannotBeLessThanZero') }]}
           >
             <InputNumber style={{ width: '100%' }} min={0} precision={0} />
           </Form.Item>

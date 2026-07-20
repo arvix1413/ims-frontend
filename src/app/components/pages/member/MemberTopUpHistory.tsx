@@ -60,7 +60,7 @@ export default function MemberTopUpHistory({ onBackToList }: MemberTopUpHistoryP
       }
     } catch (error) {
       console.error('获取充值记录失败:', error);
-      message.error(t('fetchFailed'));
+      message.error(t('fetchTopUpRecordsFailed'));
       setData([]);
       setPagination({
         current: 1,

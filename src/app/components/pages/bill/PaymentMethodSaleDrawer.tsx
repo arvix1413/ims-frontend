@@ -179,6 +179,7 @@ export default function PaymentMethodSaleDrawer({ visible, onClose }: PaymentMet
       }
     } catch (error) {
       console.error('获取支付方式销售数据失败:', error);
+      message.error(t('fetchSalesDataFailed'));
       setData([]);
     } finally {
       setLoading(false);
@@ -278,7 +279,7 @@ export default function PaymentMethodSaleDrawer({ visible, onClose }: PaymentMet
 
   return (
     <Drawer
-      title={t('paymentMethodSales') || '支付方式销售统计'}
+      title={t('paymentMethodSales')}
       placement="right"
       onClose={onClose}
       open={visible}

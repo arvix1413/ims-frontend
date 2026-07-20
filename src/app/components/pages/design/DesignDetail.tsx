@@ -182,7 +182,7 @@ export default function DesignDetail({
           paymentFlag: values.paymentFlag || 'UNPAID',
           orderedBy: values.orderedBy || '',
           statusChangeUserId: userInfo?.id || 0,
-          statusChangeUserName: userInfo?.name || '未知用户',
+          statusChangeUserName: userInfo?.name || t('unknown'),
           statusChangeTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
         };
         
@@ -393,13 +393,13 @@ export default function DesignDetail({
                   </Descriptions.Item>
                 )}
 
-                <Descriptions.Item label="店内仓">
+                <Descriptions.Item label={t('inStoreStock')}>
                   <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0) > 0 ? '#52c41a' : '#ff4d4f', fontWeight: 'bold' }}>
                     {sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0)}
                   </span>
                 </Descriptions.Item>
 
-                <Descriptions.Item label="代存仓">
+                <Descriptions.Item label={t('tempStoreStock')}>
                   <span style={{ fontSize: 15, color: sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0) > 0 ? '#1890ff' : '#aaa', fontWeight: 'bold' }}>
                     {sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0)}
                   </span>
@@ -567,14 +567,14 @@ export default function DesignDetail({
                 )}
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">店内仓:</span>
+                  <span className="text-gray-600">{t('inStoreStock')}:</span>
                   <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0) > 0 ? 'text-green-600' : 'text-gray-400'}`}>
                     {sl2Items.reduce((s, i) => s + (i.inStoreStock || 0), 0)}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">代存仓:</span>
+                  <span className="text-gray-600">{t('tempStoreStock')}:</span>
                   <span className={`font-bold ${sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0) > 0 ? 'text-blue-600' : 'text-gray-400'}`}>
                     {sl2Items.reduce((s, i) => s + (i.tempStoreStock || 0), 0)}
                   </span>
@@ -973,10 +973,10 @@ export default function DesignDetail({
             <div style={{ marginBottom: 12, fontSize: 13, color: '#666' }}>
               {currentItem?.color} / {currentItem?.size}
             </div>
-            <Form.Item name="inStoreStock" label="店内仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
+            <Form.Item name="inStoreStock" label={t('inStoreStock')} rules={[{ type: 'number', min: 0, message: t('cannotBeLessThanZero') }]}>
               <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
             </Form.Item>
-            <Form.Item name="tempStoreStock" label="代存仓" rules={[{ type: 'number', min: 0, message: '不能小于0' }]}>
+            <Form.Item name="tempStoreStock" label={t('tempStoreStock')} rules={[{ type: 'number', min: 0, message: t('cannotBeLessThanZero') }]}>
               <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
             </Form.Item>
 

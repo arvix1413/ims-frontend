@@ -134,8 +134,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         });
       }
     } catch (error) {
-      console.error('获取订单数据失败:', error);
-      message.error('获取订单数据失败');
+      console.error(t('fetchOrderDataFailed'), error);
+      message.error(t('fetchOrderDataFailed'));
     } finally {
       setLoading(false);
     }
@@ -196,16 +196,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         const res = await order.export(params);
         if (res.code === 200) {
           window.open(API_CONFIG.BASE_URL + res.data);
-          notification.success(t('exportSuccess') || '导出成功');
+          notification.success({ message: t('exportSuccess') });
         } else {
-          notification.error(res.msg);
+          notification.error({ message: res.msg });
         }
       } else {
-        notification.error(t('pleaseEnterDate') || '请输入时间段');
+        notification.error({ message: t('pleaseEnterDate') });
       }
     } catch (error) {
       console.error('导出失败:', error);
-      message.error(t('exportFailed') || '导出失败，请稍后重试');
+      message.error(t('exportFailed'));
     } finally {
       setPrintLoading(false);
     }
@@ -304,38 +304,38 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         };
         
         await order.modify(modifyData);
-        message.success(t('modifySuccess') || '修改订单成功');
+        message.success(t('modifySuccess'));
         setEditDrawerVisible(false);
         onRefresh();
       }
     } catch (error) {
       console.error('修改订单失败:', error);
-      message.error(t('modifyFailed') || '修改订单失败，请稍后重试');
+      message.error(t('modifyOrderFailed'));
     }
   };
 
   // Void订单（软删除）
   const handleVoid = (orderData: OrderData) => {
     modal.confirm({
-      title: t('confirmVoid') || '确认作废',
-      content: `确定要作废订单: ${orderData.design} ？`,
+      title: t('confirmVoid'),
+      content: `${t('confirmVoid')}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: t('confirm') || '确认',
-      cancelText: t('cancel') || '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.modify({
             id: orderData.id,
             status: '5',
             statusChangeUserId: userInfo?.id || 0,
-            statusChangeUserName: userInfo?.name || '未知用户',
+            statusChangeUserName: userInfo?.name || t('unknown'),
             statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
-          message.success(t('voidSuccess') || '订单已作废');
+          message.success(t('voidSuccess'));
           onRefresh();
         } catch (error) {
           console.error('作废订单失败:', error);
-          message.error(t('voidFailed') || '作废订单失败，请稍后重试');
+          message.error(t('voidFailed'));
         }
       },
     });
@@ -379,19 +379,19 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         });
         
         const statusTextMap: Record<string, string> = {
-          '1': t('shippedSuccess') || '订单已发货',
-          '2': t('completedSuccess') || '订单已完成',
-          '6': t('arrivedNotPickedUpSuccess') || '已标记为货到未取',
-          '7': t('arrivedPickedUpSuccess') || '代存订单已完成',
+          '1': t('shippedSuccess'),
+          '2': t('completedSuccess'),
+          '6': t('arrivedNotPickedUpSuccess'),
+          '7': t('arrivedPickedUpSuccess'),
         };
         
-        message.success(statusTextMap[targetStatus] || '状态更新成功');
+        message.success(statusTextMap[targetStatus] || t('operationSuccess'));
         setSentDrawerVisible(false);
         onRefresh();
       }
     } catch (error) {
       console.error('状态更新失败:', error);
-      message.error(t('statusUpdateFailed') || '状态更新失败，请稍后重试');
+      message.error(t('statusUpdateFailed'));
     }
   };
 
@@ -420,24 +420,24 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   const handleStatusChange = (orderData: OrderData, status: string, statusText: string) => {
     modal.confirm({
       title: statusText,
-      content: `确认${statusText}: ${orderData.design} ？`,
+      content: `${t('confirmChange')}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.modify({
             id: orderData.id,
             status,
             statusChangeUserId: userInfo?.id || 0,
-            statusChangeUserName: userInfo?.name || '未知用户',
+            statusChangeUserName: userInfo?.name || t('unknown'),
             statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
-          message.success(`${statusText}成功`);
+          message.success(`${statusText} ${t('success')}`);
           onRefresh();
         } catch (error) {
-          console.error(`${statusText}失败:`, error);
-          message.error(`${statusText}失败，请稍后重试`);
+          console.error(`${statusText} failed:`, error);
+          message.error(t('statusUpdateFailed'));
         }
       },
     });
@@ -446,25 +446,25 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   // 重置状态
   const handleResetStatus = (orderData: OrderData) => {
     modal.confirm({
-      title: '重置状态',
-      content: `确认重置状态: ${orderData.design} ？`,
+      title: t('resetStatus'),
+      content: `${t('confirmResetStatus')}: ${orderData.design} ？`,
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      okText: t('confirm'),
+      cancelText: t('cancel'),
       onOk: async () => {
         try {
           await order.modify({
             id: orderData.id,
             status: '0',
             statusChangeUserId: userInfo?.id || 0,
-            statusChangeUserName: userInfo?.name || '未知用户',
+            statusChangeUserName: userInfo?.name || t('unknown'),
             statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           });
-          message.success('重置状态成功');
+          message.success(t('resetStatusSuccess'));
           onRefresh();
         } catch (error) {
           console.error('重置状态失败:', error);
-          message.error('重置状态失败，请稍后重试');
+          message.error(t('resetStatusFailed'));
         }
       },
     });
@@ -509,10 +509,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         },
         {
           key: 'arrived_picked_up',
-          label: t('arrivedPickedUp') || '货到已取（代存完成）',
+          label: t('arrivedPickedUp'),
           icon: <CheckOutlined />,
-          disabled: isVoided || s !== '6',  // 只有货到未取状态才能点
-          onClick: () => handleStatusChangeWithDate(orderData, '7', t('arrivedPickedUp') || '货到已取'),
+          disabled: isVoided || s !== '6',
+          onClick: () => handleStatusChangeWithDate(orderData, '7', t('arrivedPickedUp')),
         },
         {
           key: 'arrived_not_picked_up',
@@ -719,7 +719,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               </div>
               {order.statusHistory && (
                 <div className="mt-2 p-2 bg-gray-50 rounded">
-                  <div className="font-semibold mb-1">{t('statusLog') || '日志'}:</div>
+                <div className="font-semibold mb-1">{t('statusLog')}:</div>
                   {renderStatusHistory(order.statusHistory)}
                 </div>
               )}
@@ -782,11 +782,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           {order.status === '6' && (
             <Button
               size="small"
-              onClick={() => handleStatusChangeWithDate(order, '7', t('arrivedPickedUp') || '货到已取')}
+              onClick={() => handleStatusChangeWithDate(order, '7', t('arrivedPickedUp'))}
               className="flex-1"
               style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
             >
-              {t('arrivedPickedUp') || '货到已取'}
+              {t('arrivedPickedUp')}
             </Button>
           )}
           <Button
@@ -796,7 +796,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             className="flex-1"
             style={{ minHeight: '32px' }}
           >
-            {t('void') || 'Void'}
+            {t('void')}
           </Button>
         </div>
       </div>
@@ -930,7 +930,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             data.map(order => renderOrderCard(order))
           ) : (
             <div className="text-center text-gray-500 py-8">
-              {t('noOrderData') || '暂无订单数据'}
+              {t('noOrderData')}
             </div>
           )}
         </div>

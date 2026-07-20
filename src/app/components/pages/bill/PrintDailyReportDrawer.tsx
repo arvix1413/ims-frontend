@@ -28,7 +28,7 @@ export default function PrintDailyReportDrawer({ visible, onClose }: PrintDailyR
       const data = form.getFieldsValue();
       const selectedDate = data?.date?.format?.('YYYY-MM-DD');
       if (!selectedDate) {
-        notification.error({ message: '请选择日期' });
+        notification.error({ message: t('pleaseSelectDate') });
         return;
       }
       setLoading(true);
@@ -40,12 +40,12 @@ export default function PrintDailyReportDrawer({ visible, onClose }: PrintDailyR
       };
       
       await printService.printDailyReport(params);
-      notification.success({ message: '打印每日结单成功' });
+      notification.success({ message: t('printDailyReportSuccess') });
       form.resetFields();
       onClose();
     } catch (error) {
       console.error('打印每日结单失败:', error);
-      notification.error({ message: '打印每日结单失败' });
+      notification.error({ message: t('printDailyReportFailed') });
     } finally {
       setLoading(false);
     }

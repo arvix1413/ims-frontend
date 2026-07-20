@@ -37,15 +37,20 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
     codeTimers.current[name] = setTimeout(async () => {
       try {
         const res = await designService.getList({ design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' } });
-        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: res?.data?.content ?? [] } }));
-      } catch { /* ignore */ }
+        const content = res?.data?.content ?? [];
+        if (Array.isArray(content)) {
+          setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: content } }));
+        }
+      } catch (err) {
+        console.error('Failed to search design code:', err);
+      }
     }, 350);
   };
 
   const handleCodeSelect = async (name: number, val: string, option: any) => {
     try {
       const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
-      const items = res?.data ?? [];
+      const items = Array.isArray(res?.data) ? res.data : res?.data?.content ?? [];
       const firstColor = items[0]?.color ?? '';
       const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
       const firstItemId = items.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
@@ -53,7 +58,10 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
       const curItems = returnForm.getFieldValue('items') || [];
       curItems[name] = { ...curItems[name], code: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, itemId: firstItemId };
       returnForm.setFieldsValue({ items: [...curItems] });
-    } catch { notification.error({ message: '获取库存失败' }); }
+    } catch (err) {
+      console.error('Failed to select design code:', err);
+      notification.error({ message: t('fetchStockFailed') });
+    }
   };
 
   const handleColorChange = (name: number, val: string) => {
@@ -80,7 +88,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
       const values = await returnForm.validateFields();
       setLoading(true);
       for (const it of (values.items || [])) {
-        if (!it.itemId) { notification.warning({ message: `商品 ${it.code} 未匹配到库存记录，跳过` }); continue; }
+        if (!it.itemId) { notification.warning({ message: t('itemNoStockRecord', { code: it.code }) }); continue; }
         try {
           const allItems = Object.values(rowCache).flatMap(c => c.warehouseItems);
           const found = allItems.find((i: any) => i.id === it.itemId);
@@ -89,6 +97,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
           await itemApi.modifyStock(it.itemId, newStock);
         } catch (err) {
           console.error('退货库存增加失败 itemId:', it.itemId, err);
+        // stock update failed, continue with other items
         }
       }
       notification.success({ message: t('returnOrderSuccess') });
@@ -98,7 +107,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
       onSuccess();
     } catch (err: any) {
       if (!err?.errorFields) {
-        console.error('退货订单失败:', err);
+      console.error('退货订单失败:', err);
         notification.error({ message: t('returnOrderFailed') });
       }
     } finally {
@@ -118,7 +127,7 @@ function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; 
           {(fields, { add, remove }) => (
             <>
               <Form.Item>
-                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>添加商品</Button>
+                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>{t('addProduct')}</Button>
               </Form.Item>
               {fields.map(({ key, name, ...restField }) => {
                 const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
@@ -258,7 +267,7 @@ export default function BillManagement() {
     } catch (error: any) {
       if (controller.signal.aborted) return;
       console.error('获取账单数据失败:', error);
-      message.error(t('获取账单数据失败'));
+      message.error(t('fetchSalesDataFailed'));
       setData([]);
       setPagination({
         current: 1,
@@ -317,10 +326,10 @@ export default function BillManagement() {
   const handleReprint = async (id: number) => {
     try {
       await receipt.reprint(id);
-      message.success(t('重新打印成功'));
+      message.success(t('reprintSuccess'));
     } catch (error) {
       console.error('重新打印失败:', error);
-      message.error(t('重新打印失败'));
+      message.error(t('reprintFailed'));
     }
   };
 
@@ -369,14 +378,14 @@ export default function BillManagement() {
     setVoidLoading(true);
     try {
       await receipt.modifyVoided(voidReceiptId, 1);
-      message.success(t('voidSuccess') || 'Void成功');
+      message.success(t('voidSuccess'));
       setVoidDrawerVisible(false);
       setVoidReceiptId(null);
       // 刷新列表
       fetchData(pagination.current);
     } catch (error) {
       console.error('Void失败:', error);
-      message.error(t('voidFailed') || 'Void失败');
+      message.error(t('voidFailed'));
     } finally {
       setVoidLoading(false);
     }
@@ -393,11 +402,11 @@ export default function BillManagement() {
     setOpenCashDrawerLoading(true);
     try {
       await cashDrawerService.open(selectedStore);
-      message.success(t('openCashDrawerSuccess') || '打开钱箱成功');
+      message.success(t('openCashDrawerSuccess'));
       setOpenCashDrawerVisible(false);
     } catch (error) {
       console.error('打开钱箱失败:', error);
-      message.error(t('openCashDrawerFailed') || '打开钱箱失败');
+      message.error(t('openCashDrawerFailed'));
     } finally {
       setOpenCashDrawerLoading(false);
     }
@@ -546,7 +555,7 @@ export default function BillManagement() {
           {/* 总金额 */}
           <div className="bg-blue-50 rounded-lg p-3">
             <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-blue-600">{t('totalAmount') || '总金额'}:</span>
+              <span className="text-lg font-bold text-blue-600">{t('totalAmount')}:</span>
               <span className="text-xl font-bold text-blue-600">
                 ${totalAmount.toFixed(2)}
               </span>
@@ -800,27 +809,27 @@ export default function BillManagement() {
             )}
             {canUseFeature('dailySales') && (
               <Button onClick={() => setDailySaleVisible(true)}>
-                {t('dailySales') || '每日销售统计'}
+                {t('dailySales')}
               </Button>
             )}
             {canUseFeature('dailySales') && (
               <Button onClick={() => setPaymentMethodSaleVisible(true)}>
-                {t('paymentMethodSales') || '支付方式销售统计'}
+                {t('paymentMethodSales')}
               </Button>
             )}
             {canUseFeature('cashInOut') && (
               <Button onClick={() => setCashInOutVisible(true)}>
-                {t('cashInOut') || '收支记录'}
+                {t('cashInOut')}
               </Button>
             )}
             {canUseFeature('openingClosingBalance') && (
               <Button onClick={() => setOpeningClosingBalanceVisible(true)}>
-                {t('openingClosingBalance') || '开/闭店结余'}
+                {t('openingClosingBalance')}
               </Button>
             )}
             {!isFinance() && (
               <Button onClick={() => setOpenCashDrawerVisible(true)}>
-                {t('openCashDrawer') || '打开钱箱'}
+                {t('openCashDrawer')}
               </Button>
             )}
           </div>
@@ -1192,7 +1201,7 @@ export default function BillManagement() {
       {/* 打开钱箱抽屉 - 桌面端 */}
       {!isMobile && (
         <Drawer
-          title={t('openCashDrawer') || '打开钱箱'}
+          title={t('openCashDrawer')}
           placement="right"
           onClose={handleCloseOpenCashDrawer}
           open={openCashDrawerVisible}
@@ -1214,7 +1223,7 @@ export default function BillManagement() {
         >
           <div style={{ padding: '20px 0' }}>
             <div style={{ marginBottom: 16 }}>
-              <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('selectStore') || '选择店铺'}:</div>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('selectStore')}:</div>
               <section style={{ marginBottom: 10, marginTop: 10 }}>
                 {shops.map((item, index) => (
                   index > 0 ? (
@@ -1237,7 +1246,7 @@ export default function BillManagement() {
       {/* 打开钱箱抽屉 - 移动端 */}
       {isMobile && (
         <Drawer
-          title={t('openCashDrawer') || '打开钱箱'}
+          title={t('openCashDrawer')}
           placement="bottom"
           onClose={handleCloseOpenCashDrawer}
           open={openCashDrawerVisible}
@@ -1260,7 +1269,7 @@ export default function BillManagement() {
         >
           <div className="py-4">
             <div className="mb-4">
-              <div className="mb-3 font-medium text-lg">{t('selectStore') || '选择店铺'}:</div>
+              <div className="mb-3 font-medium text-lg">{t('selectStore')}:</div>
               <div className="flex flex-wrap gap-2">
                 {shops.map((item, index) => (
                   index > 0 ? (

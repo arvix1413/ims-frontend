@@ -126,13 +126,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       if (!values.designs || values.designs.length === 0) {
         notification.error({
-          message: '请添加商品',
-          description: '至少需要添加一件商品',
+          message: t('pleaseAddAtLeastOneProduct'),
+          description: t('atLeastOneProductRequired'),
         });
         return;
       }
       
-      // 计算总金额
       const sum = (values.designs as any[]).reduce((total: number, item: any) => {
         return total + (Number(item?.price) || 0);
       }, 0);
@@ -141,7 +140,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'),
         designs: values.designs.map((design: any) => ({
           ...design,
-          number: design.number || 1  // 确保有数量字段
+          number: design.number || 1
         })),
         saler: values.saler,
         remark: values.remark,
@@ -183,13 +182,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       if (!values.designs || values.designs.length === 0) {
         notification.error({
-          message: '请添加商品',
-          description: '至少需要添加一件商品',
+          message: t('pleaseAddAtLeastOneProduct'),
+          description: t('atLeastOneProductRequired'),
         });
         return;
       }
       
-      // 计算总金额（负数）
       const sum = (values.designs as any[]).reduce((total: number, item: any) => {
         return total + (Number(item?.price) || 0);
       }, 0);
@@ -198,12 +196,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         purchaseDate: values.purchaseDate.format('YYYY-MM-DD'),
         designs: values.designs.map((design: any) => ({
           ...design,
-          number: design.number || 1  // 确保有数量字段
+          number: design.number || 1
         })),
         saler: values.saler,
         remark: values.remark,
         memberId: memberData.id,
-        sum: (-sum).toFixed(2), // 负数
+        sum: (-sum).toFixed(2),
       };
 
       await member.createPurchaseRecord(params);
@@ -253,7 +251,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
       width: 120,
     },
     {
-      title: '商品',
+      title: t('product'),
       dataIndex: 'designList',
       key: 'designList',
       width: 450,
@@ -307,7 +305,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
       ),
     },
     {
-      title: '支付详情/退款原因',
+      title: t('paymentDetailOrRefundReason'),
       dataIndex: 'remark',
       key: 'remark',
       width: 150,
@@ -339,16 +337,16 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             onClick={onBackToList}
             style={{ marginRight: 16 }}
           >
-            返回列表
+            {t('returnToList')}
           </Button>
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>会员购买记录</h2>
+          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>{t('memberPurchaseRecords')}</h2>
         </div>
         <div>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate} style={{ marginRight: 8 }}>
-            新增购买记录
+            {t('addPurchaseRecord')}
           </Button>
           <Button icon={<MinusCircleOutlined />} onClick={handleRefund}>
-            退还
+            {t('return')}
           </Button>
         </div>
       </div>
@@ -414,16 +412,16 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
           layout="inline"
           onFinish={handleSearch}
         >
-          <Form.Item name="designCode" label="商品代码">
-            <Input placeholder="请输入商品代码" style={{ width: 150 }} />
+          <Form.Item name="designCode" label={t('productCode')}>
+            <Input placeholder={t('pleaseEnterDesignCode')} style={{ width: 150 }} />
           </Form.Item>
-          <Form.Item name="color" label="颜色">
-            <Input placeholder="颜色" style={{ width: 120 }} />
+          <Form.Item name="color" label={t('color')}>
+            <Input placeholder={t('color')} style={{ width: 120 }} />
           </Form.Item>
-          <Form.Item name="size" label="尺码">
-            <Input placeholder="尺码" style={{ width: 100 }} />
+          <Form.Item name="size" label={t('size')}>
+            <Input placeholder={t('size')} style={{ width: 100 }} />
           </Form.Item>
-          <Form.Item name="stockType" label="类型">
+          <Form.Item name="stockType" label={t('stockType')}>
             <Select placeholder="Order/In Stock" style={{ width: 150 }} allowClear>
               <Select.Option value="order">Order</Select.Option>
               <Select.Option value="inStock">In Stock</Select.Option>
@@ -463,7 +461,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             showSizeChanger={false}
             showQuickJumper
             showTotal={(total, range) => 
-              `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
+              t('recordsRange').replace('{start}', String(range[0])).replace('{end}', String(range[1])).replace('{total}', String(total))
             }
           />
         </div>
@@ -471,13 +469,13 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       {/* 新增购买记录抽屉 */}
       <Drawer
-        title={t('add')+'购买记录'}
+        title={t('addPurchaseRecord')}
         open={createDrawerVisible}
         onClose={() => setCreateDrawerVisible(false)}
         width={900}
       >
         <Form form={form} layout="vertical" initialValues={{ status: 1, subscription: [1] }}>
-          <Form.Item name="purchaseDate" label="购买日期" rules={[{ required: true, message: '请选择购买日期' }]}>
+          <Form.Item name="purchaseDate" label={t('purchaseDate')} rules={[{ required: true, message: t('pleaseSelectPurchaseDate') }]}>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
           
@@ -485,9 +483,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             {(fields, { add, remove }) => (
               <>
                 <Form.Item>
-                  商品：
+                  {t('product')}：
                   <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
-                    添加商品
+                    {t('addProduct')}
                   </Button>
                 </Form.Item>
                 {fields.map(({ key, name, ...restField }) => {
@@ -527,7 +525,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const designs = form.getFieldValue('designs') || [];
                       designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
-                    } catch { notification.error({ message: '获取库存失败' }); }
+                    } catch { notification.error({ message: t('fetchStockDataFailed') }); }
                   };
 
                   const handleColorChange = (val: string) => {
@@ -552,10 +550,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
                   return (
                     <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
-                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: '请输入商品代码' }]}>
+                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: t('pleaseEnterDesignCode') }]}>
                         <AutoComplete
                           style={{ width: 180 }}
-                          placeholder="商品代码"
+                          placeholder={t('productCode')}
                           options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
                           onSearch={handleCodeSearch}
                           onSelect={handleCodeSelect}
@@ -564,10 +562,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'color']}>
-                        <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                        <Select placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
+                        <Select placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>
@@ -575,14 +573,14 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                           <Select.Option value="order">Order</Select.Option>
                         </Select>
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
-                        <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: t('pleaseEnterPrice') }]}>
+                        <InputNumber placeholder={t('price')} min={0} style={{ width: 130 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
-                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
+                        <InputNumber placeholder={t('quantity')} min={1} style={{ width: 80 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
-                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
+                        <InputNumber placeholder={t('quantity')} min={1} style={{ width: 80 }} />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
@@ -592,12 +590,12 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             )}
           </Form.List>
 
-          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请选择销售员' }]}>
-            <Select placeholder="请选择销售员">
+          <Form.Item name="saler" label={t('saler')} rules={[{ required: true, message: t('pleaseEnterSaler') }]}>
+            <Select placeholder={t('pleaseEnterSaler')}>
               {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="remark" label="支付详情" rules={[{ required: true, message: '请输入支付详情' }]}>
+          <Form.Item name="remark" label={t('paymentDetail')} rules={[{ required: true, message: t('pleaseEnterPaymentDetail') }]}>
             <Input />
           </Form.Item>
           <Form.Item>
@@ -608,13 +606,13 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
       {/* 退还抽屉 */}
       <Drawer
-        title="退还"
+        title={t('return')}
         open={refundDrawerVisible}
         onClose={() => setRefundDrawerVisible(false)}
         width={900}
       >
         <Form form={form} layout="vertical" initialValues={{ status: 1, subscription: [1] }}>
-          <Form.Item name="purchaseDate" label="购买日期" rules={[{ required: true, message: '请选择购买日期' }]}>
+          <Form.Item name="purchaseDate" label={t('purchaseDate')} rules={[{ required: true, message: t('pleaseSelectPurchaseDate') }]}>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
           
@@ -622,9 +620,9 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             {(fields, { add, remove }) => (
               <>
                 <Form.Item>
-                  商品：
+                  {t('product')}：
                   <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />} style={{ marginLeft: 8 }}>
-                    添加商品
+                    {t('addProduct')}
                   </Button>
                 </Form.Item>
                 {fields.map(({ key, name, ...restField }) => {
@@ -663,7 +661,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const designs = form.getFieldValue('designs') || [];
                       designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
-                    } catch { notification.error({ message: '获取库存失败' }); }
+                    } catch { notification.error({ message: t('fetchStockDataFailed') }); }
                   };
 
                   const handleColorChange = (val: string) => {
@@ -688,10 +686,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
                   return (
                     <Space key={key} style={{ display: 'flex', marginBottom: 8, flexWrap: 'wrap' }} align="baseline">
-                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: '请输入商品代码' }]}>
+                      <Form.Item {...restField} name={[name, 'designCode']} rules={[{ required: true, message: t('pleaseEnterDesignCode') }]}>
                         <AutoComplete
                           style={{ width: 180 }}
-                          placeholder="商品代码"
+                          placeholder={t('productCode')}
                           options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
                           onSearch={handleCodeSearch}
                           onSelect={handleCodeSelect}
@@ -700,10 +698,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'color']}>
-                        <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                        <Select placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
+                        <Select placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>
@@ -711,11 +709,11 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                           <Select.Option value="order">Order</Select.Option>
                         </Select>
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: '请输入价格' }]}>
-                        <InputNumber placeholder="价格" min={0} style={{ width: 130 }} />
+                      <Form.Item {...restField} name={[name, 'price']} rules={[{ required: true, message: t('pleaseEnterPrice') }]}>
+                        <InputNumber placeholder={t('price')} min={0} style={{ width: 130 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'number']} initialValue={1}>
-                        <InputNumber placeholder="数量" min={1} style={{ width: 80 }} />
+                        <InputNumber placeholder={t('amount')} min={1} style={{ width: 80 }} />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
@@ -725,16 +723,16 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
             )}
           </Form.List>
           
-          <Form.Item name="saler" label="销售员" rules={[{ required: true, message: '请选择销售员' }]}>
-            <Select placeholder="请选择销售员">
+          <Form.Item name="saler" label={t('saler')} rules={[{ required: true, message: t('pleaseEnterSaler') }]}>
+            <Select placeholder={t('pleaseSelectSaler') || t('pleaseEnterSaler')}>
               {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
             </Select>
           </Form.Item>
-          <Form.Item name="remark" label="支付详情" rules={[{ required: true, message: '请输入支付详情' }]}>
+          <Form.Item name="remark" label={t('paymentDetail')} rules={[{ required: true, message: t('pleaseEnterPaymentDetail') }]}>
             <Input />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={handleRefundSubmit} block>{t('confirm')}退还</Button>
+            <Button type="primary" onClick={handleRefundSubmit} block>{t('confirmReturn')}</Button>
           </Form.Item>
         </Form>
       </Drawer>
@@ -749,7 +747,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
         cancelText={t('cancel')}
         okButtonProps={{ danger: true }}
       >
-        <p>确定要删除这条购买记录吗？此操作不可撤销。</p>
+        <p>{t('confirmDeletePurchaseRecord')}</p>
       </Modal>
     </div>
   );

@@ -72,7 +72,7 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
       }
     } catch (error) {
       console.error('获取现金抽屉余额数据失败:', error);
-      message.error(t('获取现金抽屉余额数据失败'));
+      message.error(t('fetchCashDrawerBalanceFailed'));
       setData([]);
       setPagination({
         current: 1,
@@ -131,16 +131,16 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
       };
       
       await cashDrawerService.create(params);
-      message.success(t('创建成功'));
+      message.success(t('createSuccess'));
       setCreateModalVisible(false);
       createForm.resetFields();
       fetchData(pagination.current);
     } catch (error: any) {
       if (error.errorFields) {
-        message.error(t('请填写完整'));
+        message.error(t('pleaseFillComplete'));
       } else {
         console.error('创建失败:', error);
-        message.error(t('创建失败'));
+        message.error(t('createCashRecordFailed'));
       }
     } finally {
       setCreateLoading(false);
@@ -151,11 +151,11 @@ export default function OpeningClosingBalanceDrawer({ visible, onClose }: Openin
   const handleDelete = async (record: CashDrawerData) => {
     try {
       await cashDrawerService.delete(record.id);
-      message.success(t('删除成功'));
+      message.success(t('deleteSuccess'));
       fetchData(pagination.current);
     } catch (error) {
       console.error('删除失败:', error);
-      message.error(t('删除失败'));
+      message.error(t('deleteCashRecordFailed'));
     }
   };
 

@@ -526,7 +526,7 @@ export default function MemberManagement() {
           extra={
             isAdmin() ? (
               <span style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff' }}>
-                {t('选中会员总余额')}: ${totalBalance}
+                {t('selectedMembersBalance')}: ${totalBalance}
               </span>
             ) : undefined
           }

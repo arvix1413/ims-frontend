@@ -72,7 +72,7 @@ export default function CashInOutDrawer({ visible, onClose }: CashInOutDrawerPro
       }
     } catch (error) {
       console.error('获取现金数据失败:', error);
-      message.error(t('获取现金数据失败'));
+      message.error(t('fetchCashDataFailed'));
       setData([]);
       setPagination({
         current: 1,
@@ -131,16 +131,16 @@ export default function CashInOutDrawer({ visible, onClose }: CashInOutDrawerPro
       };
       
       await cashService.create(params);
-      message.success(t('创建成功'));
+      message.success(t('createSuccess'));
       setCreateModalVisible(false);
       createForm.resetFields();
       fetchData(pagination.current);
     } catch (error: any) {
       if (error.errorFields) {
-        message.error(t('请填写完整'));
+        message.error(t('pleaseFillComplete'));
       } else {
         console.error('创建失败:', error);
-        message.error(t('创建失败'));
+        message.error(t('createCashRecordFailed'));
       }
     } finally {
       setCreateLoading(false);
@@ -151,11 +151,11 @@ export default function CashInOutDrawer({ visible, onClose }: CashInOutDrawerPro
   const handleDelete = async (record: CashData) => {
     try {
       await cashService.delete(record.id);
-      message.success(t('删除成功'));
+      message.success(t('deleteSuccess'));
       fetchData(pagination.current);
     } catch (error) {
       console.error('删除失败:', error);
-      message.error(t('删除失败'));
+      message.error(t('deleteCashRecordFailed'));
     }
   };
 

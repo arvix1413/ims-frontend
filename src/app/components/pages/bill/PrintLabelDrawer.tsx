@@ -31,8 +31,8 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
           form.setFieldsValue({ salePrice: res.data[0].salePrice });
         }
       } catch (error) {
-        console.error('获取价格失败:', error);
-        notification.error({ message: '获取价格失败' });
+        console.error('Get price failed:', error);
+        notification.error({ message: t('getPriceFailed') });
       }
     }
   }, [form]);
@@ -55,16 +55,16 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
         };
         
         await printService.printLabel(params);
-        notification.success({ message: '打印标签成功' });
+        notification.success({ message: t('printLabelSuccess') });
         form.resetFields();
         setShops(1);
         onClose();
       } else {
-        notification.error({ message: '请填完整' });
+        notification.error({ message: t('pleaseFillComplete') });
       }
     } catch (error) {
-      console.error('打印标签失败:', error);
-      notification.error({ message: '打印标签失败' });
+      console.error('Print label failed:', error);
+      notification.error({ message: t('printLabelFailed') });
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
         <Form.Item
           name="code"
           label={t('designCode')}
-          rules={[{ required: true, message: '请输入商品代码' }]}
+          rules={[{ required: true, message: t('pleaseEnterDesignCode') }]}
         >
           <Input placeholder={t('pleaseEnterDesignCode')} />
         </Form.Item>
@@ -124,7 +124,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
         <Form.Item
           name="color"
           label={t('color')}
-          rules={[{ required: true, message: '请选择颜色' }]}
+          rules={[{ required: true, message: t('pleaseSelectColor') }]}
         >
           <ColorSelect 
               placeholder={t('color')} 
@@ -134,7 +134,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
         <Form.Item
           name="size"
           label={t('size')}
-          rules={[{ required: true, message: '请选择尺寸' }]}
+          rules={[{ required: true, message: t('pleaseSelectSize') }]}
         >
           <Select placeholder={t('pleaseSelectSize')}>
             {sizeList.map(size => (
@@ -145,14 +145,14 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
 
         <Form.Item>
           <Button onClick={getPrice} style={{ marginBottom: 16 }}>
-            检测价格
+            {t('detectPrice')}
           </Button>
         </Form.Item>
 
         <Form.Item
           name="salePrice"
           label={t('salePrice')}
-          rules={[{ required: true, message: '请输入价格' }]}
+          rules={[{ required: true, message: t('pleaseEnterPrice') }]}
         >
           <Input placeholder={t('pleaseEnterPrice')} type="number" />
         </Form.Item>
@@ -161,12 +161,12 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
           name="count"
           label={t('count')}
           rules={[
-            { required: true, type: 'number', min: 1, message: t('pleaseEnterCount') || '请输入数量' },
+            { required: true, type: 'number', min: 1, message: t('pleaseEnterCount') },
             {
               validator: (_, value) =>
                 value === undefined || value === null || Number.isInteger(value)
                   ? Promise.resolve()
-                  : Promise.reject(new Error(t('countMustBeInteger') || '数量必须为整数')),
+                  : Promise.reject(new Error(t('countMustBeInteger'))),
             },
           ]}
         >
