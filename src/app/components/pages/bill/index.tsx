@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select } from 'antd';
-import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined } from '@ant-design/icons';
+import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select, AutoComplete, InputNumber, notification } from 'antd';
+import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ReceiptData, ReceiptListRequest } from '@/lib/types';
-import { receipt, cashDrawerService } from '@/lib/api';
+import { receipt, cashDrawerService, item as itemApi, designService } from '@/lib/api';
 import moment from 'moment';
 import { usePermissions } from '@/lib/usePermissions';
 import { useIsMobile } from '@/lib/useIsMobile';
@@ -19,6 +19,152 @@ import OpeningClosingBalanceDrawer from './OpeningClosingBalanceDrawer';
 import { shops } from './PrintReceipt';
 import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 import SearchFormCard from '@/app/components/common/SearchFormCard';
+import { STAFF_LIST } from '@/config/constants';
+
+// ────────────────────────────────────────────────────────────────
+// 退货订单 Drawer（从库存记录页移入）
+// ────────────────────────────────────────────────────────────────
+function ReturnOrderDrawer({ visible, onClose, onSuccess }: { visible: boolean; onClose: () => void; onSuccess: () => void }) {
+  const [returnForm] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[] }>>({});
+  const codeTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+
+  const handleCodeSearch = (name: number, val: string) => {
+    if (codeTimers.current[name]) clearTimeout(codeTimers.current[name]);
+    if (!val) return;
+    codeTimers.current[name] = setTimeout(async () => {
+      try {
+        const res = await designService.getList({ design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' } });
+        setRowCache(prev => ({ ...prev, [name]: { ...prev[name], codeOptions: res?.data?.content ?? [] } }));
+      } catch { /* ignore */ }
+    }, 350);
+  };
+
+  const handleCodeSelect = async (name: number, val: string, option: any) => {
+    try {
+      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+      const items = res?.data ?? [];
+      const firstColor = items[0]?.color ?? '';
+      const firstSize = items.find((i: any) => i.color === firstColor)?.size ?? '';
+      const firstItemId = items.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
+      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+      const curItems = returnForm.getFieldValue('items') || [];
+      curItems[name] = { ...curItems[name], code: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, itemId: firstItemId };
+      returnForm.setFieldsValue({ items: [...curItems] });
+    } catch { notification.error({ message: '获取库存失败' }); }
+  };
+
+  const handleColorChange = (name: number, val: string) => {
+    const warehouseItems = rowCache[name]?.warehouseItems ?? [];
+    const firstSize = warehouseItems.find((i: any) => i.color === val)?.size ?? '';
+    const firstItemId = warehouseItems.find((i: any) => i.color === val && i.size === firstSize)?.id ?? null;
+    const curItems = returnForm.getFieldValue('items') || [];
+    curItems[name] = { ...curItems[name], color: val, size: firstSize, itemId: firstItemId };
+    returnForm.setFieldsValue({ items: [...curItems] });
+    setRowCache(prev => ({ ...prev, [name]: { ...prev[name] } }));
+  };
+
+  const handleSizeChange = (name: number, val: string) => {
+    const warehouseItems = rowCache[name]?.warehouseItems ?? [];
+    const cur = (returnForm.getFieldValue('items') || [])[name] || {};
+    const itemId = warehouseItems.find((i: any) => i.color === cur.color && i.size === val)?.id ?? null;
+    const curItems = returnForm.getFieldValue('items') || [];
+    curItems[name] = { ...curItems[name], size: val, itemId };
+    returnForm.setFieldsValue({ items: [...curItems] });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await returnForm.validateFields();
+      setLoading(true);
+      for (const it of (values.items || [])) {
+        if (!it.itemId) { notification.warning({ message: `商品 ${it.code} 未匹配到库存记录，跳过` }); continue; }
+        try {
+          const allItems = Object.values(rowCache).flatMap(c => c.warehouseItems);
+          const found = allItems.find((i: any) => i.id === it.itemId);
+          const currentStock = found?.inStoreStock ?? 0;
+          const newStock = currentStock + (it.qty ?? 1);
+          await itemApi.modifyStock(it.itemId, newStock);
+        } catch (err) {
+          console.error('退货库存增加失败 itemId:', it.itemId, err);
+        }
+      }
+      notification.success({ message: '退货订单创建成功，对应库存已更新' });
+      returnForm.resetFields();
+      setRowCache({});
+      onClose();
+      onSuccess();
+    } catch (err: any) {
+      if (!err?.errorFields) {
+        console.error('退货订单失败:', err);
+        notification.error({ message: '退货失败，请重试' });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Drawer title="退货订单" open={visible} onClose={onClose} width={900} footer={
+      <div style={{ textAlign: 'right' }}>
+        <Button onClick={onClose} style={{ marginRight: 8 }}>取消</Button>
+        <Button type="primary" loading={loading} onClick={handleSubmit}>确认退货</Button>
+      </div>
+    }>
+      <Form form={returnForm} layout="vertical">
+        <Form.List name="items">
+          {(fields, { add, remove }) => (
+            <>
+              <Form.Item>
+                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>添加商品</Button>
+              </Form.Item>
+              {fields.map(({ key, name, ...restField }) => {
+                const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
+                const cur = (returnForm.getFieldValue('items') || [])[name] || {};
+                const colorOptions = [...new Set(cache.warehouseItems.map((i: any) => i.color).filter(Boolean))];
+                const sizeOptions = [...new Set(cache.warehouseItems.filter((i: any) => !cur.color || i.color === cur.color).map((i: any) => i.size).filter(Boolean))];
+                return (
+                  <div key={key} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 12, padding: 12, background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
+                    <Form.Item {...restField} name={[name, 'code']} label="商品代码" rules={[{ required: true, message: '请输入商品代码' }]}>
+                      <AutoComplete
+                        style={{ width: 180 }}
+                        placeholder="输入code自动匹配"
+                        options={(cache.codeOptions || []).map((d: any) => ({ value: d.design, label: `${d.design}  $${d.salePrice}`, designId: d.id, salePrice: d.salePrice }))}
+                        onSearch={val => handleCodeSearch(name, val)}
+                        onSelect={(val, opt) => handleCodeSelect(name, val, opt)}
+                        filterOption={false}
+                        allowClear
+                      />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'color']} label="颜色">
+                      <Select placeholder="颜色" style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'size']} label="尺码">
+                      <Select placeholder="尺码" style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'qty']} label="数量" initialValue={1} rules={[{ required: true, message: '请输入数量' }]}>
+                      <InputNumber min={1} style={{ width: 80 }} />
+                    </Form.Item>
+                    <Form.Item {...restField} name={[name, 'remark']} label="备注">
+                      <Input placeholder="退货原因" style={{ width: 160 }} />
+                    </Form.Item>
+                    <Button type="link" danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} style={{ marginBottom: 24 }} />
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </Form.List>
+        <Form.Item name="operator" label="操作人" rules={[{ required: true, message: '请选择操作人' }]}>
+          <Select placeholder="请选择操作人">
+            {STAFF_LIST.map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+          </Select>
+        </Form.Item>
+      </Form>
+    </Drawer>
+  );
+}
 
 export default function BillManagement() {
   const { t } = useTranslation();
@@ -40,6 +186,7 @@ export default function BillManagement() {
   const [currentView, setCurrentView] = useState<'list' | 'print'>('list');
   const [printLabelVisible, setPrintLabelVisible] = useState(false);
   const [printDailyReportVisible, setPrintDailyReportVisible] = useState(false);
+  const [returnOrderVisible, setReturnOrderVisible] = useState(false);
   const [dailySaleVisible, setDailySaleVisible] = useState(false);
   const [paymentMethodSaleVisible, setPaymentMethodSaleVisible] = useState(false);
   const [cashInOutVisible, setCashInOutVisible] = useState(false);
@@ -642,10 +789,8 @@ export default function BillManagement() {
             {canUseFeature('printReceipt') && (
               <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrintReceipt}>{t('printReceipt')}</Button>
             )}
-            {canUseFeature('printLabel') && (
-              <Button onClick={() => setPrintLabelVisible(true)}>
-                {t('printLabel')}
-              </Button>
+            {canUseFeature('printReceipt') && (
+              <Button type="primary" danger icon={<PlusOutlined />} onClick={() => setReturnOrderVisible(true)}>退货订单</Button>
             )}
             {canUseFeature('printDailyReport') && (
               <Button onClick={() => setPrintDailyReportVisible(true)}>
@@ -760,9 +905,9 @@ export default function BillManagement() {
               {t('printReceipt')}
             </Button>
           )}
-          {canUseFeature('printLabel') && (
-            <Button onClick={() => setPrintLabelVisible(true)} block size="large">
-              {t('printLabel')}
+          {canUseFeature('printReceipt') && (
+            <Button type="primary" danger icon={<PlusOutlined />} onClick={() => setReturnOrderVisible(true)} block size="large">
+              退货订单
             </Button>
           )}
           {canUseFeature('printDailyReport') && (
@@ -858,6 +1003,11 @@ export default function BillManagement() {
       <PrintLabelDrawer 
         visible={printLabelVisible} 
         onClose={() => setPrintLabelVisible(false)} 
+      />
+      <ReturnOrderDrawer
+        visible={returnOrderVisible}
+        onClose={() => setReturnOrderVisible(false)}
+        onSuccess={() => fetchData(1)}
       />
       <PrintDailyReportDrawer 
         visible={printDailyReportVisible} 
