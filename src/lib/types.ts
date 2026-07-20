@@ -132,35 +132,6 @@ export interface CreateItemRequest {
   [key: string]: any;
 }
 
-// 爆/冷款商品数据类型
-export interface HotColdItem {
-  id: number;
-  hot: number;
-  type: string;
-  design: string;
-  salePrice: string;
-  stock: number;
-  previewPhoto: string;
-}
-
-export interface HotColdListResponse {
-  msg: string;
-  code: number;
-  data: {
-    number: number;
-    size: number;
-    totalPages: number;
-    numberOfElements: number;
-    totalElements: number;
-    content: HotColdItem[];
-  };
-}
-
-export interface HotColdListRequest {
-  type: string;
-  searchPage: SearchPageParams;
-}
-
 // 库存修改记录相关类型
 export interface InventoryRecordItem {
   id: number;

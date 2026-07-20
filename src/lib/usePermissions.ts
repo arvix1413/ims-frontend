@@ -80,7 +80,6 @@ export function usePermissions() {
         return [
           'designManagement',
           'orderManagement', 
-          'hotColdItems',
           'inventoryRecords',
           'billManagement',
           'memberManagement',
@@ -95,7 +94,7 @@ export function usePermissions() {
         return ['billManagement'];
       
       case E_USER_TYPE.PRODUCTMANAGEMENT:
-        return ['designManagement', 'hotColdItems'];
+        return ['designManagement'];
       
       case E_USER_TYPE.ADMIN:
       default:
@@ -103,7 +102,6 @@ export function usePermissions() {
           'employeeManagement',
           'designManagement',
           'orderManagement',
-          'hotColdItems',
           'inventoryRecords',
           'employeeHistory',
           'billManagement',

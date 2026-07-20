@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePermissions } from '@/lib/usePermissions';
 import EmployeeManagement from './pages/employee';
-import HotColdItems from './pages/hotCold';
 import InventoryRecords from './pages/inventory';
 import EmployeeHistory from './pages/employee/history';
 import MemberManagement from './pages/member';
@@ -30,7 +29,6 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         'designManagement',
         'employeeManagement',
         'orderManagement',
-        'hotColdItems',
         'inventoryRecords',
         'employeeHistory',
         'billManagement',
@@ -77,8 +75,6 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         return <Order key={activePage} />;
       case 'orderHistory':
         return <OrderHistory key={activePage} />;
-      case 'hotColdItems':
-        return <HotColdItems key={activePage} />;
       case 'inventoryRecords':
         return <InventoryRecords key={activePage} />;
       case 'employeeHistory':

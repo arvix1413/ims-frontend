@@ -17,7 +17,6 @@ const zhTranslations = {
   // Sidebar
   designManagement: '商品管理',
   orderManagement: '进货订单',
-  hotColdItems: '爆/冷款',
   inventoryRecords: '库存记录',
   memberManagement: '会员订单',
   customerManagement: '客户管理',
@@ -180,7 +179,6 @@ const zhTranslations = {
   edit: '编辑',
   download: '下载',
   noData: '暂无数据',
-  hotColdAnalysis:"爆冷款分析",
   productNotFound: '商品不存在',
   fetchStockDataFailed: '获取库存数据失败',
   designCodeSearch: '商品编号搜索',
@@ -527,7 +525,6 @@ const enTranslations = {
   // Sidebar
   designManagement: 'Design Management',
   orderManagement: 'Order Management',
-  hotColdItems: 'Hot/Cold Items',
   inventoryRecords: 'Inventory Records',
   memberManagement: 'Member Orders',
   customerManagement: 'Customer Management',
@@ -622,7 +619,6 @@ const enTranslations = {
   total: 'Total',
   items: 'Items',
   itemCode: 'Item Code',
-  hotColdAnalysis:"Hot/Cold Analysis",
   pleaseEnter: 'Please enter',
   pleaseSelect: 'Please select',
   productImage: 'Product Image',
