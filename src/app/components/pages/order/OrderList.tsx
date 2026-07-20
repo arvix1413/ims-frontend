@@ -382,6 +382,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           '1': t('shippedSuccess') || '订单已发货',
           '2': t('completedSuccess') || '订单已完成',
           '6': t('arrivedNotPickedUpSuccess') || '已标记为货到未取',
+          '7': t('arrivedPickedUpSuccess') || '代存订单已完成',
         };
         
         message.success(statusTextMap[targetStatus] || '状态更新成功');
@@ -505,6 +506,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           icon: <CheckOutlined />,
           disabled: isVoided || isOutOfStock,
           onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
+        },
+        {
+          key: 'arrived_picked_up',
+          label: t('arrivedPickedUp') || '货到已取（代存完成）',
+          icon: <CheckOutlined />,
+          disabled: isVoided || s !== '6',  // 只有货到未取状态才能点
+          onClick: () => handleStatusChangeWithDate(orderData, '7', t('arrivedPickedUp') || '货到已取'),
         },
         {
           key: 'arrived_not_picked_up',
@@ -771,6 +779,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           >
             {t('completed')}
           </Button>
+          {order.status === '6' && (
+            <Button
+              size="small"
+              onClick={() => handleStatusChangeWithDate(order, '7', t('arrivedPickedUp') || '货到已取')}
+              className="flex-1"
+              style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
+            >
+              {t('arrivedPickedUp') || '货到已取'}
+            </Button>
+          )}
           <Button
             size="small"
             danger

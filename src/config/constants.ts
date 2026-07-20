@@ -35,6 +35,7 @@ export const ORDER_STATUS_MAP = {
   '4': { text: '损坏', color: '#722ed1' },
   '5': { text: '已结单', color: '#52c41a' },
   '6': { text: '货到未取', color: '#fa8c16' },
+  '7': { text: '货到已取', color: '#13c2c2' },
 } as const;
 
 // Package充值配置
