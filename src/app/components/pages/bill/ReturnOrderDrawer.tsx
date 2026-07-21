@@ -230,6 +230,9 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   const renderTabContent = () => (
     <div>
       <Form form={searchForm} layout="inline" onFinish={() => fetchData(1)} style={{ marginBottom: 16 }}>
+        <Form.Item name="operator" label={t('operator')}>
+          <Input placeholder={t('operator')} style={{ width: 140 }} allowClear />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>{t('search')}</Button>
         </Form.Item>
