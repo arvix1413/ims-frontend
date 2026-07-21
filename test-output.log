@@ -1,0 +1,173 @@
+
+Running 6 tests using 1 worker
+
+[1/6] [chromium] › tests/return-order-test.spec.ts:26:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试1: 打开退货订单抽屉不崩溃
+[chromium] › tests/return-order-test.spec.ts:26:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试1: 打开退货订单抽屉不崩溃
+开始测试：打开退货订单抽屉
+
+✅ 测试通过：退货订单抽屉正常打开
+
+[2/6] [chromium] › tests/return-order-test.spec.ts:52:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试2: 输入商品代码不崩溃
+[chromium] › tests/return-order-test.spec.ts:52:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试2: 输入商品代码不崩溃
+开始测试：输入商品代码
+
+  测试输入: "A"
+
+  1) [chromium] › tests/return-order-test.spec.ts:52:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试2: 输入商品代码不崩溃 ─────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      87 |       // 检查页面是否仍然正常（没有崩溃）
+      88 |       const drawerStillVisible = await page.locator('.ant-drawer').isVisible();
+    > 89 |       expect(drawerStillVisible).toBe(true);
+         |                                  ^
+      90 |       
+      91 |       // 检查是否有错误边界显示
+      92 |       const errorBoundary = page.locator('text=组件加载出错').or(page.locator('text=Error'));
+        at /Users/leo_w/Workspace/codes/ern-projects/ims-frontend/tests/return-order-test.spec.ts:89:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试2-输入商品代码不崩溃-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试2-输入商品代码不崩溃-chromium/error-context.md
+
+
+[3/6] [chromium] › tests/return-order-test.spec.ts:100:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试3: 快速连续输入不崩溃
+[chromium] › tests/return-order-test.spec.ts:100:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试3: 快速连续输入不崩溃
+开始测试：快速连续输入
+
+  2) [chromium] › tests/return-order-test.spec.ts:100:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试3: 快速连续输入不崩溃 ────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      125 |     // 验证页面没有崩溃
+      126 |     const drawerStillVisible = await page.locator('.ant-drawer').isVisible();
+    > 127 |     expect(drawerStillVisible).toBe(true);
+          |                                ^
+      128 |     
+      129 |     // 检查控制台错误
+      130 |     const errorBoundary = page.locator('text=组件加载出错');
+        at /Users/leo_w/Workspace/codes/ern-projects/ims-frontend/tests/return-order-test.spec.ts:127:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试3-快速连续输入不崩溃-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试3-快速连续输入不崩溃-chromium/error-context.md
+
+
+[4/6] [chromium] › tests/return-order-test.spec.ts:137:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试4: 添加多个商品行不崩溃
+[chromium] › tests/return-order-test.spec.ts:137:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试4: 添加多个商品行不崩溃
+开始测试：添加多个商品行
+
+  添加第 1 个商品行
+
+  添加第 2 个商品行
+
+  添加第 3 个商品行
+
+  找到 3 个输入框
+
+  3) [chromium] › tests/return-order-test.spec.ts:137:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试4: 添加多个商品行不崩溃 ───
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.fill: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('.ant-select-auto-complete input, .ant-autocomplete input').nth(2)
+
+
+      164 |     // 在每个输入框中输入内容
+      165 |     for (let i = 0; i < Math.min(count, 3); i++) {
+    > 166 |       await codeInputs.nth(i).fill(`TEST${i + 1}`);
+          |                               ^
+      167 |       await page.waitForTimeout(200);
+      168 |     }
+      169 |     
+        at /Users/leo_w/Workspace/codes/ern-projects/ims-frontend/tests/return-order-test.spec.ts:166:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试4-添加多个商品行不崩溃-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试4-添加多个商品行不崩溃-chromium/error-context.md
+
+
+[5/6] [chromium] › tests/return-order-test.spec.ts:177:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试5: 选择操作员不崩溃
+[chromium] › tests/return-order-test.spec.ts:177:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试5: 选择操作员不崩溃
+开始测试：选择操作员
+
+  4) [chromium] › tests/return-order-test.spec.ts:177:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试5: 选择操作员不崩溃 ─────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=操作员').or(locator('text=Operator'))
+    Expected: visible
+    Error: strict mode violation: locator('text=操作员').or(locator('text=Operator')) resolved to 2 elements:
+        1) <label for="operator" title="Operator" class="ant-form-item-required">Operator</label> aka getByText('Operator', { exact: true })
+        2) <span class="ant-select-selection-placeholder">Please enter operator</span> aka getByText('Please enter operator')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('text=操作员').or(locator('text=Operator'))
+
+
+      189 |     // 查找操作员下拉框
+      190 |     const operatorLabel = page.locator('text=操作员').or(page.locator('text=Operator'));
+    > 191 |     await expect(operatorLabel).toBeVisible();
+          |                                 ^
+      192 |     
+      193 |     // 点击操作员下拉框
+      194 |     const operatorSelect = page.locator('.ant-form-item').filter({ hasText: /操作员|Operator/ }).locator('.ant-select');
+        at /Users/leo_w/Workspace/codes/ern-projects/ims-frontend/tests/return-order-test.spec.ts:191:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试5-选择操作员不崩溃-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试5-选择操作员不崩溃-chromium/error-context.md
+
+
+[6/6] [chromium] › tests/return-order-test.spec.ts:219:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试6: 关闭抽屉正常工作
+[chromium] › tests/return-order-test.spec.ts:219:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试6: 关闭抽屉正常工作
+开始测试：关闭抽屉
+
+  5) [chromium] › tests/return-order-test.spec.ts:219:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试6: 关闭抽屉正常工作 ─────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      236 |     await page.waitForTimeout(500);
+      237 |     const drawerVisible = await page.locator('.ant-drawer').isVisible().catch(() => false);
+    > 238 |     expect(drawerVisible).toBe(false);
+          |                           ^
+      239 |     
+      240 |     console.log('✅ 测试通过：关闭抽屉正常工作');
+      241 |   });
+        at /Users/leo_w/Workspace/codes/ern-projects/ims-frontend/tests/return-order-test.spec.ts:238:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试6-关闭抽屉正常工作-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/return-order-test-退货订单功能-E2E-测试---生产环境-测试6-关闭抽屉正常工作-chromium/error-context.md
+
+
+  5 failed
+    [chromium] › tests/return-order-test.spec.ts:52:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试2: 输入商品代码不崩溃 ──────
+    [chromium] › tests/return-order-test.spec.ts:100:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试3: 快速连续输入不崩溃 ─────
+    [chromium] › tests/return-order-test.spec.ts:137:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试4: 添加多个商品行不崩溃 ────
+    [chromium] › tests/return-order-test.spec.ts:177:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试5: 选择操作员不崩溃 ──────
+    [chromium] › tests/return-order-test.spec.ts:219:7 › 退货订单功能 E2E 测试 - 生产环境 › 测试6: 关闭抽屉正常工作 ──────
+  1 passed (2.9m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

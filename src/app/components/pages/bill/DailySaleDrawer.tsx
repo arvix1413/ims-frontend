@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Button, DatePicker, Table, Drawer, Tabs } from 'antd';
+import { Button, DatePicker, Table, Drawer, Tabs, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { DailySaleData } from '@/lib/types';
 import { printService } from '@/lib/api';

@@ -118,7 +118,8 @@ export default function Design() {
       }
     } catch (error) {
       console.error('获取商品列表失败:', error);
-      message.error(t('fetchDesignDetailFailed')); finally {
+      message.error(t('fetchDesignDetailFailed'));
+    } finally {
       setLoading(false);
     }
   }, [searchQuery.typeList, searchQuery.design, searchQuery.hasStock]);

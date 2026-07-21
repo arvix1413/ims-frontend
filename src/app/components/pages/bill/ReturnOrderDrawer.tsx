@@ -89,7 +89,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
         searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } 
       });
       
-      const items = Array.isArray(res?.data) ? res.data : res?.data?.content ?? [];
+      const items: any[] = Array.isArray(res?.data) ? res.data : (res?.data as any)?.content ?? [];
       const firstColor = items[0]?.color ?? '';
       const firstSize = items.find((i: any) => i?.color === firstColor)?.size ?? '';
       const firstItemId = items.find((i: any) => i?.color === firstColor && i?.size === firstSize)?.id ?? null;

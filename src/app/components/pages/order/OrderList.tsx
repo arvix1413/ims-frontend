@@ -196,12 +196,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         const res = await order.export(params);
         if (res.code === 200) {
           window.open(API_CONFIG.BASE_URL + res.data);
-          notification.success({ message: t('exportSuccess') });
+          message.success(t('exportSuccess'));
         } else {
-          notification.error({ message: res.msg });
+          message.error(res.msg);
         }
       } else {
-        notification.error({ message: t('pleaseEnterDate') });
+        message.error(t('pleaseEnterDate'));
       }
     } catch (error) {
       console.error('导出失败:', error);
