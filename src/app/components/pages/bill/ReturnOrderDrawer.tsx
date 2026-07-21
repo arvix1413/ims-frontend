@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Form, AutoComplete, Select, InputNumber, Input, Table, Drawer, Tabs, Modal, message, Tag } from 'antd';
+import { Button, Form, AutoComplete, Select, InputNumber, Input, Table, Drawer, Tabs, Modal, Popconfirm, message, Tag } from 'antd';
 import { SearchOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { item as itemApi, designService, returnOrderService } from '@/lib/api';
@@ -39,7 +39,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
       const params: any = {
         searchPage: { desc: 1, page, pageSize: 20, sort: 'create_date' },
         store: parseInt(activeTab),
-        operator: formValues.operator || undefined,
+        itemCode: formValues.itemCode || undefined,
       };
       if (formValues.operateDate?.length === 2) {
         params.startDateTime = formValues.operateDate[0].startOf('day').format('YYYY-MM-DD HH:mm:ss');
@@ -221,7 +221,15 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
     {
       title: t('delete'), key: 'delete', width: 100,
       render: (_: any, record: ReturnOrderData) => (
-        <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record)}>{t('delete')}</Button>
+        <Popconfirm
+          title={t('confirmDelete')}
+          onConfirm={() => handleDelete(record)}
+          okText={t('confirm')}
+          cancelText={t('cancel')}
+          okButtonProps={{ danger: true }}
+        >
+          <Button danger icon={<DeleteOutlined />}>{t('delete')}</Button>
+        </Popconfirm>
       ),
     },
   ];
@@ -230,8 +238,8 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   const renderTabContent = () => (
     <div>
       <Form form={searchForm} layout="inline" onFinish={() => fetchData(1)} style={{ marginBottom: 16 }}>
-        <Form.Item name="operator" label={t('operator')}>
-          <Input placeholder={t('operator')} style={{ width: 140 }} allowClear />
+        <Form.Item name="itemCode" label={t('designCode')}>
+          <Input placeholder={t('pleaseEnterDesignCode')} style={{ width: 180 }} allowClear />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>{t('search')}</Button>

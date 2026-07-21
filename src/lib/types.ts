@@ -648,6 +648,7 @@ export interface ReturnOrderListResponse {
 export interface ReturnOrderListRequest {
   searchPage: SearchPageParams;
   store: number;
+  itemCode?: string;
   operator?: string;
   startDateTime?: string;
   endDateTime?: string;
