@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Input, DatePicker, Table, Drawer, Tabs, Tag, message } from 'antd';
+import { Button, Form, Input, DatePicker, Table, Drawer, Tag, message } from 'antd';
 import { SearchOutlined, ReloadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { returnOrderService } from '@/lib/api';
@@ -18,24 +18,21 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
   const [form] = Form.useForm();
   const [data, setData] = useState<ReturnOrderData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('2');
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
 
-  const fetchData = async (page = 1, searchParams: any = {}) => {
+  const fetchData = async (page = 1) => {
     setLoading(true);
     setData([]);
     try {
       const formValues = form.getFieldsValue();
       const params: any = {
         searchPage: { desc: 1, page, pageSize: 20, sort: 'create_date' },
-        store: parseInt(activeTab),
-        ...formValues,
-        ...searchParams,
+        // no store filter — show all
+        itemCode: formValues.itemCode || undefined,
       };
       if (formValues.operateDate?.length === 2) {
         params.startDateTime = formValues.operateDate[0].startOf('day').format('YYYY-MM-DD HH:mm:ss');
         params.endDateTime = formValues.operateDate[1].endOf('day').format('YYYY-MM-DD HH:mm:ss');
-        delete params.operateDate;
       }
       const response = await returnOrderService.getList(params);
       if (response.code === 200) {
@@ -61,16 +58,10 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
 
   useEffect(() => {
     if (visible) fetchData();
-  }, [visible, activeTab]);
-
-  const handleTabChange = (key: string) => {
-    setActiveTab(key);
-    setPagination({ current: 1, pageSize: 20, total: 0 });
-  };
+  }, [visible]);
 
   const handleSearch = () => fetchData(1);
   const handleReset = () => { form.resetFields(); fetchData(1); };
-  const handlePageChange = (page: number) => fetchData(page);
 
   const handleDelete = async (record: ReturnOrderData) => {
     try {
@@ -83,6 +74,8 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
     }
   };
 
+  const storeLabel = (store: number) => store === 1 ? '一店' : store === 2 ? '二店' : '-';
+
   const columns: any[] = [
     {
       title: 'ID',
@@ -90,6 +83,13 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
       key: 'id',
       width: 70,
       fixed: 'left' as const,
+    },
+    {
+      title: t('store1') + '/' + t('store2'),
+      dataIndex: 'store',
+      key: 'store',
+      width: 80,
+      render: (v: number) => <Tag color={v === 1 ? 'blue' : 'green'}>{storeLabel(v)}</Tag>,
     },
     {
       title: t('designCode'),
@@ -102,7 +102,7 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
       dataIndex: 'color',
       key: 'color',
       width: 100,
-      render: (v: string) => v ? <Tag>{v}</Tag> : '-',
+      render: (v: string) => v || '-',
     },
     {
       title: t('size'),
@@ -136,7 +136,6 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
     },
     {
       title: t('delete'),
-      dataIndex: 'id',
       key: 'delete',
       width: 100,
       render: (_: any, record: ReturnOrderData) => (
@@ -147,8 +146,19 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
     },
   ];
 
-  const renderTabContent = () => (
-    <div>
+  return (
+    <Drawer
+      title={t('returnOrderHistory')}
+      placement="right"
+      onClose={onClose}
+      open={visible}
+      width={1100}
+      footer={
+        <div style={{ textAlign: 'right' }}>
+          <Button onClick={onClose}>{t('close')}</Button>
+        </div>
+      }
+    >
       <Form form={form} layout="inline" onFinish={handleSearch} style={{ marginBottom: 16 }}>
         <Form.Item name="itemCode" label={t('designCode')}>
           <Input placeholder={t('pleaseEnterDesignCode')} style={{ width: 160 }} allowClear />
@@ -169,39 +179,17 @@ export default function ReturnOrderHistoryDrawer({ visible, onClose }: ReturnOrd
         dataSource={data}
         rowKey="id"
         loading={loading}
-        scroll={{ x: 900 }}
+        scroll={{ x: 950 }}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,
           total: pagination.total,
-          onChange: handlePageChange,
+          onChange: fetchData,
           showSizeChanger: false,
           showQuickJumper: true,
           showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`,
         }}
       />
-    </div>
-  );
-
-  const tabItems = [
-    { key: '1', label: '一店', children: renderTabContent() },
-    { key: '2', label: '二店', children: renderTabContent() },
-  ];
-
-  return (
-    <Drawer
-      title={t('returnOrder')}
-      placement="right"
-      onClose={onClose}
-      open={visible}
-      width={1100}
-      footer={
-        <div style={{ textAlign: 'right' }}>
-          <Button onClick={onClose}>{t('close')}</Button>
-        </div>
-      }
-    >
-      <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} size="large" />
     </Drawer>
   );
 }
