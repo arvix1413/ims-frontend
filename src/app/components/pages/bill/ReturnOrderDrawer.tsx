@@ -39,7 +39,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
       const params: any = {
         searchPage: { desc: 1, page, pageSize: 20, sort: 'create_date' },
         store: parseInt(activeTab),
-        itemCode: formValues.itemCode || undefined,
+        operator: formValues.operator || undefined,
       };
       if (formValues.operateDate?.length === 2) {
         params.startDateTime = formValues.operateDate[0].startOf('day').format('YYYY-MM-DD HH:mm:ss');
@@ -141,42 +141,34 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
     createForm.setFieldsValue({ items: [...curItems] });
   };
 
-  // ---- Create submit ----
+  // ---- Create submit — single request with all items ----
   const handleCreate = async () => {
     try {
       const values = await createForm.validateFields();
       setCreateLoading(true);
-      for (const it of (values.items || [])) {
-        if (!it?.code) continue;
-        // update stock
-        if (it.itemId) {
-          try {
-            const allItems = Object.values(rowCache).flatMap(c => c.warehouseItems || []);
-            const found = allItems.find((i: any) => i?.id === it.itemId);
-            const newStock = (found?.inStoreStock ?? 0) + (it.qty ?? 1);
-            await itemApi.modifyStock(it.itemId, newStock);
-          } catch (err) {
-            console.error('库存增加失败:', err);
-          }
-        } else {
-          message.warning(t('itemNoStockRecord', { code: it.code }));
-        }
-        // save record
-        try {
-          await returnOrderService.create({
-            store: parseInt(activeTab),
-            itemCode: it.code,
-            color: it.color ?? '',
-            size: it.size ?? '',
-            qty: it.qty ?? 1,
-            remark: it.remark ?? '',
-            operator: values.operator,
-            itemId: it.itemId ?? undefined,
-          });
-        } catch (err) {
-          console.error('退货记录保存失败:', err);
-        }
+
+      const itemsPayload = (values.items || [])
+        .filter((it: any) => it?.code)
+        .map((it: any) => ({
+          itemCode: it.code,
+          color: it.color ?? '',
+          size: it.size ?? '',
+          qty: it.qty ?? 1,
+          itemId: it.itemId ?? null,
+        }));
+
+      if (itemsPayload.length === 0) {
+        message.warning(t('pleaseAddProduct'));
+        return;
       }
+
+      await returnOrderService.create({
+        store: parseInt(activeTab),
+        items: itemsPayload,
+        remark: values.remark ?? '',
+        operator: values.operator,
+      });
+
       message.success(t('returnOrderSuccess'));
       setCreateModalVisible(false);
       createForm.resetFields();
@@ -201,10 +193,25 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   // ---- Table columns ----
   const columns: any[] = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 70 },
-    { title: t('designCode'), dataIndex: 'itemCode', key: 'itemCode', width: 140 },
-    { title: t('color'), dataIndex: 'color', key: 'color', width: 100, render: (v: string) => v || '-' },
-    { title: t('size'), dataIndex: 'size', key: 'size', width: 80 },
-    { title: t('qty'), dataIndex: 'qty', key: 'qty', width: 70 },
+    {
+      title: t('products'),
+      key: 'itemList',
+      render: (_: any, record: ReturnOrderData) => {
+        const list: any[] = record.itemList ?? [];
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {list.map((it: any, idx: number) => (
+              <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <Tag color="blue">{it.itemCode}</Tag>
+                <span>{it.color}</span>
+                <span>{it.size}</span>
+                <Tag>x{it.qty}</Tag>
+              </div>
+            ))}
+          </div>
+        );
+      },
+    },
     { title: t('operator'), dataIndex: 'operator', key: 'operator', width: 100 },
     {
       title: t('operationTime'), dataIndex: 'createDate', key: 'createDate', width: 180,
@@ -223,9 +230,6 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   const renderTabContent = () => (
     <div>
       <Form form={searchForm} layout="inline" onFinish={() => fetchData(1)} style={{ marginBottom: 16 }}>
-        <Form.Item name="itemCode" label={t('designCode')}>
-          <Input placeholder={t('pleaseEnterDesignCode')} style={{ width: 160 }} allowClear />
-        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>{t('search')}</Button>
         </Form.Item>
@@ -324,9 +328,6 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
                         <Form.Item {...restField} name={[name, 'qty']} label={t('qty')} initialValue={1} rules={[{ required: true, message: t('pleaseEnterAmount') }]} style={{ marginBottom: 0, flex: '0 0 80px' }}>
                           <InputNumber min={1} style={{ width: '100%' }} />
                         </Form.Item>
-                        <Form.Item {...restField} name={[name, 'remark']} label={t('remark')} style={{ marginBottom: 0, flex: '1 1 auto', minWidth: 120 }}>
-                          <Input placeholder={t('remark')} />
-                        </Form.Item>
                         <div style={{ paddingTop: 30 }}>
                           <Button type="link" danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />
                         </div>
@@ -337,6 +338,9 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
               </>
             )}
           </Form.List>
+          <Form.Item name="remark" label={t('remark')} style={{ marginTop: 8 }}>
+            <Input placeholder={t('remark')} />
+          </Form.Item>
           <Form.Item name="operator" label={t('operator')} rules={[{ required: true, message: t('pleaseEnterOperator') }]}>
             <Select placeholder={t('pleaseEnterOperator')} style={{ width: 200 }}>
               {(STAFF_LIST || []).map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}

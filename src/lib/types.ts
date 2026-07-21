@@ -614,16 +614,21 @@ export interface CreateCashDrawerRequest {
 }
 
 // 退货订单相关类型
-export interface ReturnOrderData {
-  id: number;
-  store: number;
+export interface ReturnOrderItem {
   itemCode: string;
   color: string;
   size: string;
   qty: number;
+  itemId?: number;
+}
+
+export interface ReturnOrderData {
+  id: number;
+  store: number;
+  items: string;           // 原始 JSON 字符串
+  itemList?: ReturnOrderItem[]; // 反序列化后的商品列表
   remark?: string;
   operator: string;
-  itemId?: number;
   createDate: string;
 }
 
@@ -643,7 +648,6 @@ export interface ReturnOrderListResponse {
 export interface ReturnOrderListRequest {
   searchPage: SearchPageParams;
   store: number;
-  itemCode?: string;
   operator?: string;
   startDateTime?: string;
   endDateTime?: string;
@@ -651,13 +655,9 @@ export interface ReturnOrderListRequest {
 
 export interface CreateReturnOrderRequest {
   store: number;
-  itemCode: string;
-  color: string;
-  size: string;
-  qty: number;
+  items: ReturnOrderItem[];
   remark?: string;
   operator: string;
-  itemId?: number;
 }
 
 // 商品类型选项
