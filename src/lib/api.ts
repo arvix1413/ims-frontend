@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_ENDPOINTS } from './endpoints';
 import { API_CONFIG } from '@/config/constants';
-import { UserListResponse, CreateUserRequest, ModifyUserRequest, PaginationParams, UserListRequest, DesignListResponse, DesignListRequest, DesignDetailResponse, ModifyDesignRequest, CreateDesignRequest, CreateItemRequest, SearchPageParams, ItemData, CreateOrderRequest, OrderPageRequest, OrderPageResponse, ModifyOrderRequest, InventoryRecordResponse, InventoryRecordRequest, CustomerListResponse, CustomerListRequest, CustomerPageResponse, CustomerData, CreateCustomerRequest, ModifyCustomerRequest, MemberListResponse, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseResponse, MemberPurchaseRequest, CreateMemberRequest, CreatePurchaseRecordRequest, MemberPurchaseHistoryRequest, MemberPurchaseHistoryResponse, EmployeeOperationLogResponse, EmployeeOperationLogRequest, ReceiptListResponse, ReceiptListRequest, PrintReceiptRequest, PrintLabelRequest, PrintDailyReportRequest, DailySaleRequest, DailySaleResponse, CashListResponse, CashListRequest, CreateCashRequest, CashDrawerListResponse, CashDrawerListRequest, CreateCashDrawerRequest, UserBasicResponse, MemberPageResponse } from './types';
+import { UserListResponse, CreateUserRequest, ModifyUserRequest, PaginationParams, UserListRequest, DesignListResponse, DesignListRequest, DesignDetailResponse, ModifyDesignRequest, CreateDesignRequest, CreateItemRequest, SearchPageParams, ItemData, CreateOrderRequest, OrderPageRequest, OrderPageResponse, ModifyOrderRequest, InventoryRecordResponse, InventoryRecordRequest, CustomerListResponse, CustomerListRequest, CustomerPageResponse, CustomerData, CreateCustomerRequest, ModifyCustomerRequest, MemberListResponse, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseResponse, MemberPurchaseRequest, CreateMemberRequest, CreatePurchaseRecordRequest, MemberPurchaseHistoryRequest, MemberPurchaseHistoryResponse, EmployeeOperationLogResponse, EmployeeOperationLogRequest, ReceiptListResponse, ReceiptListRequest, PrintReceiptRequest, PrintLabelRequest, PrintDailyReportRequest, DailySaleRequest, DailySaleResponse, CashListResponse, CashListRequest, CreateCashRequest, CashDrawerListResponse, CashDrawerListRequest, CreateCashDrawerRequest, UserBasicResponse, MemberPageResponse, ReturnOrderListResponse, ReturnOrderListRequest, CreateReturnOrderRequest } from './types';
 import GlobalNotification from './notificationUtils';
 
 // 创建axios实例
@@ -546,6 +546,27 @@ export const cashDrawerService = {
   // 打开钱箱
   open: async (store: number): Promise<ApiResponse> => {
     const response = await apiClient.put<ApiResponse>('/cashDrawer/open', { store });
+    return response.data;
+  },
+};
+
+// 退货订单API
+export const returnOrderService = {
+  // 获取退货订单列表
+  getList: async (params: ReturnOrderListRequest): Promise<ReturnOrderListResponse> => {
+    const response = await apiClient.post<ReturnOrderListResponse>('/returnOrder/page', params);
+    return response.data;
+  },
+
+  // 创建退货订单记录
+  create: async (params: CreateReturnOrderRequest): Promise<ApiResponse> => {
+    const response = await apiClient.put<ApiResponse>('/returnOrder/create', params);
+    return response.data;
+  },
+
+  // 删除退货订单记录
+  delete: async (id: number): Promise<ApiResponse> => {
+    const response = await apiClient.delete<ApiResponse>(`/returnOrder/delete?id=${id}`);
     return response.data;
   },
 };

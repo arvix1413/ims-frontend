@@ -17,6 +17,7 @@ import PaymentMethodSaleDrawer from './PaymentMethodSaleDrawer';
 import CashInOutDrawer from './CashInOutDrawer';
 import OpeningClosingBalanceDrawer from './OpeningClosingBalanceDrawer';
 import ReturnOrderDrawer from './ReturnOrderDrawer';
+import ReturnOrderHistoryDrawer from './ReturnOrderHistoryDrawer';
 import { shops } from './PrintReceipt';
 import { ProductItemTag } from '@/app/components/common/ProductItemTag';
 import SearchFormCard from '@/app/components/common/SearchFormCard';
@@ -43,6 +44,7 @@ export default function BillManagement() {
   const [printLabelVisible, setPrintLabelVisible] = useState(false);
   const [printDailyReportVisible, setPrintDailyReportVisible] = useState(false);
   const [returnOrderVisible, setReturnOrderVisible] = useState(false);
+  const [returnOrderHistoryVisible, setReturnOrderHistoryVisible] = useState(false);
   const [dailySaleVisible, setDailySaleVisible] = useState(false);
   const [paymentMethodSaleVisible, setPaymentMethodSaleVisible] = useState(false);
   const [cashInOutVisible, setCashInOutVisible] = useState(false);
@@ -648,6 +650,9 @@ export default function BillManagement() {
             {canUseFeature('printReceipt') && (
               <Button type="primary" danger icon={<PlusOutlined />} onClick={() => setReturnOrderVisible(true)}>{t('returnOrder')}</Button>
             )}
+            {canUseFeature('printReceipt') && (
+              <Button icon={<FileTextOutlined />} onClick={() => setReturnOrderHistoryVisible(true)}>{t('returnOrderHistory')}</Button>
+            )}
             {canUseFeature('printDailyReport') && (
               <Button onClick={() => setPrintDailyReportVisible(true)}>
                 {t('printDailyReport')}
@@ -766,6 +771,11 @@ export default function BillManagement() {
               {t('returnOrder')}
             </Button>
           )}
+          {canUseFeature('printReceipt') && (
+            <Button icon={<FileTextOutlined />} onClick={() => setReturnOrderHistoryVisible(true)} block size="large">
+              {t('returnOrderHistory')}
+            </Button>
+          )}
           {canUseFeature('printDailyReport') && (
             <Button onClick={() => setPrintDailyReportVisible(true)} block size="large">
               {t('printDailyReport')}
@@ -864,6 +874,11 @@ export default function BillManagement() {
         visible={returnOrderVisible}
         onClose={() => setReturnOrderVisible(false)}
         onSuccess={() => fetchData(1)}
+        store={parseInt(activeTab)}
+      />
+      <ReturnOrderHistoryDrawer
+        visible={returnOrderHistoryVisible}
+        onClose={() => setReturnOrderHistoryVisible(false)}
       />
       <PrintDailyReportDrawer 
         visible={printDailyReportVisible} 

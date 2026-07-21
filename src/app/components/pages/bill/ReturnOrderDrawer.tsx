@@ -4,16 +4,17 @@ import React, { useState, useRef } from 'react';
 import { Drawer, Button, Form, AutoComplete, Select, InputNumber, Input, notification } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { item as itemApi, designService } from '@/lib/api';
+import { item as itemApi, designService, returnOrderService } from '@/lib/api';
 import { STAFF_LIST } from '@/config/constants';
 
 interface ReturnOrderDrawerProps {
   visible: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  store?: number; // 1=一店, 2=二店
 }
 
-export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: ReturnOrderDrawerProps) {
+export default function ReturnOrderDrawer({ visible, onClose, onSuccess, store = 2 }: ReturnOrderDrawerProps) {
   const { t } = useTranslation();
   const [returnForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -141,23 +142,39 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
       const values = await returnForm.validateFields();
       setLoading(true);
       for (const it of (values.items || [])) {
-        if (!it || !it.itemId) { 
-          if (it?.code) {
-            notification.warning({ message: t('itemNoStockRecord', { code: it.code }) }); 
+        if (!it || !it.code) continue;
+
+        // 1. 修改库存
+        if (it.itemId) {
+          try {
+            const allItems = Object.values(rowCache || {})
+              .filter(c => c && Array.isArray(c.warehouseItems))
+              .flatMap(c => c.warehouseItems || []);
+            const found = allItems.find((i: any) => i?.id === it.itemId);
+            const currentStock = found?.inStoreStock ?? 0;
+            const newStock = currentStock + (it.qty ?? 1);
+            await itemApi.modifyStock(it.itemId, newStock);
+          } catch (err) {
+            console.error('退货库存增加失败 itemId:', it.itemId, err);
           }
-          continue; 
+        } else {
+          notification.warning({ message: t('itemNoStockRecord', { code: it.code }) });
         }
+
+        // 2. 保存退货订单记录
         try {
-          const allItems = Object.values(rowCache || {})
-            .filter(c => c && Array.isArray(c.warehouseItems))
-            .flatMap(c => c.warehouseItems || []);
-          const found = allItems.find((i: any) => i?.id === it.itemId);
-          const currentStock = found?.inStoreStock ?? 0;
-          const newStock = currentStock + (it.qty ?? 1);
-          await itemApi.modifyStock(it.itemId, newStock);
+          await returnOrderService.create({
+            store,
+            itemCode: it.code,
+            color: it.color ?? '',
+            size: it.size ?? '',
+            qty: it.qty ?? 1,
+            remark: it.remark ?? '',
+            operator: values.operator,
+            itemId: it.itemId ?? undefined,
+          });
         } catch (err) {
-          console.error('退货库存增加失败 itemId:', it.itemId, err);
-          // stock update failed, continue with other items
+          console.error('退货订单记录保存失败:', err);
         }
       }
       notification.success({ message: t('returnOrderSuccess') });

@@ -613,6 +613,53 @@ export interface CreateCashDrawerRequest {
   date: string;
 }
 
+// 退货订单相关类型
+export interface ReturnOrderData {
+  id: number;
+  store: number;
+  itemCode: string;
+  color: string;
+  size: string;
+  qty: number;
+  remark?: string;
+  operator: string;
+  itemId?: number;
+  createDate: string;
+}
+
+export interface ReturnOrderListResponse {
+  msg: string;
+  code: number;
+  data: {
+    number: number;
+    size: number;
+    totalPages: number;
+    numberOfElements: number;
+    totalElements: number;
+    content: ReturnOrderData[];
+  };
+}
+
+export interface ReturnOrderListRequest {
+  searchPage: SearchPageParams;
+  store: number;
+  itemCode?: string;
+  operator?: string;
+  startDateTime?: string;
+  endDateTime?: string;
+}
+
+export interface CreateReturnOrderRequest {
+  store: number;
+  itemCode: string;
+  color: string;
+  size: string;
+  qty: number;
+  remark?: string;
+  operator: string;
+  itemId?: number;
+}
+
 // 商品类型选项
 export const typeList: any[] = [
   { value: 'AL', label: 'A型裙' },
