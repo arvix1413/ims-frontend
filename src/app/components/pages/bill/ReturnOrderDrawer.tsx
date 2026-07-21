@@ -141,6 +141,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess, store =
     try {
       const values = await returnForm.validateFields();
       setLoading(true);
+      const selectedStore = values.store ?? store;
       for (const it of (values.items || [])) {
         if (!it || !it.code) continue;
 
@@ -164,7 +165,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess, store =
         // 2. 保存退货订单记录
         try {
           await returnOrderService.create({
-            store,
+            store: selectedStore,
             itemCode: it.code,
             color: it.color ?? '',
             size: it.size ?? '',
@@ -206,6 +207,12 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess, store =
       }
     >
       <Form form={returnForm} layout="vertical">
+        <Form.Item name="store" label="Store" rules={[{ required: true, message: 'Please select store' }]} initialValue={store}>
+          <Select style={{ width: 160 }}>
+            <Select.Option value={1}>一店</Select.Option>
+            <Select.Option value={2}>二店</Select.Option>
+          </Select>
+        </Form.Item>
         <Form.List name="items">
           {(fields, { add, remove }) => (
             <>
