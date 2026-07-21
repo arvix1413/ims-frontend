@@ -202,8 +202,8 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
                 const sizeOptions = [...new Set((cache.warehouseItems || []).filter((i: any) => !cur.color || i?.color === cur.color).map((i: any) => i?.size).filter(Boolean))];
                 return (
                   <div key={key} style={{ marginBottom: 16, padding: 16, background: '#fafafa', borderRadius: 8, border: '1px solid #f0f0f0' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '180px 130px 100px 80px 160px auto', gap: 12, alignItems: 'end' }}>
-                      <Form.Item {...restField} name={[name, 'code']} label={t('designCode')} rules={[{ required: true, message: t('pleaseEnterDesignCode') }]} style={{ marginBottom: 0 }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <Form.Item {...restField} name={[name, 'code']} label={t('designCode')} rules={[{ required: true, message: t('pleaseEnterDesignCode') }]} style={{ marginBottom: 0, flex: '0 0 200px' }}>
                         <AutoComplete
                           style={{ width: '100%' }}
                           placeholder={t('pleaseEnterDesignCode')}
@@ -219,19 +219,19 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
                           allowClear
                         />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'color']} label={t('color')} style={{ marginBottom: 0 }}>
+                      <Form.Item {...restField} name={[name, 'color']} label={t('color')} style={{ marginBottom: 0, flex: '0 0 120px' }}>
                         <Select placeholder={t('color')} style={{ width: '100%' }} options={(colorOptions || []).map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'size']} label={t('size')} style={{ marginBottom: 0 }}>
+                      <Form.Item {...restField} name={[name, 'size']} label={t('size')} style={{ marginBottom: 0, flex: '0 0 100px' }}>
                         <Select placeholder={t('size')} style={{ width: '100%' }} options={(sizeOptions || []).map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'qty']} label={t('qty')} initialValue={1} rules={[{ required: true, message: t('pleaseEnterAmount') }]} style={{ marginBottom: 0 }}>
+                      <Form.Item {...restField} name={[name, 'qty']} label={t('qty')} initialValue={1} rules={[{ required: true, message: t('pleaseEnterAmount') }]} style={{ marginBottom: 0, flex: '0 0 80px' }}>
                         <InputNumber min={1} style={{ width: '100%' }} />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'remark']} label={t('remark')} style={{ marginBottom: 0 }}>
+                      <Form.Item {...restField} name={[name, 'remark']} label={t('remark')} style={{ marginBottom: 0, flex: '1 1 auto', minWidth: 150 }}>
                         <Input placeholder={t('remark')} style={{ width: '100%' }} />
                       </Form.Item>
-                      <div style={{ display: 'flex', alignItems: 'center', paddingBottom: 2 }}>
+                      <div style={{ paddingTop: 30 }}>
                         <Button type="link" danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />
                       </div>
                     </div>
