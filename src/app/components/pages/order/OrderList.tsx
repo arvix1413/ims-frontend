@@ -90,6 +90,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     { value: "3", label: t('outOfStock') },
     { value: "4", label: t('damaged') },
     { value: "5", label: t('void') },
+    { value: "6", label: t('arrivedNotPickedUp') },
+    { value: "7", label: t('unpaidTry') },
     { value: "8", label: t('arrived') },
   ];
 
@@ -114,7 +116,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       
       // 处理状态：如果为空则使用默认值（显示除了作废状态外的所有订单）
       if (!formValues.status || formValues.status.length === 0) {
-        params.status = ['0', '1', '2', '3', '4', '8'];
+        params.status = ['0', '1', '2', '3', '4', '6', '7', '8'];
       }
       
       // 处理日期范围
@@ -185,7 +187,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       
       // 处理状态：如果为空则使用默认值（显示除了作废状态外的所有订单）
       if (!formValues.status || formValues.status.length === 0) {
-        params.status = ['0', '1', '2', '3', '4', '8'];
+        params.status = ['0', '1', '2', '3', '4', '6', '7', '8'];
       }
       
       // 处理日期范围
