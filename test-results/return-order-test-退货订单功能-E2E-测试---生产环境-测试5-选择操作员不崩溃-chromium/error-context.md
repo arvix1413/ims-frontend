@@ -169,7 +169,7 @@ Call log:
                 - generic [ref=e230]:
                   - table [ref=e232]:
                     - rowgroup [ref=e245]:
-                      - row "Receipt ID Order No. Item Date Cashier Customer Name Customer Phone Payment void Reprint Operation" [ref=e246]:
+                      - row "Receipt ID Order No. Item Date Cashier Customer Name Customer Phone Payment Void Reprint Operation" [ref=e246]:
                         - columnheader "Receipt ID" [ref=e247]
                         - columnheader "Order No." [ref=e248]
                         - columnheader "Item" [ref=e249]
@@ -178,7 +178,7 @@ Call log:
                         - columnheader "Customer Name" [ref=e252]
                         - columnheader "Customer Phone" [ref=e253]
                         - columnheader "Payment" [ref=e254]
-                        - columnheader "void" [ref=e255]
+                        - columnheader "Void" [ref=e255]
                         - columnheader "Reprint" [ref=e256]
                         - columnheader "Operation" [ref=e257]
                   - table [ref=e259]:
@@ -807,10 +807,10 @@ Call log:
           - img [ref=e940]
       - generic [ref=e942]: Return Order
     - generic [ref=e944]:
-      - button "plus 添加商品" [ref=e950] [cursor=pointer]:
+      - button "plus Add Product" [ref=e950] [cursor=pointer]:
         - img "plus" [ref=e952]:
           - img [ref=e953]
-        - generic [ref=e956]: 添加商品
+        - generic [ref=e956]: Add Product
       - generic [ref=e958]:
         - generic "Operator" [ref=e960]: "* Operator"
         - generic [ref=e964] [cursor=pointer]:

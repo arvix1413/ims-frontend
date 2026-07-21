@@ -161,7 +161,7 @@ Received: true
                 - generic [ref=e230]:
                   - table [ref=e232]:
                     - rowgroup [ref=e245]:
-                      - row "Receipt ID Order No. Item Date Cashier Customer Name Customer Phone Payment void Reprint Operation" [ref=e246]:
+                      - row "Receipt ID Order No. Item Date Cashier Customer Name Customer Phone Payment Void Reprint Operation" [ref=e246]:
                         - columnheader "Receipt ID" [ref=e247]
                         - columnheader "Order No." [ref=e248]
                         - columnheader "Item" [ref=e249]
@@ -170,7 +170,7 @@ Received: true
                         - columnheader "Customer Name" [ref=e252]
                         - columnheader "Customer Phone" [ref=e253]
                         - columnheader "Payment" [ref=e254]
-                        - columnheader "void" [ref=e255]
+                        - columnheader "Void" [ref=e255]
                         - columnheader "Reprint" [ref=e256]
                         - columnheader "Operation" [ref=e257]
                   - table [ref=e259]:
