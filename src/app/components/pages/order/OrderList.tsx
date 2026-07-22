@@ -627,11 +627,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
       width: 90,
-      render: (flag: string) => (
-        <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
-          {flag || 'UNPAID'}
-        </span>
-      ),
+      render: (flag: string, record: OrderData) => {
+        if (record.type === 0) {
+          return <span style={{ color: '#8c8c8c', fontSize: 12 }}>-</span>;
+        }
+        return (
+          <span style={{ color: flag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold', fontSize: 12 }}>
+            {flag || 'UNPAID'}
+          </span>
+        );
+      },
     }, {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderedBy')}</div>,
       dataIndex: 'orderedBy',
@@ -734,7 +739,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                   </span>
                 </div>
               )}
-              {order.paymentFlag && (
+              {order.type !== 0 && order.paymentFlag && (
                 <div>
                   <span style={{ color: order.paymentFlag === 'PAID' ? '#52c41a' : '#fa8c16', fontWeight: 'bold' }}>
                     {order.paymentFlag}
