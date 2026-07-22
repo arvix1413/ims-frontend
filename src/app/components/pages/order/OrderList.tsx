@@ -222,6 +222,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       '3': { text: t('outOfStock'), color: '#ff4d4f' },
       '4': { text: t('damaged'), color: '#722ed1' },
       '5': { text: t('void'), color: '#8c8c8c' },
+      '6': { text: t('arrivedNotPickedUp'), color: '#fa8c16' },
+      '7': { text: t('arrivedPickedUp'), color: '#eb2f96' },
       '8': { text: t('arrived'), color: '#13c2c2' },
     };
     
@@ -247,6 +249,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               '3': t('outOfStock'),
               '4': t('damaged'),
               '5': t('void'),
+              '6': t('arrivedNotPickedUp'),
+              '7': t('arrivedPickedUp'),
               '8': t('arrived'),
             };
             
@@ -383,6 +387,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         const statusTextMap: Record<string, string> = {
           '1': t('shippedSuccess'),
           '2': t('completedSuccess'),
+          '6': t('arrivedNotPickedUpSuccess'),
+          '7': t('arrivedPickedUpSuccess'),
           '8': t('arrivedSuccess'),
         };
         
@@ -473,7 +479,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     const isOutOfStock = s === '3';
     const isCompleted = s === '2';
 
-    // 店补订单：只保留 完成、重置状态、Void（加编辑）
+    // 店补订单
     if (isStoreOrder) {
       return {
         items: [
@@ -484,17 +490,31 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             onClick: () => handleEdit(orderData),
           },
           {
+            key: 'sent',
+            label: t('shipped'),
+            icon: <SendOutlined />,
+            disabled: isVoided || isCompleted,
+            onClick: () => handleStatusChangeWithDate(orderData, '1', t('shipped')),
+          },
+          {
             key: 'ok',
             label: t('completed'),
             icon: <CheckOutlined />,
-            disabled: isCompleted,
+            disabled: isVoided || isCompleted,
             onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
+          },
+          {
+            key: 'out_of_stock',
+            label: t('outOfStock'),
+            icon: <ExclamationCircleOutlined />,
+            disabled: isVoided || isCompleted || isOutOfStock,
+            onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
           },
           {
             key: 'reset',
             label: t('resetStatus'),
             icon: <ReloadOutlined />,
-            disabled: !isCompleted,
+            disabled: s === '0',
             onClick: () => handleResetStatus(orderData),
           },
           {
@@ -509,7 +529,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       };
     }
 
-    // 客定订单：比店补多一个 Arrived
+    // 客定订单
     return {
       items: [
         {
@@ -517,6 +537,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           label: t('modifyOrder'),
           icon: <EditOutlined />,
           onClick: () => handleEdit(orderData),
+        },
+        {
+          key: 'sent',
+          label: t('shipped'),
+          icon: <SendOutlined />,
+          disabled: isVoided || isCompleted,
+          onClick: () => handleStatusChangeWithDate(orderData, '1', t('shipped')),
         },
         {
           key: 'arrived',
@@ -531,6 +558,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           icon: <CheckOutlined />,
           disabled: isVoided,
           onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
+        },
+        {
+          key: 'out_of_stock',
+          label: t('outOfStock'),
+          icon: <ExclamationCircleOutlined />,
+          disabled: isVoided || isOutOfStock,
+          onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
         },
         {
           key: 'reset',
@@ -774,23 +808,41 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             {t('modifyOrder')}
           </Button>
           {order.type === 0 ? (
-            // 店补订单：只显示 完成、重置、Void
+            // 店补订单：发货、完成、缺货、重置、Void
             <>
+              <Button
+                size="small"
+                onClick={() => handleStatusChangeWithDate(order, '1', t('shipped'))}
+                className="flex-1"
+                style={{ minHeight: '32px', backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}
+                disabled={order.status === '2' || order.status === '5'}
+              >
+                {t('shipped')}
+              </Button>
               <Button
                 size="small"
                 onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
-                disabled={order.status === '2'}
+                disabled={order.status === '2' || order.status === '5'}
               >
                 {t('completed')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleStatusChange(order, '3', t('outOfStock'))}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '2' || order.status === '3' || order.status === '5'}
+              >
+                {t('outOfStock')}
               </Button>
               <Button
                 size="small"
                 onClick={() => handleResetStatus(order)}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
-                disabled={order.status !== '2'}
+                disabled={order.status === '0'}
               >
                 {t('resetStatus')}
               </Button>
@@ -806,13 +858,22 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               </Button>
             </>
           ) : (
-            // 客定订单：比店补多一个 Arrived
+            // 客定订单：发货、已到货、完成、缺货、重置、Void
             <>
+              <Button
+                size="small"
+                onClick={() => handleStatusChangeWithDate(order, '1', t('shipped'))}
+                className="flex-1"
+                style={{ minHeight: '32px', backgroundColor: '#1890ff', borderColor: '#1890ff', color: '#fff' }}
+                disabled={order.status === '5' || order.status === '2'}
+              >
+                {t('shipped')}
+              </Button>
               <Button
                 size="small"
                 onClick={() => handleStatusChangeWithDate(order, '8', t('arrived'))}
                 className="flex-1"
-                style={{ minHeight: '32px' }}
+                style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
                 disabled={order.status === '5'}
               >
                 {t('arrived')}
@@ -825,6 +886,15 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 disabled={order.status === '5'}
               >
                 {t('completed')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleStatusChange(order, '3', t('outOfStock'))}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '3' || order.status === '5'}
+              >
+                {t('outOfStock')}
               </Button>
               <Button
                 size="small"
