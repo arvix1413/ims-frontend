@@ -479,7 +479,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     const isOutOfStock = s === '3';
     const isCompleted = s === '2';
 
-    // 店补订单：只保留 完成 和 重置状态（加编辑和删除）
+    // 店补订单：只保留 完成、重置状态、Void（加编辑）
     if (isStoreOrder) {
       return {
         items: [
@@ -502,6 +502,14 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             icon: <ReloadOutlined />,
             disabled: !isCompleted,
             onClick: () => handleResetStatus(orderData),
+          },
+          {
+            key: 'void',
+            label: t('void') || 'Void',
+            icon: <CloseOutlined />,
+            danger: true,
+            disabled: isVoided,
+            onClick: () => handleVoid(orderData),
           },
         ],
       };
@@ -793,7 +801,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             {t('modifyOrder')}
           </Button>
           {order.type === 0 ? (
-            // 店补订单：只显示 完成 和 重置
+            // 店补订单：只显示 完成、重置、Void
             <>
               <Button
                 size="small"
@@ -812,6 +820,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 disabled={order.status !== '2'}
               >
                 {t('resetStatus')}
+              </Button>
+              <Button
+                size="small"
+                danger
+                onClick={() => handleVoid(order)}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '5'}
+              >
+                {t('void')}
               </Button>
             </>
           ) : (
