@@ -472,6 +472,42 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     const isVoided = s === '5';
     const isOutOfStock = s === '3';
 
+  const getActionMenu = (orderData: OrderData) => {
+    const s = orderData.status;
+    const isStoreOrder = orderData.type === 0; // 店补
+    const isVoided = s === '5';
+    const isOutOfStock = s === '3';
+    const isCompleted = s === '2';
+
+    // 店补订单：只保留 完成 和 重置状态（加编辑和删除）
+    if (isStoreOrder) {
+      return {
+        items: [
+          {
+            key: 'edit',
+            label: t('modifyOrder'),
+            icon: <EditOutlined />,
+            onClick: () => handleEdit(orderData),
+          },
+          {
+            key: 'ok',
+            label: t('completed'),
+            icon: <CheckOutlined />,
+            disabled: isCompleted,
+            onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
+          },
+          {
+            key: 'reset',
+            label: t('resetStatus'),
+            icon: <ReloadOutlined />,
+            disabled: !isCompleted,
+            onClick: () => handleResetStatus(orderData),
+          },
+        ],
+      };
+    }
+
+    // 客定订单：保留原有全部状态
     return {
       items: [
         {
@@ -756,41 +792,68 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           >
             {t('modifyOrder')}
           </Button>
-          <Button
-            size="small"
-            onClick={() => handleSent(order)}
-            className="flex-1"
-            style={{ minHeight: '32px' }}
-          >
-            {t('shipped')}
-          </Button>
-          <Button
-            size="small"
-            onClick={() => handleStatusChangeWithDate(order, '8', t('arrived'))}
-            className="flex-1"
-            style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
-            disabled={order.status === '3' || order.status === '5'}
-          >
-            {t('arrived')}
-          </Button>
-          <Button
-            size="small"
-            onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
-            className="flex-1"
-            style={{ minHeight: '32px' }}
-            disabled={order.status === '3' || order.status === '5'}
-          >
-            {t('completed')}
-          </Button>
-          <Button
-            size="small"
-            danger
-            onClick={() => handleVoid(order)}
-            className="flex-1"
-            style={{ minHeight: '32px' }}
-          >
-            {t('void')}
-          </Button>
+          {order.type === 0 ? (
+            // 店补订单：只显示 完成 和 重置
+            <>
+              <Button
+                size="small"
+                onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '2'}
+              >
+                {t('completed')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleResetStatus(order)}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status !== '2'}
+              >
+                {t('resetStatus')}
+              </Button>
+            </>
+          ) : (
+            // 客定订单：保留原有全部按钮
+            <>
+              <Button
+                size="small"
+                onClick={() => handleSent(order)}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+              >
+                {t('shipped')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleStatusChangeWithDate(order, '8', t('arrived'))}
+                className="flex-1"
+                style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
+                disabled={order.status === '3' || order.status === '5'}
+              >
+                {t('arrived')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '3' || order.status === '5'}
+              >
+                {t('completed')}
+              </Button>
+              <Button
+                size="small"
+                danger
+                onClick={() => handleVoid(order)}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+              >
+                {t('void')}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </Card>
