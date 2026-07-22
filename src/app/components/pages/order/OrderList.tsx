@@ -509,7 +509,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       };
     }
 
-    // 客定订单：保留原有全部状态
+    // 客定订单：比店补多一个 Arrived
     return {
       items: [
         {
@@ -519,53 +519,32 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           onClick: () => handleEdit(orderData),
         },
         {
-          key: 'void',
-          label: t('void') || 'Void',
-          icon: <CloseOutlined />,
-          danger: true,
-          disabled: isVoided,
-          onClick: () => handleVoid(orderData),
-        },
-        {
-          key: 'sent',
-          label: t('shipped'),
-          icon: <SendOutlined />,
-          disabled: isVoided,
-          onClick: () => handleSent(orderData),
-        },
-        {
           key: 'arrived',
           label: t('arrived'),
           icon: <CheckOutlined />,
-          disabled: isVoided || isOutOfStock,
+          disabled: isVoided,
           onClick: () => handleStatusChangeWithDate(orderData, '8', t('arrived')),
         },
         {
           key: 'ok',
           label: t('completed'),
           icon: <CheckOutlined />,
-          disabled: isVoided || isOutOfStock,
+          disabled: isVoided,
           onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
-        },
-        {
-          key: 'out_of_stock',
-          label: t('outOfStock'),
-          icon: <ExclamationCircleOutlined />,
-          disabled: isVoided,
-          onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
-        },
-        {
-          key: 'damaged',
-          label: t('damaged'),
-          icon: <CloseOutlined />,
-          disabled: isVoided,
-          onClick: () => handleStatusChange(orderData, '4', t('damaged')),
         },
         {
           key: 'reset',
           label: t('resetStatus'),
           icon: <ReloadOutlined />,
           onClick: () => handleResetStatus(orderData),
+        },
+        {
+          key: 'void',
+          label: t('void') || 'Void',
+          icon: <CloseOutlined />,
+          danger: true,
+          disabled: isVoided,
+          onClick: () => handleVoid(orderData),
         },
       ],
     };
@@ -827,22 +806,14 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               </Button>
             </>
           ) : (
-            // 客定订单：保留原有全部按钮
+            // 客定订单：比店补多一个 Arrived
             <>
-              <Button
-                size="small"
-                onClick={() => handleSent(order)}
-                className="flex-1"
-                style={{ minHeight: '32px' }}
-              >
-                {t('shipped')}
-              </Button>
               <Button
                 size="small"
                 onClick={() => handleStatusChangeWithDate(order, '8', t('arrived'))}
                 className="flex-1"
-                style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
-                disabled={order.status === '3' || order.status === '5'}
+                style={{ minHeight: '32px' }}
+                disabled={order.status === '5'}
               >
                 {t('arrived')}
               </Button>
@@ -851,9 +822,17 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
-                disabled={order.status === '3' || order.status === '5'}
+                disabled={order.status === '5'}
               >
                 {t('completed')}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => handleResetStatus(order)}
+                className="flex-1"
+                style={{ minHeight: '32px' }}
+              >
+                {t('resetStatus')}
               </Button>
               <Button
                 size="small"
@@ -861,6 +840,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 onClick={() => handleVoid(order)}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
+                disabled={order.status === '5'}
               >
                 {t('void')}
               </Button>
