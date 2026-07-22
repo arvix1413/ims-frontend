@@ -305,6 +305,12 @@ export const order = {
     return response.data;
   },
   
+  // 重置订单状态为 pending
+  reset: async (ids: number[]): Promise<ApiResponse> => {
+    const response = await apiClient.put<ApiResponse>('/order/reset', ids);
+    return response.data;
+  },
+  
   // 导出订单
   export: async (params: OrderPageRequest) => {
     const response = await apiClient.post('/order/export', params);

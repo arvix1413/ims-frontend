@@ -454,13 +454,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       cancelText: t('cancel'),
       onOk: async () => {
         try {
-          await order.modify({
-            id: orderData.id,
-            status: '0',
-            statusChangeUserId: userInfo?.id || 0,
-            statusChangeUserName: userInfo?.name || t('unknown'),
-            statusChangeTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-          });
+          await order.reset([orderData.id]);
           message.success(t('resetStatusSuccess'));
           onRefresh();
         } catch (error) {
@@ -468,6 +462,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           message.error(t('resetStatusFailed'));
         }
       },
+    });
+  };
     });
   };
 
