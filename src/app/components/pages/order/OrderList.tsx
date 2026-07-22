@@ -549,21 +549,21 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           key: 'arrived',
           label: t('arrived'),
           icon: <CheckOutlined />,
-          disabled: isVoided,
+          disabled: isVoided || isCompleted,
           onClick: () => handleStatusChangeWithDate(orderData, '8', t('arrived')),
         },
         {
           key: 'ok',
           label: t('completed'),
           icon: <CheckOutlined />,
-          disabled: isVoided,
+          disabled: isVoided || isCompleted,
           onClick: () => handleStatusChangeWithDate(orderData, '2', t('completed')),
         },
         {
           key: 'out_of_stock',
           label: t('outOfStock'),
           icon: <ExclamationCircleOutlined />,
-          disabled: isVoided || isOutOfStock,
+          disabled: isVoided || isCompleted || isOutOfStock,
           onClick: () => handleStatusChange(orderData, '3', t('outOfStock')),
         },
         {
@@ -874,7 +874,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 onClick={() => handleStatusChangeWithDate(order, '8', t('arrived'))}
                 className="flex-1"
                 style={{ minHeight: '32px', backgroundColor: '#13c2c2', borderColor: '#13c2c2', color: '#fff' }}
-                disabled={order.status === '5'}
+                disabled={order.status === '5' || order.status === '2'}
               >
                 {t('arrived')}
               </Button>
@@ -883,7 +883,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 onClick={() => handleStatusChangeWithDate(order, '2', t('completed'))}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
-                disabled={order.status === '5'}
+                disabled={order.status === '5' || order.status === '2'}
               >
                 {t('completed')}
               </Button>
@@ -892,7 +892,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 onClick={() => handleStatusChange(order, '3', t('outOfStock'))}
                 className="flex-1"
                 style={{ minHeight: '32px' }}
-                disabled={order.status === '3' || order.status === '5'}
+                disabled={order.status === '2' || order.status === '3' || order.status === '5'}
               >
                 {t('outOfStock')}
               </Button>
