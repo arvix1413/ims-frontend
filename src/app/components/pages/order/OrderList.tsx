@@ -464,8 +464,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       },
     });
   };
-    });
-  };
 
   // 操作菜单
   const getActionMenu = (orderData: OrderData) => {
