@@ -468,12 +468,6 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   // 操作菜单
   const getActionMenu = (orderData: OrderData) => {
     const s = orderData.status;
-    // 作废(5)只能重置，缺货(3)不能转2/8
-    const isVoided = s === '5';
-    const isOutOfStock = s === '3';
-
-  const getActionMenu = (orderData: OrderData) => {
-    const s = orderData.status;
     const isStoreOrder = orderData.type === 0; // 店补
     const isVoided = s === '5';
     const isOutOfStock = s === '3';
