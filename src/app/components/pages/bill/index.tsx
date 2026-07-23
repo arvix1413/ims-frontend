@@ -396,6 +396,11 @@ export default function BillManagement() {
                 )}
               </>
             )}
+            {item.remark && (
+              <div className="col-span-2 text-gray-600">
+                Remark: <span className="font-medium text-gray-900">{item.remark}</span>
+              </div>
+            )}
           </div>
 
           {/* 总金额 */}
@@ -510,6 +515,13 @@ export default function BillManagement() {
       dataIndex: 'customerPhone',
       key: 'customerPhone',
       width: 130,
+      render: (v: string | undefined) => v || '-',
+    },
+    {
+      title: 'Remark',
+      dataIndex: 'remark',
+      key: 'remark',
+      width: 180,
       render: (v: string | undefined) => v || '-',
     },
     {

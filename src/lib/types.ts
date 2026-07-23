@@ -434,6 +434,7 @@ export interface ReceiptData {
   gst?: number;
   void?: number;
   voided?: number;
+  remark?: string;
 }
 
 export interface ReceiptListResponse {
@@ -491,6 +492,7 @@ export interface PrintReceiptRequest {
   customerId?: number;
   customerName?: string;
   customerPhone?: string;
+  remark?: string;
 }
 
 // Package充值配置

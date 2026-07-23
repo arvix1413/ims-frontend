@@ -340,6 +340,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       customerId: undefined,
       customerName: undefined,
       customerPhone: undefined,
+      remark: undefined,
     });
     setCustomerOptions([]);
   }, [form]);
@@ -429,6 +430,10 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         </div>
         <Form.Item name="customerName" label={t('name')} style={{ marginBottom: 24 }}>
           <Input style={{ width: 280 }} placeholder={t('name')} />
+        </Form.Item>
+
+        <Form.Item name="remark" label="Remark" style={{ marginBottom: 24 }}>
+          <Input.TextArea style={{ width: 400 }} placeholder="Optional remark" autoSize={{ minRows: 2, maxRows: 4 }} />
         </Form.Item>
 
         {/* Items 列表 */}
