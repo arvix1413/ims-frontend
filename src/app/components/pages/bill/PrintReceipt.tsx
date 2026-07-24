@@ -122,8 +122,10 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             try {
               const itemRes = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
               warehouseItems = itemRes?.data ?? [];
-              firstColor = warehouseItems[0]?.color ?? '';
-              firstSize = warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
+              // 只考慮有庫存的記錄
+              const inStockItems = warehouseItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
+              firstColor = inStockItems[0]?.color ?? warehouseItems[0]?.color ?? '';
+              firstSize = inStockItems.find((i: any) => i.color === firstColor)?.size ?? warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
               firstItemId = warehouseItems.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
             } catch {
               // 拉库存失败不阻断流程
@@ -464,10 +466,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
 
                   // 当前行的 designId 缓存的 items（按仓库过滤后）
                   const rowItems: any[] = cur._warehouseItems ?? [];
-                  const colorOptions = [...new Set(rowItems.map((i: any) => i.color).filter(Boolean))];
+                  // 只顯示有庫存 (inStoreStock > 0) 的顏色/尺碼，避免 0 庫存選項干擾
+                  const inStockItems = rowItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
+                  const colorOptions = [...new Set(inStockItems.map((i: any) => i.color).filter(Boolean))];
                   const selectedColor = cur.color;
                   const sizeOptions = [...new Set(
-                    rowItems
+                    inStockItems
                       .filter((i: any) => !selectedColor || i.color === selectedColor)
                       .map((i: any) => i.size)
                       .filter(Boolean)
@@ -499,8 +503,10 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                     try {
                       const res = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const warehouseItems = res?.data ?? [];
-                      const firstColor = warehouseItems[0]?.color ?? '';
-                      const firstSize = warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
+                      // 只考慮有庫存的記錄來決定預設顏色/尺碼
+                      const inStockItems = warehouseItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
+                      const firstColor = inStockItems[0]?.color ?? warehouseItems[0]?.color ?? '';
+                      const firstSize = inStockItems.find((i: any) => i.color === firstColor)?.size ?? warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
                       const firstItemId = warehouseItems.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
                       const currentItems = form.getFieldValue('item') || [];
                       currentItems[name] = {
