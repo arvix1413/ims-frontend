@@ -587,6 +587,16 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   // 桌面端表格列定义
   const columns = [
     {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      width: 80,
+      fixed: 'left' as const,
+      render: (id: number) => (
+        <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
+      ),
+    },
+    {
       title: t('photo'),
       dataIndex: 'previewPhoto',
       width: 120,
@@ -988,7 +998,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           dataSource={data}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 1400 }}
+          scroll={{ x: 1480 }}
           pagination={false}
           size="small"
           sticky={true}
