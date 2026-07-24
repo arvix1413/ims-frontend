@@ -389,6 +389,14 @@ export default function MemberManagement() {
   // 表格列定义（桌面端）
   const columns = [
     {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      fixed: 'left' as const,
+      width: 80,
+      render: (id: number) => <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>,
+    },
+    {
       title: t('name'),
       dataIndex: 'name',
       key: 'name',
