@@ -114,13 +114,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             const designId = design['id'];
 
             // 拉库存，填充颜色/尺码（与手动选择路径一致）
-            const warehouseName = shopRef.current === 1 ? 'Slady一店' : shopRef.current === 2 ? 'SL二店' : 'Live直播间';
             let warehouseItems: any[] = [];
             let firstColor = '';
             let firstSize = '';
             let firstItemId: number | null = null;
             try {
-              const itemRes = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+              const itemRes = await itemApi.getList({ designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
               warehouseItems = itemRes?.data ?? [];
               // 只考慮有庫存的記錄
               const inStockItems = warehouseItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
@@ -498,10 +497,9 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                   const handleCodeSelect = async (val: string, option: any) => {
                     const designId = option.designId;
                     const salePrice = option.salePrice;
-                    // 仓库映射：shop=1 → Slady一店，shop=2 → SL二店，shop=3 → Live直播间
-                    const warehouseName = shop === 1 ? 'Slady一店' : shop === 2 ? 'SL二店' : 'Live直播间';
+                    // 查询所有门店的库存（不再按 warehouseName 过滤）
                     try {
-                      const res = await itemApi.getList({ designId, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      const res = await itemApi.getList({ designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const warehouseItems = res?.data ?? [];
                       // 只考慮有庫存的記錄來決定預設顏色/尺碼
                       const inStockItems = warehouseItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
@@ -591,7 +589,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock" noStyle>
-                        <input type="hidden" />
+                        <Input type="hidden" />
                       </Form.Item>
                       <Button
                         size="small"

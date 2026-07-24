@@ -245,7 +245,7 @@ export const api = {
 // Item相关API
 export const item = {
   // 获取商品库存列表
-  getList: async (params: { designId: number; warehouseName: string; searchPage: SearchPageParams }): Promise<ApiResponse<ItemData[]>> => {
+  getList: async (params: { designId?: number; warehouseName?: string; searchPage: SearchPageParams }): Promise<ApiResponse<ItemData[]>> => {
     const response = await apiClient.post<ApiResponse<ItemData[]>>('/item/list', params);
     return response.data;
   },
