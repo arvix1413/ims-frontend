@@ -217,6 +217,9 @@ export default function InventoryRecords() {
   useInitialListRefresh(() => fetchData(1));
 
   const columns = [
+    { title: 'ID', dataIndex: 'id', key: 'id', width: 80, fixed: 'left' as const,
+      render: (id: number) => <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
+    },
     { title: t('productImage'), dataIndex: 'previewPhoto', key: 'previewPhoto', width: 100, fixed: 'left' as const,
       render: (photo: string) => (
         <img style={{ height: 80, width: 64, objectFit: 'cover' }} alt="" src={API_CONFIG.BASE_URL + photo}
