@@ -139,13 +139,13 @@ export default function EmployeeHistory() {
     },
     {
       title: t('details'),
-      dataIndex: 'body',
-      key: 'body',
-      render: (value: any) => {
-        if (value === null || value === undefined) return '-';
-        if (typeof value === 'string') return value;
-        if (typeof value === 'object') return JSON.stringify(value);
-        return String(value);
+      key: 'details',
+      render: (_: any, record: EmployeeOperationLog) => {
+        const detail = record.body || record.args;
+        if (detail === null || detail === undefined) return '-';
+        if (typeof detail === 'string') return detail;
+        if (typeof detail === 'object') return JSON.stringify(detail);
+        return String(detail);
       },
     },
     {
@@ -198,11 +198,11 @@ export default function EmployeeHistory() {
           </div>
           
           {/* 操作详情 */}
-          {item.body && (
+          {(item.body || item.args) && (
             <div className="bg-gray-50 rounded-lg p-3 mb-3">
               <div className="text-sm text-gray-600 mb-1">{t('details')}:</div>
               <div className="text-sm text-gray-800 break-words">
-                {typeof item.body === 'string' ? item.body : JSON.stringify(item.body)}
+                {typeof (item.body || item.args) === 'string' ? (item.body || item.args) : JSON.stringify(item.body || item.args)}
               </div>
             </div>
           )}

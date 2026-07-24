@@ -383,6 +383,7 @@ export interface EmployeeOperationLog {
   userId: number;
   userName: string;
   uri: string;
+  args?: string;
   body: string;
   createDate: string;
 }
