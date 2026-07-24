@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Table, Form, Input, DatePicker, Button, Card, message, Pagination, Spin, Drawer, Select, InputNumber, notification } from 'antd';
+import { Table, Form, Input, DatePicker, Button, Card, message, Pagination, Spin, Drawer, Select, InputNumber, notification, Tabs } from 'antd';
 import { SearchOutlined, ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { InventoryRecordItem, InventoryRecordRequest } from '@/lib/types';
@@ -184,7 +184,13 @@ export default function InventoryRecords() {
               size: parsed?.size,
               warehouseName: parsed?.warehouseName,
               previewPhoto: parsed?.previewPhoto,
+              // 店內庫存（修改前）
               inStoreStock: parsed?.inStoreStock,
+              // 代存庫存（修改前）
+              tempStoreStock: parsed?.tempStoreStock,
+              // 修改後：優先用分開的欄位，舊記錄 fallback 到 newStock
+              newInStoreStock: parsed?.newInStoreStock ?? null,
+              newTempStoreStock: parsed?.newTempStoreStock ?? null,
               newStock: parsed?.newStock,
               ...item,  // item 字段优先（id, createDate 等）
             };
@@ -221,14 +227,50 @@ export default function InventoryRecords() {
     { title: t('color'), dataIndex: 'color', key: 'color', width: 100 },
     { title: t('size'), dataIndex: 'size', key: 'size', width: 80 },
     { title: t('warehouse'), dataIndex: 'warehouseName', key: 'warehouseName', width: 120 },
-    { title: t('originalStock'), dataIndex: 'inStoreStock', key: 'inStoreStock', width: 100,
-      render: (s: number) => <span style={{ fontWeight: 'bold' }}>{s}</span>
+    {
+      title: <span style={{ color: '#1677ff' }}>店內庫存</span>,
+      children: [
+        {
+          title: '修改前', dataIndex: 'inStoreStock', key: 'inStoreStock', width: 80,
+          render: (s: number) => <span style={{ fontWeight: 'bold', color: '#595959' }}>{s ?? '-'}</span>
+        },
+        {
+          title: '修改後', dataIndex: 'newInStoreStock', key: 'newInStoreStock', width: 80,
+          render: (s: number, record: any) => {
+            if (s === null || s === undefined) return <span style={{ color: '#bfbfbf' }}>-</span>;
+            const diff = s - (record.inStoreStock ?? 0);
+            return (
+              <span style={{ fontWeight: 'bold', color: diff > 0 ? '#52c41a' : diff < 0 ? '#ff4d4f' : '#595959' }}>
+                {s}{diff !== 0 && <span style={{ fontSize: 11, marginLeft: 4 }}>({diff > 0 ? '+' : ''}{diff})</span>}
+              </span>
+            );
+          }
+        },
+      ]
     },
-    { title: t('newStock'), dataIndex: 'newStock', key: 'newStock', width: 100,
-      render: (s: number) => <span style={{ fontWeight: 'bold', color: s > 0 ? '#52c41a' : '#ff4d4f' }}>{s}</span>
+    {
+      title: <span style={{ color: '#2563eb' }}>代存庫存</span>,
+      children: [
+        {
+          title: '修改前', dataIndex: 'tempStoreStock', key: 'tempStoreStock', width: 80,
+          render: (s: number) => <span style={{ fontWeight: 'bold', color: '#595959' }}>{s ?? '-'}</span>
+        },
+        {
+          title: '修改後', dataIndex: 'newTempStoreStock', key: 'newTempStoreStock', width: 80,
+          render: (s: number, record: any) => {
+            if (s === null || s === undefined) return <span style={{ color: '#bfbfbf' }}>-</span>;
+            const diff = s - (record.tempStoreStock ?? 0);
+            return (
+              <span style={{ fontWeight: 'bold', color: diff > 0 ? '#52c41a' : diff < 0 ? '#ff4d4f' : '#595959' }}>
+                {s}{diff !== 0 && <span style={{ fontSize: 11, marginLeft: 4 }}>({diff > 0 ? '+' : ''}{diff})</span>}
+              </span>
+            );
+          }
+        },
+      ]
     },
     { title: t('operationTime'), dataIndex: 'createDate', key: 'createDate', width: 180 },
-  ];
+  ] as any[];
 
   const renderCard = (item: any, index: number) => (
     <Card key={item.id} className="mb-3" style={{ borderRadius: 12 }}>
@@ -242,9 +284,23 @@ export default function InventoryRecords() {
             <span className="text-gray-500">{t('size')}: <b>{item.size}</b></span>
             <span className="text-gray-500">{t('warehouse')}: <b>{item.warehouseName}</b></span>
           </div>
-          <div className="bg-gray-50 rounded p-2 text-sm">
-            <span>{t('originalStock')}: <b>{item.inStoreStock}</b></span>
-            <span className="ml-4">{t('newStock')}: <b style={{ color: item.newStock > 0 ? '#52c41a' : '#ff4d4f' }}>{item.newStock}</b></span>
+          <div className="bg-gray-50 rounded p-2 text-sm space-y-1">
+            {/* 店內庫存 */}
+            <div>
+              <span style={{ color: '#1677ff', fontWeight: 600 }}>店內</span>
+              <span className="ml-2 text-gray-500">修改前: <b>{item.inStoreStock ?? '-'}</b></span>
+              <span className="ml-2">修改後: <b style={{ color: item.newInStoreStock > (item.inStoreStock ?? 0) ? '#52c41a' : item.newInStoreStock < (item.inStoreStock ?? 0) ? '#ff4d4f' : '#595959' }}>
+                {item.newInStoreStock !== null && item.newInStoreStock !== undefined ? item.newInStoreStock : '-'}
+              </b></span>
+            </div>
+            {/* 代存庫存 */}
+            <div>
+              <span style={{ color: '#2563eb', fontWeight: 600 }}>代存</span>
+              <span className="ml-2 text-gray-500">修改前: <b>{item.tempStoreStock ?? '-'}</b></span>
+              <span className="ml-2">修改後: <b style={{ color: item.newTempStoreStock > (item.tempStoreStock ?? 0) ? '#52c41a' : item.newTempStoreStock < (item.tempStoreStock ?? 0) ? '#ff4d4f' : '#595959' }}>
+                {item.newTempStoreStock !== null && item.newTempStoreStock !== undefined ? item.newTempStoreStock : '-'}
+              </b></span>
+            </div>
           </div>
           <div className="text-xs text-gray-400 mt-1">{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}</div>
         </div>
