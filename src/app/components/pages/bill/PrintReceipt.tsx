@@ -465,12 +465,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
 
                   // 当前行的 designId 缓存的 items（按仓库过滤后）
                   const rowItems: any[] = cur._warehouseItems ?? [];
-                  // 只顯示有庫存 (inStoreStock > 0) 的顏色/尺碼，避免 0 庫存選項干擾
-                  const inStockItems = rowItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
-                  const colorOptions = [...new Set(inStockItems.map((i: any) => i.color).filter(Boolean))];
+                  // 颜色选项：显示所有颜色（不限制库存），让用户可以选择预订
+                  const colorOptions = [...new Set(rowItems.map((i: any) => i.color).filter(Boolean))];
                   const selectedColor = cur.color;
+                  // 尺码选项：显示当前颜色下的所有尺码（不限制库存）
                   const sizeOptions = [...new Set(
-                    inStockItems
+                    rowItems
                       .filter((i: any) => !selectedColor || i.color === selectedColor)
                       .map((i: any) => i.size)
                       .filter(Boolean)
