@@ -38,13 +38,17 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
           searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' },
         });
         const list = res?.data?.content ?? [];
-        setCodeOptions(list.map((d: any) => ({
+        const options = list.map((d: any) => ({
           value: d.design,
           label: `${d.design}  $${d.salePrice}`,
           designId: d.id,
           salePrice: d.salePrice,
-        })));
-      } catch { /* ignore */ }
+        }));
+        console.log('Search results:', options); // 調試信息
+        setCodeOptions(options);
+      } catch (err) { 
+        console.error('Search failed:', err);
+      }
     }, 350);
   };
 
@@ -160,6 +164,8 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
             onSelect={handleCodeSelect}
             filterOption={false}
             allowClear
+            popupMatchSelectWidth={false}
+            dropdownStyle={{ minWidth: 300 }}
             onChange={(val) => {
               if (!val) {
                 setColorOptions([]);
