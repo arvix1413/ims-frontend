@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
+import { Alert, AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData } from '@/lib/types';
@@ -42,6 +42,11 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
   const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [validationFeedback, setValidationFeedback] = useState<{
+    title: string;
+    intro?: string;
+    details: string[];
+  } | null>(null);
 
   // refs 持久化状态（不会触发重渲染）
   const addRef = useRef<((defaultValue?: any, insertIndex?: number) => void) | null>(null);
@@ -165,6 +170,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
 
   const onFinish = async () => {
     if (submitting) return;
+    setValidationFeedback(null);
     const itemForm: any = form.getFieldsValue();
     const orderItems = Array.isArray(itemForm.item) ? itemForm.item : [];
     const payments = Array.isArray(itemForm.paymentList) ? itemForm.paymentList : [];
@@ -188,19 +194,10 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     }
 
     if (missingRequirements.length > 0) {
-      notification.error({
-        message: t('salesOrderCannotCreate'),
-        description: (
-          <div>
-            <div>{t('salesOrderCompleteRequired')}</div>
-            <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
-              {missingRequirements.map((requirement) => (
-                <li key={requirement}>{requirement}</li>
-              ))}
-            </ul>
-          </div>
-        ),
-        duration: 6,
+      setValidationFeedback({
+        title: t('salesOrderCannotCreate'),
+        intro: t('salesOrderCompleteRequired'),
+        details: missingRequirements,
       });
       return;
     }
@@ -210,13 +207,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       0
     );
     if (Math.abs(paymentTotal - totalPrice) > 0.005) {
-      notification.error({
-        message: t('salesOrderPaymentMismatch'),
-        description: t('salesOrderPaymentMismatchDetail', {
+      setValidationFeedback({
+        title: t('salesOrderPaymentMismatch'),
+        details: [t('salesOrderPaymentMismatchDetail', {
           orderTotal: totalPrice.toFixed(2),
           paymentTotal: paymentTotal.toFixed(2),
-        }),
-        duration: 6,
+        })],
       });
       return;
     }
@@ -394,6 +390,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       remark: undefined,
     });
     setCustomerOptions([]);
+    setValidationFeedback(null);
   }, [form]);
 
   const onPackage = useCallback((value: number) => {
@@ -758,6 +755,26 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       </Form>
 
       <div style={{ marginTop: 20 }}>
+        {validationFeedback && (
+          <Alert
+            type="error"
+            showIcon
+            closable
+            onClose={() => setValidationFeedback(null)}
+            message={validationFeedback.title}
+            description={(
+              <div>
+                {validationFeedback.intro && <div>{validationFeedback.intro}</div>}
+                <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
+                  {validationFeedback.details.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            style={{ marginBottom: 16, maxWidth: 720 }}
+          />
+        )}
         <Button type="primary" style={{ marginRight: 20 }} onClick={onFinish} loading={submitting} disabled={submitting}>{t('printReceipt')}</Button>
         <Button onClick={onReset}>{t('reset')}</Button>
       </div>
