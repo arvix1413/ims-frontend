@@ -166,7 +166,61 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const onFinish = async () => {
     if (submitting) return;
     const itemForm: any = form.getFieldsValue();
-    const payment = itemForm.paymentList?.reduce((total: any, current: any) => total + parseFloat(current.amount), 0);
+    const orderItems = Array.isArray(itemForm.item) ? itemForm.item : [];
+    const payments = Array.isArray(itemForm.paymentList) ? itemForm.paymentList : [];
+    const missingRequirements: string[] = [];
+
+    if (!orderItems.some((item: any) => item?.code)) {
+      missingRequirements.push(t('salesOrderMissingItem'));
+    }
+    if (payments.length === 0) {
+      missingRequirements.push(t('salesOrderMissingPayment'));
+    } else {
+      if (payments.some((entry: any) => !entry?.payment)) {
+        missingRequirements.push(t('salesOrderMissingPaymentMethod'));
+      }
+      if (payments.some((entry: any) =>
+        entry?.amount === undefined || entry?.amount === null || entry?.amount === ''
+        || !Number.isFinite(Number(entry.amount))
+      )) {
+        missingRequirements.push(t('salesOrderMissingPaymentAmount'));
+      }
+    }
+
+    if (missingRequirements.length > 0) {
+      notification.error({
+        message: t('salesOrderCannotCreate'),
+        description: (
+          <div>
+            <div>{t('salesOrderCompleteRequired')}</div>
+            <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
+              {missingRequirements.map((requirement) => (
+                <li key={requirement}>{requirement}</li>
+              ))}
+            </ul>
+          </div>
+        ),
+        duration: 6,
+      });
+      return;
+    }
+
+    const paymentTotal = payments.reduce(
+      (total: number, current: any) => total + Number(current.amount),
+      0
+    );
+    if (Math.abs(paymentTotal - totalPrice) > 0.005) {
+      notification.error({
+        message: t('salesOrderPaymentMismatch'),
+        description: t('salesOrderPaymentMismatchDetail', {
+          orderTotal: totalPrice.toFixed(2),
+          paymentTotal: paymentTotal.toFixed(2),
+        }),
+        duration: 6,
+      });
+      return;
+    }
+
     const phone = normalizePhone(itemForm.customerPhone);
     const name = (itemForm.customerName || '').trim();
     
@@ -218,48 +272,44 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       if (!(itemForm.customerId > 0)) delete newItem.customerId;
     }
 
-    if (payment.toFixed(2) === totalPrice.toFixed(2)) {
-      setSubmitting(true);
-      try {
-        // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
-        await receipt.print(newItem);
+    setSubmitting(true);
+    try {
+      // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
+      await receipt.print(newItem);
         
-        // 如果有package充值且有客户电话
-        if (shouldTopUp && phone && itemForm.customerId) {
-          try {
-            await member.topUp({
-              id: itemForm.customerId,
-              balance: topUpAmount,
-              saler: itemForm.cashier || '',
-              remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
-            });
-            notification.success({ 
-              message: `销售订单创建成功！已为会员充值$${topUpAmount}` 
-            });
-          } catch (error) {
-            console.error('会员充值失败:', error);
-            notification.warning({ 
-              message: t('printReceiptSuccessTopUpFailed'),
-              description: t('pleaseTopUpMemberManually')
-            });
-          }
-        } else {
-          notification.success({ message: t('printReceiptSuccess') });
+      // 如果有package充值且有客户电话
+      if (shouldTopUp && phone && itemForm.customerId) {
+        try {
+          await member.topUp({
+            id: itemForm.customerId,
+            balance: topUpAmount,
+            saler: itemForm.cashier || '',
+            remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
+          });
+          notification.success({
+            message: `销售订单创建成功！已为会员充值$${topUpAmount}`
+          });
+        } catch (error) {
+          console.error('会员充值失败:', error);
+          notification.warning({
+            message: t('printReceiptSuccessTopUpFailed'),
+            description: t('pleaseTopUpMemberManually')
+          });
         }
-        
-        if (onPrintSuccess) {
-          onPrintSuccess();
-        } else {
-          onBackToList();
-        }
-      } catch (error) {
-        console.error('创建销售订单失败:', error);
-        notification.error({ message: t('printReceiptFailed') });
-      } finally {
-        setSubmitting(false);
+      } else {
+        notification.success({ message: t('printReceiptSuccess') });
       }
-    } else {
-      notification.error({ message: 'Payment Amount is not equal to Total Price' });
+
+      if (onPrintSuccess) {
+        onPrintSuccess();
+      } else {
+        onBackToList();
+      }
+    } catch (error) {
+      console.error('创建销售订单失败:', error);
+      notification.error({ message: t('printReceiptFailed') });
+    } finally {
+      setSubmitting(false);
     }
   };
 
