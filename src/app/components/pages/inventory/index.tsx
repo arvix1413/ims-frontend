@@ -1,145 +1,16 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Table, Form, Input, DatePicker, Button, Card, message, Pagination, Spin, Drawer, Select, InputNumber, notification, Tabs } from 'antd';
+import React, { useState } from 'react';
+import { Table, Form, Input, DatePicker, Button, Card, message, Pagination, Spin } from 'antd';
 import { SearchOutlined, ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { InventoryRecordItem, InventoryRecordRequest } from '@/lib/types';
-import { inventoryRecord, item as itemApi, designService, printService } from '@/lib/api';
+import { inventoryRecord } from '@/lib/api';
 import { API_CONFIG } from '@/config/constants';
-import { sizeList } from '@/lib/types';
-import { colorList } from '@/lib/types';
 import { usePermissions } from '@/lib/usePermissions';
 import moment from 'moment';
 import { useInitialListRefresh } from '@/lib/useListRefresh';
-
-// ────────────────────────────────────────────────────────────────
-// 打印标签内嵌组件（原 PrintLabelDrawer，移入此模块）
-// ────────────────────────────────────────────────────────────────
-function PrintLabelPanel({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { t } = useTranslation();
-  const [labelForm] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  const [shop, setShop] = useState(1);
-  const [colorOptions, setColorOptions] = useState<string[]>([]);
-  const [sizeOptions, setSizeOptions] = useState<string[]>([]);
-  const codeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const shops = ['', 'Slady Fashion Pte. Ltd.', 'SL Studio Pte. Ltd.'];
-
-  // 输入 code 后自动拉取颜色/尺码选项
-  const handleCodeChange = (val: string) => {
-    if (codeTimer.current) clearTimeout(codeTimer.current);
-    labelForm.setFieldsValue({ color: undefined, size: undefined });
-    setColorOptions([]);
-    setSizeOptions([]);
-    if (!val || val.length < 1) return;
-    codeTimer.current = setTimeout(async () => {
-      try {
-        // 查詢所有倉庫的庫存（現在只有 SL二店）
-        const listRes = await designService.getList({
-          design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 5, sort: 'id' }
-        });
-        const designs = listRes?.data?.content ?? [];
-        if (designs.length === 0) return;
-        const designId = designs[0].id;
-        const itemRes = await itemApi.getList({ designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
-        const items = itemRes?.data ?? [];
-        const colors = [...new Set(items.map((i: any) => i.color).filter(Boolean))] as string[];
-        setColorOptions(colors);
-        if (colors.length > 0) {
-          const sizes = [...new Set(items.filter((i: any) => i.color === colors[0]).map((i: any) => i.size).filter(Boolean))] as string[];
-          setSizeOptions(sizes);
-          labelForm.setFieldsValue({ salePrice: parseFloat(designs[0].salePrice ?? 0), color: colors[0], size: sizes[0] });
-        }
-      } catch { /* ignore */ }
-    }, 400);
-  };
-
-  const handleColorChange = async (color: string) => {
-    const code = labelForm.getFieldValue('code');
-    if (!code) return;
-    try {
-      // 查詢所有倉庫的庫存（現在只有 SL二店）
-      const listRes = await designService.getList({ design: code, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 5, sort: 'id' } });
-      const designs = listRes?.data?.content ?? [];
-      if (!designs.length) return;
-      const itemRes = await itemApi.getList({ designId: designs[0].id, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
-      const items = itemRes?.data ?? [];
-      const sizes = [...new Set(items.filter((i: any) => i.color === color).map((i: any) => i.size).filter(Boolean))] as string[];
-      setSizeOptions(sizes);
-      labelForm.setFieldsValue({ size: sizes[0] });
-    } catch { /* ignore */ }
-  };
-
-  const onPrint = async () => {
-    try {
-      const values = await labelForm.validateFields();
-      const { code, color, size, salePrice, count } = values;
-      setLoading(true);
-      await printService.printLabel({ code, color, size, salePrice: parseFloat(salePrice), store: shop, count: Number(count) });
-      notification.success({ message: t('printLabelSuccess') });
-      labelForm.resetFields();
-      setColorOptions([]);
-      setSizeOptions([]);
-      onClose();
-    } catch (error: any) {
-      if (!error?.errorFields) {
-        console.error('Print label failed:', error);
-        notification.error({ message: t('printLabelFailed') });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Drawer
-      title={t('printLabel')}
-      placement="right"
-      onClose={onClose}
-      open={visible}
-      width={420}
-      footer={
-        <div style={{ textAlign: 'right' }}>
-          <Button onClick={onClose} style={{ marginRight: 8 }}>{t('cancel')}</Button>
-          <Button onClick={() => { labelForm.resetFields(); setColorOptions([]); setSizeOptions([]); }} style={{ marginRight: 8 }}>{t('reset')}</Button>
-          <Button type="primary" loading={loading} onClick={onPrint}>{t('confirmPrint')}</Button>
-        </div>
-      }
-    >
-      <Form form={labelForm} layout="vertical" initialValues={{ count: 1 }}>
-        <section style={{ marginBottom: 12 }}>
-          {shops.map((s, i) => i > 0 && (
-            <Button key={i} type={shop === i ? 'primary' : 'default'} style={{ borderRadius: 20, marginRight: 5 }} onClick={() => { setShop(i); handleCodeChange(labelForm.getFieldValue('code') || ''); }}>
-              {s}
-            </Button>
-          ))}
-        </section>
-
-        <Form.Item name="code" label={t('designCode')} rules={[{ required: true, message: t('pleaseEnterProductCode3') }]}>
-          <Input placeholder={t('pleaseEnterDesignCode')} onChange={e => handleCodeChange(e.target.value)} />
-        </Form.Item>
-
-        <Form.Item name="color" label={t('color')} rules={[{ required: true, message: t('pleaseSelectColor2') }]}>
-          <Select placeholder={t('pleaseSelectColor2')} onChange={handleColorChange} options={colorOptions.map(c => ({ value: c, label: c }))} />
-        </Form.Item>
-
-        <Form.Item name="size" label={t('size')} rules={[{ required: true, message: t('pleaseSelectSize2') }]}>
-          <Select placeholder={t('pleaseSelectSize2')} options={sizeOptions.map(s => ({ value: s, label: s }))} />
-        </Form.Item>
-
-        <Form.Item name="salePrice" label={t('salePrice')} rules={[{ required: true, message: t('pleaseEnterPrice2') }]}>
-          <Input placeholder={t('pleaseEnterPrice')} type="number" />
-        </Form.Item>
-
-        <Form.Item name="count" label={t('count')} rules={[{ required: true, type: 'number', min: 1, message: t('pleaseEnterQuantity2') }]}>
-          <InputNumber min={1} step={1} style={{ width: '100%' }} />
-        </Form.Item>
-      </Form>
-    </Drawer>
-  );
-}
+import PrintLabelDrawer from '../bill/PrintLabelDrawer';
 
 // ────────────────────────────────────────────────────────────────
 // 主页面：库存记录
@@ -373,7 +244,7 @@ export default function InventoryRecords() {
       </Card>
 
       {/* {t('printLabelPanel')} */}
-      <PrintLabelPanel visible={printLabelVisible} onClose={() => setPrintLabelVisible(false)} />
+      <PrintLabelDrawer visible={printLabelVisible} onClose={() => setPrintLabelVisible(false)} />
     </div>
   );
 }
