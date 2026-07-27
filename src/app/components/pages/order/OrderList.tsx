@@ -309,10 +309,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           orderedBy: values.orderedBy,
         };
         
-        await order.modify(modifyData);
+        const response = await order.modify(modifyData);
+        if (response.code !== 200) {
+          throw new Error(response.msg || t('modifyOrderFailed'));
+        }
+        await fetchOrders(pagination.current);
         message.success(t('modifySuccess'));
         setEditDrawerVisible(false);
-        onRefresh();
       }
     } catch (error) {
       console.error('修改订单失败:', error);
