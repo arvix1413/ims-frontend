@@ -53,7 +53,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
     form.setFieldsValue({ salePrice: parseFloat(option.salePrice ?? 0), color: undefined, size: undefined });
     setColorOptions([]);
     setSizeOptions([]);
-    const warehouseName = shop === 1 ? 'Slady一店' : shop === 2 ? 'SL二店' : 'Live直播间';
+    const warehouseName = 'SL二店';  // 固定查詢 SL二店（現在所有 item 都在這個倉庫）
     try {
       const res = await itemApi.getList({
         designId: option.designId,
@@ -77,7 +77,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
   const handleColorChange = async (color: string) => {
     const code = form.getFieldValue('code');
     if (!code) return;
-    const warehouseName = shop === 1 ? 'Slady一店' : shop === 2 ? 'SL二店' : 'Live直播间';
+    const warehouseName = 'SL二店';  // 固定查詢 SL二店（現在所有 item 都在這個倉庫）
     try {
       const listRes = await designService.getList({ design: code, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 5, sort: 'id' } });
       const designs = listRes?.data?.content ?? [];
