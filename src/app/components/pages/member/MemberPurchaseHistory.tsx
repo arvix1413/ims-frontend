@@ -515,7 +515,8 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                   const handleCodeSelect = async (val: string, option: any) => {
                     try {
                       if (!option.designId) return;
-                      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      // 查詢所有倉庫的庫存（現在只有 SL二店）
+                      const res = await itemApi.getList({ designId: option.designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
                       const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];
@@ -651,7 +652,8 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                   const handleCodeSelect = async (val: string, option: any) => {
                     try {
                       if (!option.designId) return;
-                      const res = await itemApi.getList({ designId: option.designId, warehouseName: 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+                      // 查詢所有倉庫的庫存（現在只有 SL二店）
+                      const res = await itemApi.getList({ designId: option.designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
                       const items = res?.data ?? [];
                       const firstColor = items[0]?.color ?? '';
                       const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];

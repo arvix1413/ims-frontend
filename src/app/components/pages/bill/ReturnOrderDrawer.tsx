@@ -109,7 +109,8 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   const handleCodeSelect = async (name: number, val: string, option: any) => {
     try {
       if (!option?.designId) return;
-      const res = await itemApi.getList({ designId: option.designId, warehouseName: activeTab === '1' ? 'Slady一店' : 'SL二店', searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+      // 查詢所有倉庫的庫存（現在只有 SL二店）
+      const res = await itemApi.getList({ designId: option.designId, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
       const items: any[] = Array.isArray(res?.data) ? res.data : (res?.data as any)?.content ?? [];
       const firstColor = items[0]?.color ?? '';
       const firstSize = items.find((i: any) => i?.color === firstColor)?.size ?? '';

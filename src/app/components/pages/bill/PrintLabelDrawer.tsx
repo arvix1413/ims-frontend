@@ -53,11 +53,10 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
     form.setFieldsValue({ salePrice: parseFloat(option.salePrice ?? 0), color: undefined, size: undefined });
     setColorOptions([]);
     setSizeOptions([]);
-    const warehouseName = 'SL二店';  // 固定查詢 SL二店（現在所有 item 都在這個倉庫）
+    // 查詢所有倉庫的庫存（現在只有 SL二店）
     try {
       const res = await itemApi.getList({
         designId: option.designId,
-        warehouseName,
         searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' },
       });
       const items: any[] = res?.data ?? [];
@@ -77,12 +76,12 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
   const handleColorChange = async (color: string) => {
     const code = form.getFieldValue('code');
     if (!code) return;
-    const warehouseName = 'SL二店';  // 固定查詢 SL二店（現在所有 item 都在這個倉庫）
+    // 查詢所有倉庫的庫存（現在只有 SL二店）
     try {
       const listRes = await designService.getList({ design: code, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 5, sort: 'id' } });
       const designs = listRes?.data?.content ?? [];
       if (!designs.length) return;
-      const res = await itemApi.getList({ designId: designs[0].id, warehouseName, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
+      const res = await itemApi.getList({ designId: designs[0].id, searchPage: { desc: 1, page: 1, pageSize: 99, sort: '' } });
       const items: any[] = res?.data ?? [];
       const sizes = [...new Set(items.filter((i: any) => i.color === color).map((i: any) => i.size).filter(Boolean))] as string[];
       setSizeOptions(sizes);
