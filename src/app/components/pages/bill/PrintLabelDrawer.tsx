@@ -165,7 +165,8 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
             filterOption={false}
             allowClear
             popupMatchSelectWidth={false}
-            dropdownStyle={{ minWidth: 300 }}
+            dropdownStyle={{ minWidth: 300, maxHeight: 400 }}
+            getPopupContainer={(trigger) => trigger.parentElement || document.body}
             onChange={(val) => {
               if (!val) {
                 setColorOptions([]);
