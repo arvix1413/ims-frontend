@@ -73,8 +73,8 @@ export default function DesignDetail({
     try {
       const searchPage = { desc: 1, page: 1, pageSize: 99, sort: '' };
       
-      // 查詢所有倉庫的庫存（現在只有 SL二店）
-      const sl2Response = await item.getList({ designId, searchPage });
+      // 详情页展示 SL 二店，只查询对应仓库，避免旧的多仓记录显示成重复颜色/尺码。
+      const sl2Response = await item.getList({ designId, warehouseName: WAREHOUSE.SL, searchPage });
 
       if (sl2Response.code === 200) {
         setSl2Items(sl2Response.data);

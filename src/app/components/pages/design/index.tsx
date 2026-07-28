@@ -417,7 +417,8 @@ export default function Design() {
         const createItemData = {
           ...itemForm,
           designId: designResult.data.id,
-          warehouseName: [WAREHOUSE.SLADY, WAREHOUSE.SL, WAREHOUSE.LIVE]
+          // 当前库存界面只维护 SL 二店；不要为同一颜色/尺码静默创建三份仓库记录。
+          warehouseName: [WAREHOUSE.SL]
         };
 
         const itemResult = await api.item.create(createItemData);
