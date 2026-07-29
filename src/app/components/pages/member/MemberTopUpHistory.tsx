@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input } from 'antd';
+import { Table, Button, Card, message, Pagination, Input } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { ArrowLeftOutlined, SearchOutlined, ReloadOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { MemberPurchaseRecord, MemberPurchaseHistoryRequest } from '@/lib/types';

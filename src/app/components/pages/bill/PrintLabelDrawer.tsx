@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Button, Form, Input, notification, Select, Drawer, InputNumber } from 'antd';
+import { Button, Input, notification, Select, Drawer, InputNumber } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { AutoComplete } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { printService, designService, item as itemApi } from '@/lib/api';

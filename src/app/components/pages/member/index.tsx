@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, InputNumber, DatePicker, notification, Space, Tag, Row, Dropdown } from 'antd';
+import { Table, Input, Button, Card, message, Pagination, Modal, Drawer, InputNumber, DatePicker, notification, Space, Tag, Row, Dropdown } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, EditOutlined, DeleteOutlined, PlusOutlined, EyeOutlined, MoreOutlined, DollarOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { MemberData, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseRecord, MemberPurchaseRequest, CreateMemberRequest } from '@/lib/types';

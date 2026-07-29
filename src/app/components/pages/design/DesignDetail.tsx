@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button, Descriptions, Tag, Drawer, Form, InputNumber, Select, message, Input, Spin, Card, Image, Tabs } from 'antd';
+import { Button, Descriptions, Tag, Drawer, InputNumber, Select, message, Input, Spin, Card, Image, Tabs } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { ArrowLeftOutlined, EditOutlined, DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { DesignDetail as DesignDetailType, typeList, ItemData, CreateItemRequest, CreateOrderRequest, WAREHOUSE } from '@/lib/types';

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Form, Input, Button, Card, message, Pagination, Modal, Drawer, Space, Tag, Spin } from 'antd';
+import { Table, Input, Button, Card, message, Pagination, Modal, Drawer, Space, Tag, Spin } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { CustomerData, CustomerListRequest, CreateCustomerRequest, ModifyCustomerRequest, ReceiptData, ReceiptItem } from '@/lib/types';

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Tabs, message, Form, Button } from 'antd';
+import { Tabs, message, Button } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import OrderList from './OrderList';

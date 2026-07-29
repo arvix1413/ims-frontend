@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Form, Input, InputNumber, Select } from 'antd';
+import { Input, InputNumber, Select } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { useTranslation } from 'react-i18next';
 import { STAFF_LIST, PAYMENT_STATUS } from '@/config/constants';
 

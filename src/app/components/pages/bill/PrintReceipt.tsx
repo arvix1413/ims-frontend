@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AutoComplete, Button, Divider, Form, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
+import { AutoComplete, Button, Divider, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData } from '@/lib/types';

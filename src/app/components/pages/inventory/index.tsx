@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Form, Input, DatePicker, Button, Card, message, Pagination, Spin } from 'antd';
+import { Table, Input, DatePicker, Button, Card, message, Pagination, Spin } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { InventoryRecordItem, InventoryRecordRequest } from '@/lib/types';

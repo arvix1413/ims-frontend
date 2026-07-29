@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Form, AutoComplete, Select, InputNumber, Input, Table, Drawer, Tabs, Modal, Popconfirm, message, Tag } from 'antd';
+import { Button, AutoComplete, Select, InputNumber, Input, Table, Drawer, Tabs, Modal, Popconfirm, message, Tag } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, PlusOutlined, DeleteOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { item as itemApi, designService, returnOrderService } from '@/lib/api';

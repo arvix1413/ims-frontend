@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select, AutoComplete, InputNumber, notification } from 'antd';
+import { Table, Button, Card, message, Pagination, Input, DatePicker, Tag, Tabs, Drawer, Spin, Divider, Select, AutoComplete, InputNumber, notification } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, PrinterOutlined, DeleteOutlined, ExclamationCircleOutlined, CloseCircleOutlined, FileTextOutlined, DollarOutlined, CalendarOutlined, UserOutlined, PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ReceiptData, ReceiptListRequest } from '@/lib/types';

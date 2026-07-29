@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authManager } from '@/lib/auth';
 import CryptoJS from 'crypto-js';
 import Image from 'next/image';
+import { useNotification } from '@/lib/notificationManager';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const notification = useNotification();
 
   const bgImages = ['/assets/bg/1.png', '/assets/bg/2.png', '/assets/bg/3.png', '/assets/bg/4.png'];
 
@@ -33,8 +35,29 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, [bgImages.length]);
 
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => setError(''), 4500);
+    return () => window.clearTimeout(timer);
+  }, [error]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const missingFields = [!name.trim() ? 'Account' : '', !password ? 'Password' : ''].filter(Boolean);
+    if (missingFields.length) {
+      const validationMessage = `Please complete: ${missingFields.join(', ')}`;
+      setError(validationMessage);
+      notification.custom({
+        key: 'global-form-validation',
+        type: 'warning',
+        message: 'Please complete all required fields',
+        description: validationMessage,
+        duration: 4.5,
+        placement: 'topRight',
+      });
+      document.getElementById(!name.trim() ? 'name' : 'password')?.focus();
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -74,7 +97,7 @@ export default function LoginPage() {
 
         {/* 登录表单 */}
         <div className="w-full max-w-sm">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Account

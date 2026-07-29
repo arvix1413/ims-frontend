@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button, Drawer, Form, InputNumber, Select, Space, Divider, App, notification, message, Input, Card, Row, Col, Spin, Image, Tag, Upload } from 'antd';
+import { Button, Drawer, InputNumber, Select, Space, Divider, App, notification, message, Input, Card, Row, Col, Spin, Image, Tag, Upload } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { PlusOutlined, MinusCircleOutlined, ExclamationCircleOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
 import ColorSelect from '../../ColorSelect';
 import { useTranslation } from 'react-i18next';

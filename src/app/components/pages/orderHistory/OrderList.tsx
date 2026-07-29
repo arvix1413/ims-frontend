@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Table, Button, Modal, Drawer, Form, Input, InputNumber, Select, message, App, Dropdown, Space, DatePicker, Card, Collapse } from 'antd';
+import { Table, Button, Modal, Drawer, Input, InputNumber, Select, message, App, Dropdown, Space, DatePicker, Card, Collapse } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { MoreOutlined, EditOutlined, DeleteOutlined, SendOutlined, CheckOutlined, ExclamationCircleOutlined, ReloadOutlined, CloseOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { OrderData, ModifyOrderRequest, colorList, sizeList, WAREHOUSE } from '@/lib/types';

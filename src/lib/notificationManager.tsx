@@ -40,7 +40,7 @@ export function NotificationManagerProvider({ children }: NotificationManagerPro
       message,
       description,
       duration: 4.5,
-      placement: 'top',
+      placement: 'topRight',
     });
   };
 
@@ -50,7 +50,7 @@ export function NotificationManagerProvider({ children }: NotificationManagerPro
       message,
       description,
       duration: 6,
-      placement: 'top',
+      placement: 'topRight',
     });
   };
 
@@ -60,7 +60,7 @@ export function NotificationManagerProvider({ children }: NotificationManagerPro
       message,
       description,
       duration: 4.5,
-      placement: 'top',
+      placement: 'topRight',
     });
   };
 
@@ -70,7 +70,7 @@ export function NotificationManagerProvider({ children }: NotificationManagerPro
       message,
       description,
       duration: 4.5,
-      placement: 'top',
+      placement: 'topRight',
     });
   };
 
@@ -83,7 +83,7 @@ export function NotificationManagerProvider({ children }: NotificationManagerPro
     placement?: 'top' | 'topLeft' | 'topRight' | 'bottom' | 'bottomLeft' | 'bottomRight';
     key?: string;
   }) => {
-    const { type = 'info', duration = 4.5, placement = 'top', ...rest } = config;
+    const { type = 'info', duration = 4.5, placement = 'topRight', ...rest } = config;
     
     notification[type]({
       ...rest,

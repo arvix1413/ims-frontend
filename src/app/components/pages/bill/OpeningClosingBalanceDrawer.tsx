@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Form, InputNumber, Select, DatePicker, Table, Drawer, Tabs, Modal, message } from 'antd';
+import { Button, InputNumber, Select, DatePicker, Table, Drawer, Tabs, Modal, message } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, FilterOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { CashDrawerData, CashDrawerListRequest, CreateCashDrawerRequest } from '@/lib/types';

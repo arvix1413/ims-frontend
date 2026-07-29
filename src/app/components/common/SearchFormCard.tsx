@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Card, Form, Button, FormInstance } from 'antd';
+import { Card, Button, FormInstance } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 

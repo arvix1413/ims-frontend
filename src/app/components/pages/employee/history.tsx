@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, message, Pagination, Form, Input, DatePicker, Spin, Tag } from 'antd';
+import { Table, Button, Card, message, Pagination, Input, DatePicker, Spin, Tag } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, UserOutlined, ApiOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { EmployeeOperationLog, EmployeeOperationLogRequest } from '@/lib/types';

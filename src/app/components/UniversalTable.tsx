@@ -7,11 +7,11 @@ import {
   Space,
   Drawer,
   Modal,
-  Form,
   Card,
   Dropdown,
   message,
 } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import {
   PlusOutlined,
   SearchOutlined,

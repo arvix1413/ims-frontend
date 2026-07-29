@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Button, Drawer, Form, InputNumber, Input, message, App, Select } from 'antd';
+import { Table, Button, Drawer, InputNumber, Input, message, App, Select } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ItemData, CreateOrderRequest } from '@/lib/types';

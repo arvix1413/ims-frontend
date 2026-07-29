@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Form, Select, DatePicker, notification, Drawer } from 'antd';
+import { Button, Select, DatePicker, notification, Drawer } from 'antd';
+import Form from '@/app/components/common/ValidatedForm';
 import { useTranslation } from 'react-i18next';
 import { PrintDailyReportRequest } from '@/lib/types';
 import { printService } from '@/lib/api';
