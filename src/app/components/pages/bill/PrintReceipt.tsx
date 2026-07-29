@@ -69,20 +69,29 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 屏蔽所有功能键（F1-F12, Ctrl, Alt, Shift 等）
-      // 注意：只屏蔽功能键 F1-F12（以 F 开头后跟数字），不屏蔽字母 F
-      const isFunctionKey = /^F\d+$/.test(e.key); // 匹配 F1, F2, ..., F12
-      if (
-        isFunctionKey || // F1-F12 功能键
-        e.ctrlKey ||
-        e.altKey ||
-        e.metaKey ||
-        e.key === "Shift"
-      ) {
+      // Only reserve F1-F12 for the POS. Never block Ctrl/Command shortcuts:
+      // users must be able to paste, copy, select all and undo in every field.
+      const isFunctionKey = /^F\d+$/.test(e.key);
+      if (isFunctionKey) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
+
+      if (e.ctrlKey || e.altKey || e.metaKey || e.key === 'Shift') return;
+
+      // Scanner buffering is global only while focus is outside an editable
+      // control. Typing/Enter inside AutoComplete and other fields stays native.
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       const now = Date.now();
       if (now - lastTimeRef.current > 50) {
         bufferRef.current = '';
@@ -93,10 +102,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         e.preventDefault();
         const code = bufferRef.current;
         bufferRef.current = '';
-        const target = e.target as HTMLElement | null;
-        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-          return;
-        }
+        if (!code) return;
         
         // 调用设计接口获取价格
         const params: DesignListRequest = {
