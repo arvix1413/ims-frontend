@@ -27,7 +27,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
 
   // --- row cache for create modal autocomplete ---
-  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[] }>>({});
+  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[]; designSelected?: boolean }>>({});
   const codeTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   // ---- List ----
@@ -88,8 +88,11 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
   // ---- Create modal autocomplete ----
   const handleCodeSearch = (name: number, val: string) => {
     if (codeTimers.current[name]) clearTimeout(codeTimers.current[name]);
+    const currentItems = createForm.getFieldValue('items') || [];
+    currentItems[name] = { ...currentItems[name], code: val, color: undefined, size: undefined, itemId: null };
+    createForm.setFieldsValue({ items: [...currentItems] });
+    setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: [], designSelected: false } }));
     if (!val) {
-      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: prev[name]?.warehouseItems ?? [] } }));
       return;
     }
     codeTimers.current[name] = setTimeout(async () => {
@@ -99,7 +102,13 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
         let content: any[] = [];
         if (Array.isArray(res.data)) content = res.data;
         else if (res.data?.content && Array.isArray(res.data.content)) content = res.data.content;
-        setRowCache(prev => ({ ...prev, [name]: { codeOptions: content, warehouseItems: prev[name]?.warehouseItems ?? [] } }));
+        setRowCache(prev => ({ ...prev, [name]: { codeOptions: content, warehouseItems: [], designSelected: false } }));
+        const normalizedCode = val.trim().toLowerCase();
+        const exactMatches = content.filter((design: any) => design.design?.toLowerCase() === normalizedCode);
+        if (exactMatches.length === 1) {
+          const exactDesign = exactMatches[0];
+          await handleCodeSelect(name, exactDesign.design, { designId: exactDesign.id, salePrice: exactDesign.salePrice });
+        }
       } catch (err) {
         console.error('Failed to search design code:', err);
       }
@@ -115,7 +124,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
       const firstColor = items[0]?.color ?? '';
       const firstSize = items.find((i: any) => i?.color === firstColor)?.size ?? '';
       const firstItemId = items.find((i: any) => i?.color === firstColor && i?.size === firstSize)?.id ?? null;
-      setRowCache(prev => ({ ...prev, [name]: { codeOptions: prev[name]?.codeOptions ?? [], warehouseItems: items } }));
+      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items, designSelected: true } }));
       const curItems = createForm.getFieldValue('items') || [];
       curItems[name] = { ...curItems[name], code: val, color: firstColor, size: firstSize, itemId: firstItemId };
       createForm.setFieldsValue({ items: [...curItems] });
@@ -313,7 +322,7 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
                   <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>{t('addProduct')}</Button>
                 </Form.Item>
                 {fields.map(({ key, name, ...restField }) => {
-                  const cache = rowCache[name] || { codeOptions: [], warehouseItems: [] };
+                  const cache = rowCache[name] || { codeOptions: [], warehouseItems: [], designSelected: false };
                   const cur = (createForm.getFieldValue('items') || [])[name] || {};
                   const colorOptions = [...new Set((cache.warehouseItems || []).map((i: any) => i?.color).filter(Boolean))];
                   const sizeOptions = [...new Set((cache.warehouseItems || []).filter((i: any) => !cur.color || i?.color === cur.color).map((i: any) => i?.size).filter(Boolean))];
@@ -332,10 +341,10 @@ export default function ReturnOrderDrawer({ visible, onClose, onSuccess }: Retur
                           />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, 'color']} label={t('color')} style={{ marginBottom: 0, flex: '0 0 120px' }}>
-                          <Select placeholder={t('color')} style={{ width: '100%' }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
+                          <Select disabled={!cache.designSelected} placeholder={t('color')} style={{ width: '100%' }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={val => handleColorChange(name, val)} allowClear />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, 'size']} label={t('size')} style={{ marginBottom: 0, flex: '0 0 100px' }}>
-                          <Select placeholder={t('size')} style={{ width: '100%' }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
+                          <Select disabled={!cache.designSelected || sizeOptions.length === 0} placeholder={t('size')} style={{ width: '100%' }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={val => handleSizeChange(name, val)} allowClear />
                         </Form.Item>
                         <Form.Item {...restField} name={[name, 'qty']} label={t('qty')} initialValue={1} rules={[{ required: true, message: t('pleaseEnterAmount') }]} style={{ marginBottom: 0, flex: '0 0 80px' }}>
                           <InputNumber min={1} style={{ width: '100%' }} />

@@ -35,7 +35,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
   const [selectedRecord, setSelectedRecord] = useState<MemberPurchaseRecord | null>(null);
 
   // 缓存各行的搜索选项和仓库库存
-  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[] }>>({});
+  const [rowCache, setRowCache] = useState<Record<number, { codeOptions: any[]; warehouseItems: any[]; designSelected?: boolean }>>({});
   const codeSearchTimers = React.useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   // 获取购买记录
@@ -500,6 +500,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
                   const handleCodeSearch = (val: string) => {
                     if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], designCode: val, price: undefined, color: undefined, size: undefined, itemId: null };
+                    form.setFieldsValue({ designs: [...designs] });
+                    setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: [], designSelected: false } }));
                     if (!val) return;
                     codeSearchTimers.current[name] = setTimeout(async () => {
                       try {
@@ -507,7 +511,13 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                           design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
                         });
                         const list = res?.data?.content ?? [];
-                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: list, warehouseItems: prev[name]?.warehouseItems ?? [] } }));
+                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: list, warehouseItems: [], designSelected: false } }));
+                        const normalizedCode = val.trim().toLowerCase();
+                        const exactMatches = list.filter((design: any) => design.design?.toLowerCase() === normalizedCode);
+                        if (exactMatches.length === 1) {
+                          const exactDesign = exactMatches[0];
+                          await handleCodeSelect(exactDesign.design, { designId: exactDesign.id, salePrice: exactDesign.salePrice });
+                        }
                       } catch { /* ignore */ }
                     }, 350);
                   };
@@ -522,7 +532,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];
                       const firstSize = firstItem?.size ?? '';
                       const firstItemId = firstItem?.id ?? null;
-                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items, designSelected: true } }));
                       const designs = form.getFieldValue('designs') || [];
                       designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
@@ -563,10 +573,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'color']}>
-                        <Select placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                        <Select disabled={!cache.designSelected} placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
+                        <Select disabled={!cache.designSelected || sizeOptions.length === 0} placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>
@@ -638,13 +648,24 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
 
                   const handleCodeSearch = (val: string) => {
                     if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    const designs = form.getFieldValue('designs') || [];
+                    designs[name] = { ...designs[name], designCode: val, price: undefined, color: undefined, size: undefined, itemId: null };
+                    form.setFieldsValue({ designs: [...designs] });
+                    setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: [], designSelected: false } }));
                     if (!val) return;
                     codeSearchTimers.current[name] = setTimeout(async () => {
                       try {
                         const res = await designService.getList({
                           design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
                         });
-                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: res?.data?.content ?? [], warehouseItems: prev[name]?.warehouseItems ?? [] } }));
+                        const list = res?.data?.content ?? [];
+                        setRowCache(prev => ({ ...prev, [name]: { codeOptions: list, warehouseItems: [], designSelected: false } }));
+                        const normalizedCode = val.trim().toLowerCase();
+                        const exactMatches = list.filter((design: any) => design.design?.toLowerCase() === normalizedCode);
+                        if (exactMatches.length === 1) {
+                          const exactDesign = exactMatches[0];
+                          await handleCodeSelect(exactDesign.design, { designId: exactDesign.id, salePrice: exactDesign.salePrice });
+                        }
                       } catch { /* ignore */ }
                     }, 350);
                   };
@@ -659,7 +680,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const firstItem = items.find((i: any) => i.color === firstColor) ?? items[0];
                       const firstSize = firstItem?.size ?? '';
                       const firstItemId = firstItem?.id ?? null;
-                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items } }));
+                      setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items, designSelected: true } }));
                       const designs = form.getFieldValue('designs') || [];
                       designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
@@ -700,10 +721,10 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'color']}>
-                        <Select placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
+                        <Select disabled={!cache.designSelected} placeholder={t('color')} style={{ width: 130 }} options={colorOptions.map(c => ({ value: c, label: c }))} onChange={handleColorChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'size']}>
-                        <Select placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
+                        <Select disabled={!cache.designSelected || sizeOptions.length === 0} placeholder={t('size')} style={{ width: 100 }} options={sizeOptions.map(s => ({ value: s, label: s }))} onChange={handleSizeChange} allowClear />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock">
                         <Select style={{ width: 130 }}>

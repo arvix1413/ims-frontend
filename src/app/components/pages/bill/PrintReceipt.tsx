@@ -144,6 +144,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
               stockType: 'inStock',
               _warehouseItems: warehouseItems,
               _codeOptions: [],
+              _designSelected: true,
             };
             if (addRef.current) {
               addRef.current(scannedData);
@@ -535,6 +536,19 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                   // 搜索商品（debounce）
                   const handleCodeSearch = (val: string) => {
                     if (codeSearchTimers.current[name]) clearTimeout(codeSearchTimers.current[name]);
+                    const currentItems = form.getFieldValue('item') || [];
+                    currentItems[name] = {
+                      ...currentItems[name],
+                      code: val,
+                      price: undefined,
+                      color: undefined,
+                      size: undefined,
+                      itemId: null,
+                      _warehouseItems: [],
+                      _codeOptions: [],
+                      _designSelected: false,
+                    };
+                    form.setFieldsValue({ item: [...currentItems] });
                     if (!val || val.length < 1) return;
                     codeSearchTimers.current[name] = setTimeout(async () => {
                       try {
@@ -542,9 +556,19 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                           design: val, typeList: [], searchPage: { desc: 1, page: 1, pageSize: 20, sort: 'id' }
                         });
                         const list = res?.data?.content ?? [];
-                        const currentItems = form.getFieldValue('item') || [];
-                        currentItems[name] = { ...currentItems[name], _codeOptions: list };
-                        form.setFieldsValue({ item: [...currentItems] });
+                        const latestItems = form.getFieldValue('item') || [];
+                        latestItems[name] = { ...latestItems[name], _codeOptions: list };
+                        form.setFieldsValue({ item: [...latestItems] });
+
+                        const normalizedCode = val.trim().toLowerCase();
+                        const exactMatches = list.filter((design: any) => design.design?.toLowerCase() === normalizedCode);
+                        if (exactMatches.length === 1) {
+                          const exactDesign = exactMatches[0];
+                          await handleCodeSelect(exactDesign.design, {
+                            designId: exactDesign.id,
+                            salePrice: exactDesign.salePrice,
+                          });
+                        }
                       } catch { /* ignore */ }
                     }, 350);
                   };
@@ -572,6 +596,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         itemId: firstItemId,
                         _warehouseItems: warehouseItems,
                         _codeOptions: [],
+                        _designSelected: true,
                       };
                       form.setFieldsValue({ item: [...currentItems] });
                     } catch {
@@ -612,10 +637,19 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                           filterOption={false}
                           allowClear
                           onChange={(val) => {
-                            // 清空时重置颜色/尺码/价格/库存缓存
-                            if (!val) {
+                            if (!val || val !== cur.code) {
                               const currentItems = form.getFieldValue('item') || [];
-                              currentItems[name] = { ...currentItems[name], code: '', price: undefined, color: undefined, size: undefined, _warehouseItems: [], _codeOptions: [] };
+                              currentItems[name] = {
+                                ...currentItems[name],
+                                code: val,
+                                price: undefined,
+                                color: undefined,
+                                size: undefined,
+                                itemId: null,
+                                _warehouseItems: [],
+                                _codeOptions: val ? currentItems[name]?._codeOptions : [],
+                                _designSelected: false,
+                              };
                               form.setFieldsValue({ item: [...currentItems] });
                             }
                           }}
@@ -625,6 +659,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         <Select
                           placeholder="Color"
                           style={{ width: 120 }}
+                          disabled={!cur._designSelected}
                           options={colorOptions.map(c => ({ value: c, label: c }))}
                           onChange={handleColorChange}
                           allowClear
@@ -634,6 +669,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         <Select
                           placeholder="Size"
                           style={{ width: 100 }}
+                          disabled={!cur._designSelected || sizeOptions.length === 0}
                           options={sizeOptions.map(s => ({ value: s, label: s }))}
                           allowClear
                           onChange={(val: string) => {
