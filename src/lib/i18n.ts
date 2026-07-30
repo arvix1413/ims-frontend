@@ -330,6 +330,11 @@ const zhTranslations = {
   inventoryOperationTime: '操作时间',
   pleaseEnterProductCode: '请输入商品代码',
   pleaseEnterOperator: '请输入操作人',
+  inventoryOperation: '库存操作',
+  manualStockAdjustment: '手动调整',
+  voidStockRestore: 'Void 恢复库存',
+  sourceReceipt: '销售单号',
+  restoredQuantity: '恢复数量',
   
   // Member Management
   memberList: '会员列表',
@@ -971,6 +976,11 @@ const enTranslations = {
   inventoryOperationTime: 'Operation Time',
   pleaseEnterProductCode: 'Please enter product code',
   pleaseEnterOperator: 'Please enter operator',
+  inventoryOperation: 'Inventory Operation',
+  manualStockAdjustment: 'Manual Adjustment',
+  voidStockRestore: 'Void Stock Restore',
+  sourceReceipt: 'Receipt No.',
+  restoredQuantity: 'Restored Qty',
   
   // Member Management
   memberList: 'Member List',

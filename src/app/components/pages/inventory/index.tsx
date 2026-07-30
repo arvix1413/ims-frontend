@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Input, DatePicker, Button, Card, message, Pagination, Spin } from 'antd';
+import { Table, Input, DatePicker, Button, Card, message, Pagination, Spin, Tag } from 'antd';
 import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +64,10 @@ export default function InventoryRecords() {
               newInStoreStock: parsed?.newInStoreStock ?? null,
               newTempStoreStock: parsed?.newTempStoreStock ?? null,
               newStock: parsed?.newStock,
+              eventType: parsed?.eventType,
+              receiptId: parsed?.receiptId,
+              refNo: parsed?.refNo,
+              restoredQty: parsed?.restoredQty,
               ...item,  // item 字段优先（id, createDate 等）
             };
           } catch {
@@ -102,6 +106,22 @@ export default function InventoryRecords() {
     { title: t('color'), dataIndex: 'color', key: 'color', width: 100 },
     { title: t('size'), dataIndex: 'size', key: 'size', width: 80 },
     { title: t('warehouse'), dataIndex: 'warehouseName', key: 'warehouseName', width: 120 },
+    {
+      title: t('inventoryOperation'), dataIndex: 'eventType', key: 'eventType', width: 150,
+      render: (value: string) => value === 'VOID_STOCK_RESTORE'
+        ? <Tag color="green">{t('voidStockRestore')}</Tag>
+        : <Tag color="blue">{t('manualStockAdjustment')}</Tag>
+    },
+    {
+      title: t('sourceReceipt'), dataIndex: 'refNo', key: 'refNo', width: 160,
+      render: (value: string, record: any) => value || (record.receiptId ? `#${record.receiptId}` : '-')
+    },
+    {
+      title: t('restoredQuantity'), dataIndex: 'restoredQty', key: 'restoredQty', width: 100,
+      render: (value: number) => value !== null && value !== undefined
+        ? <strong style={{ color: '#52c41a' }}>+{value}</strong>
+        : '-'
+    },
     {
       title: <span style={{ color: '#1677ff' }}>店內庫存</span>,
       children: [
@@ -144,6 +164,9 @@ export default function InventoryRecords() {
         },
       ]
     },
+    { title: t('operator'), dataIndex: 'userName', key: 'userName', width: 120,
+      render: (value: string) => value || '-'
+    },
     { title: t('operationTime'), dataIndex: 'createDate', key: 'createDate', width: 180 },
   ] as any[];
 
@@ -154,6 +177,15 @@ export default function InventoryRecords() {
           onError={(e) => { const img = e.target as HTMLImageElement; if (!img.src.includes('data:image')) img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E'; }} />
         <div className="flex-1">
           <div className="font-bold text-gray-900 mb-1">{item.design}</div>
+          <div className="flex flex-wrap gap-1 mb-2">
+            <Tag color={item.eventType === 'VOID_STOCK_RESTORE' ? 'green' : 'blue'}>
+              {item.eventType === 'VOID_STOCK_RESTORE' ? t('voidStockRestore') : t('manualStockAdjustment')}
+            </Tag>
+            {item.refNo && <Tag>{t('sourceReceipt')}: {item.refNo}</Tag>}
+            {item.restoredQty !== null && item.restoredQty !== undefined && (
+              <Tag color="green">{t('restoredQuantity')}: +{item.restoredQty}</Tag>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-1 text-sm mb-2">
             <span className="text-gray-500">{t('color')}: <b>{item.color}</b></span>
             <span className="text-gray-500">{t('size')}: <b>{item.size}</b></span>
@@ -177,7 +209,9 @@ export default function InventoryRecords() {
               </b></span>
             </div>
           </div>
-          <div className="text-xs text-gray-400 mt-1">{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}</div>
+          <div className="text-xs text-gray-400 mt-1">
+            {item.userName || '-'} · {moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}
+          </div>
         </div>
       </div>
     </Card>
