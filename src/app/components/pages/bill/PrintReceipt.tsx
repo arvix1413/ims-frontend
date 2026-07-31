@@ -75,6 +75,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       if (isFunctionKey) {
         e.preventDefault();
         e.stopPropagation();
+        // Some scanners are configured with F12 as their suffix. Handle the
+        // event before Chrome's normal page listeners so a completed scan does
+        // not open DevTools. Enter/CR remains the recommended scanner suffix.
+        if (e.key === 'F12') {
+          e.stopImmediatePropagation();
+        }
         return;
       }
 
@@ -169,8 +175,10 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Capture is intentional: browser-reserved function keys (especially F12)
+    // must be cancelled before bubble-phase application handlers run.
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [form]);
 
   const onFinish = async () => {
