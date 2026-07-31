@@ -68,6 +68,10 @@ export default function InventoryRecords() {
               receiptId: parsed?.receiptId,
               refNo: parsed?.refNo,
               restoredQty: parsed?.restoredQty,
+              sourceType: parsed?.sourceType,
+              sourceId: parsed?.sourceId,
+              sourceNo: parsed?.sourceNo,
+              quantity: parsed?.quantity,
               ...item,  // item 字段优先（id, createDate 等）
             };
           } catch {
@@ -108,18 +112,27 @@ export default function InventoryRecords() {
     { title: t('warehouse'), dataIndex: 'warehouseName', key: 'warehouseName', width: 120 },
     {
       title: t('inventoryOperation'), dataIndex: 'eventType', key: 'eventType', width: 150,
-      render: (value: string) => value === 'VOID_STOCK_RESTORE'
-        ? <Tag color="green">{t('voidStockRestore')}</Tag>
-        : <Tag color="blue">{t('manualStockAdjustment')}</Tag>
+      render: (value: string) => {
+        const labels: Record<string, string> = {
+          VOID_STOCK_RESTORE: t('voidStockRestore'), SALES_ORDER_DEDUCTION: t('salesOrderDeduction'),
+          ORDER_STATUS_CHANGE: t('orderStatusChange'), ORDER_DELETE_ROLLBACK: t('orderDeleteRollback'),
+          RETURN_ORDER_INBOUND: t('returnOrderInbound'), RETURN_ORDER_DELETE: t('returnOrderDelete'),
+          MEMBER_ORDER_DEDUCTION: t('memberOrderDeduction'), MEMBER_ORDER_ROLLBACK: t('memberOrderRollback'),
+          INVENTORY_RESET: t('inventoryReset'),
+        };
+        return <Tag color={value === 'VOID_STOCK_RESTORE' || value?.includes('INBOUND') || value?.includes('ROLLBACK') ? 'green' : 'blue'}>
+          {labels[value] || t('manualStockAdjustment')}
+        </Tag>;
+      }
     },
     {
-      title: t('sourceReceipt'), dataIndex: 'refNo', key: 'refNo', width: 160,
-      render: (value: string, record: any) => value || (record.receiptId ? `#${record.receiptId}` : '-')
+      title: t('sourceReference'), dataIndex: 'sourceNo', key: 'sourceNo', width: 170,
+      render: (value: string, record: any) => value || record.refNo || (record.sourceId ? `#${record.sourceId}` : record.receiptId ? `#${record.receiptId}` : '-')
     },
     {
-      title: t('restoredQuantity'), dataIndex: 'restoredQty', key: 'restoredQty', width: 100,
-      render: (value: number) => value !== null && value !== undefined
-        ? <strong style={{ color: '#52c41a' }}>+{value}</strong>
+      title: t('quantityChange'), dataIndex: 'quantity', key: 'quantity', width: 100,
+      render: (value: number, record: any) => (value ?? record.restoredQty) !== null && (value ?? record.restoredQty) !== undefined
+        ? <strong style={{ color: (value ?? record.restoredQty) >= 0 ? '#52c41a' : '#ff4d4f' }}>{(value ?? record.restoredQty) > 0 ? '+' : ''}{value ?? record.restoredQty}</strong>
         : '-'
     },
     {

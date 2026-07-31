@@ -140,10 +140,14 @@ export interface InventoryRecordItem {
   uri: string;
   body: string;
   createDate: string;
-  eventType?: 'VOID_STOCK_RESTORE';
+  eventType?: string;
   receiptId?: number;
   refNo?: string;
   restoredQty?: number;
+  sourceType?: string;
+  sourceId?: number;
+  sourceNo?: string;
+  quantity?: number;
 }
 
 export interface InventoryRecordResponse {

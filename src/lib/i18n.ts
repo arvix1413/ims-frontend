@@ -335,6 +335,16 @@ const zhTranslations = {
   voidStockRestore: 'Void 恢复库存',
   sourceReceipt: '销售单号',
   restoredQuantity: '恢复数量',
+  sourceReference: '来源单据',
+  quantityChange: '变动数量',
+  salesOrderDeduction: '销售出库',
+  orderStatusChange: '订单入/出库',
+  orderDeleteRollback: '删除订单回滚',
+  returnOrderInbound: '退货入库',
+  returnOrderDelete: '删除退货单',
+  memberOrderDeduction: '会员订单出库',
+  memberOrderRollback: '会员订单回滚',
+  inventoryReset: '库存清零',
   
   // Member Management
   memberList: '会员列表',
@@ -981,6 +991,16 @@ const enTranslations = {
   voidStockRestore: 'Void Stock Restore',
   sourceReceipt: 'Receipt No.',
   restoredQuantity: 'Restored Qty',
+  sourceReference: 'Source Reference',
+  quantityChange: 'Quantity Change',
+  salesOrderDeduction: 'Sales Outbound',
+  orderStatusChange: 'Order In/Outbound',
+  orderDeleteRollback: 'Order Delete Rollback',
+  returnOrderInbound: 'Return Inbound',
+  returnOrderDelete: 'Return Delete',
+  memberOrderDeduction: 'Member Order Outbound',
+  memberOrderRollback: 'Member Order Rollback',
+  inventoryReset: 'Inventory Reset',
   
   // Member Management
   memberList: 'Member List',
