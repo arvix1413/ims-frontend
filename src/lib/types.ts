@@ -704,7 +704,7 @@ export const colorList = ['Black','White','Beige','Pink','Blue', 'Grey', 'Khaki'
 export const fabricList = ['Knits', 'Denim', 'Silk', 'Polyester', 'Lace', 'Chiffon', 'Cotton', 'Linen', 'Tweed fabric', 'Stretch fabrics', 'leather', 'PVC'];
 
 // 尺码选项
-export const sizeList = ['Free Size', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44'];
+export const sizeList = ['Free Size', 'XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '240', '245', '250', '255', '260'];
 
 // 仓库枚举
 export enum WAREHOUSE {
