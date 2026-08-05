@@ -13,6 +13,19 @@ import moment from 'moment';
 import { useInitialListRefresh } from '@/lib/useListRefresh';
 import PrintLabelDrawer from '../bill/PrintLabelDrawer';
 
+const INVENTORY_EVENT_COLORS: Record<string, string> = {
+  MANUAL_STOCK_ADJUSTMENT: 'orange',
+  VOID_STOCK_RESTORE: 'purple',
+  SALES_ORDER_DEDUCTION: 'blue',
+  ORDER_STATUS_CHANGE: 'cyan',
+  ORDER_DELETE_ROLLBACK: 'red',
+  RETURN_ORDER_INBOUND: 'green',
+  RETURN_ORDER_DELETE: 'volcano',
+  MEMBER_ORDER_DEDUCTION: 'geekblue',
+  MEMBER_ORDER_ROLLBACK: 'magenta',
+  INVENTORY_RESET: 'gold',
+};
+
 // ────────────────────────────────────────────────────────────────
 // 主页面：库存记录
 // ────────────────────────────────────────────────────────────────
@@ -96,6 +109,20 @@ export default function InventoryRecords() {
 
   useInitialListRefresh(() => fetchData(1));
 
+  const getInventoryEventDisplay = (value?: string) => {
+    const labels: Record<string, string> = {
+      VOID_STOCK_RESTORE: t('voidStockRestore'), SALES_ORDER_DEDUCTION: t('salesOrderDeduction'),
+      ORDER_STATUS_CHANGE: t('orderStatusChange'), ORDER_DELETE_ROLLBACK: t('orderDeleteRollback'),
+      RETURN_ORDER_INBOUND: t('returnOrderInbound'), RETURN_ORDER_DELETE: t('returnOrderDelete'),
+      MEMBER_ORDER_DEDUCTION: t('memberOrderDeduction'), MEMBER_ORDER_ROLLBACK: t('memberOrderRollback'),
+      INVENTORY_RESET: t('inventoryReset'),
+    };
+    return {
+      color: INVENTORY_EVENT_COLORS[value || ''] || INVENTORY_EVENT_COLORS.MANUAL_STOCK_ADJUSTMENT,
+      label: labels[value || ''] || t('manualStockAdjustment'),
+    };
+  };
+
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80, fixed: 'left' as const,
       render: (id: number) => <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
@@ -113,15 +140,9 @@ export default function InventoryRecords() {
     {
       title: t('inventoryOperation'), dataIndex: 'eventType', key: 'eventType', width: 150,
       render: (value: string) => {
-        const labels: Record<string, string> = {
-          VOID_STOCK_RESTORE: t('voidStockRestore'), SALES_ORDER_DEDUCTION: t('salesOrderDeduction'),
-          ORDER_STATUS_CHANGE: t('orderStatusChange'), ORDER_DELETE_ROLLBACK: t('orderDeleteRollback'),
-          RETURN_ORDER_INBOUND: t('returnOrderInbound'), RETURN_ORDER_DELETE: t('returnOrderDelete'),
-          MEMBER_ORDER_DEDUCTION: t('memberOrderDeduction'), MEMBER_ORDER_ROLLBACK: t('memberOrderRollback'),
-          INVENTORY_RESET: t('inventoryReset'),
-        };
-        return <Tag color={value === 'VOID_STOCK_RESTORE' || value?.includes('INBOUND') || value?.includes('ROLLBACK') ? 'green' : 'blue'}>
-          {labels[value] || t('manualStockAdjustment')}
+        const event = getInventoryEventDisplay(value);
+        return <Tag color={event.color}>
+          {event.label}
         </Tag>;
       }
     },
@@ -183,16 +204,19 @@ export default function InventoryRecords() {
     { title: t('operationTime'), dataIndex: 'createDate', key: 'createDate', width: 180 },
   ] as any[];
 
-  const renderCard = (item: any, index: number) => (
-    <Card key={item.id} className="mb-3" style={{ borderRadius: 12 }}>
+  const renderCard = (item: any, index: number) => {
+    const event = getInventoryEventDisplay(item.eventType);
+
+    return (
+      <Card key={item.id} className="mb-3" style={{ borderRadius: 12 }}>
       <div className="flex items-start space-x-3">
         <img className="w-16 h-20 object-cover rounded-lg border border-gray-200" alt="" src={API_CONFIG.BASE_URL + item.previewPhoto}
           onError={(e) => { const img = e.target as HTMLImageElement; if (!img.src.includes('data:image')) img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1" height="1"%3E%3C/svg%3E'; }} />
         <div className="flex-1">
           <div className="font-bold text-gray-900 mb-1">{item.design}</div>
           <div className="flex flex-wrap gap-1 mb-2">
-            <Tag color={item.eventType === 'VOID_STOCK_RESTORE' ? 'green' : 'blue'}>
-              {item.eventType === 'VOID_STOCK_RESTORE' ? t('voidStockRestore') : t('manualStockAdjustment')}
+            <Tag color={event.color}>
+              {event.label}
             </Tag>
             {item.refNo && <Tag>{t('sourceReceipt')}: {item.refNo}</Tag>}
             {item.restoredQty !== null && item.restoredQty !== undefined && (
@@ -227,8 +251,9 @@ export default function InventoryRecords() {
           </div>
         </div>
       </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <div className="p-4 md:p-6">
