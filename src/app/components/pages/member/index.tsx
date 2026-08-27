@@ -154,11 +154,11 @@ export default function MemberManagement() {
         phone: values.phone,
         registrationDate: values.registrationDate.format('YYYY-MM-DD'),
         voucherNumber: values.voucherNumber,
-        remark: values.remark,
+        remark: values.remark?.trim() ?? '',
         height: values.height,
         weight: values.weight,
         size: values.size,
-        personalNotes: values.personalNotes,
+        personalNotes: values.personalNotes?.trim() ?? '',
       };
 
       await member.modify(params);
@@ -195,7 +195,7 @@ export default function MemberManagement() {
         id: selectedMember.id,
         saler: values.saler,
         balance: values.amount,
-        remark: values.remark,
+        remark: values.remark?.trim() ?? '',
       };
 
       await member.topUp(params);
@@ -275,13 +275,13 @@ export default function MemberManagement() {
         phone: values.phone,
         registrationDate: values.registrationDate.format('YYYY-MM-DD'),
         voucherNumber: values.voucherNumber,
-        remark: values.remark,
+        remark: values.remark?.trim() ?? '',
         balance: 0,
         membershipPackageTotal: 0,
         height: values.height,
         weight: values.weight,
         size: values.size,
-        personalNotes: values.personalNotes,
+        personalNotes: values.personalNotes?.trim() ?? '',
       };
 
       await member.create(params);
