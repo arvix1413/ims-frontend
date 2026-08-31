@@ -26,13 +26,14 @@ interface OrderListProps {
 const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, onViewDesignDetail }, ref) => {
   const { t } = useTranslation();
   const { modal } = App.useApp();
-  const { isLogistics, isKoreanLogistics, userInfo } = usePermissions();
+  const { isLogistics, isKoreanLogistics, isAdmin, userInfo } = usePermissions();
   const [form] = Form.useForm();
   const [sentForm] = Form.useForm();
   const [searchForm] = Form.useForm();
   
   // 判断是否为物流用户（包括普通物流和韩国物流）
   const isLogisticsUser = isLogistics() || isKoreanLogistics();
+  const canViewPurchasePrice = isAdmin();
   
   // 状态管理
   const [loading, setLoading] = useState(false);
@@ -638,6 +639,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       key: 'salePrice',
       width: 100,
     },
+    ...(canViewPurchasePrice ? [{
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('purchasePrice')}</div>,
+      dataIndex: 'purchasePrice',
+      key: 'purchasePrice',
+      width: 120,
+      render: (value: string | undefined) => value || '-',
+    }] : []),
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderColor')}</div>,
       dataIndex: 'color',

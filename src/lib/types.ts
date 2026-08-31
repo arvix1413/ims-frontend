@@ -803,6 +803,7 @@ export interface OrderData {
   warehouseName: string;
   designCode: string;
   salePrice: string;
+  purchasePrice?: string;     // 网站编码（仅管理员订单列表返回）
   color: string;
   size: string;
   amount: number;
