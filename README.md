@@ -2,6 +2,10 @@
 
 ## Development
 
+## Deleted-item order cleanup
+
+The order action menu and mobile card expose **删除订单 / Delete Order**. Permanent deletion is enabled only for statuses with no inventory holding (`pending`, `shipped`, `out of stock`, `void`, `arrived picked up`). Inventory-holding statuses keep the button disabled and must first be resolved through the normal status workflow. The action shows the design and order ID in a destructive confirmation dialog; successful deletion refreshes the list. The backend remains the final inventory-safety authority.
+
 Install dependencies:
 
 ```bash

@@ -352,6 +352,29 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     });
   };
 
+  // 永久删除订货记录。仅无库存占用状态开放；有库存状态须先按业务状态处理。
+  const handleDeleteOrder = (orderData: OrderData) => {
+    modal.confirm({
+      title: t('deleteOrderTitle'),
+      content: `${t('confirmDeleteOrderMessage')}: ${orderData.design} (ID: ${orderData.id})？`,
+      icon: <ExclamationCircleOutlined />,
+      okText: t('confirm'),
+      cancelText: t('cancel'),
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const response = await order.delete([orderData.id]);
+          if (response.code !== 200) throw new Error(response.msg || t('deleteOrderFailed'));
+          message.success(t('deleteOrderSuccess'));
+          onRefresh();
+        } catch (error) {
+          console.error('删除订单失败:', error);
+          message.error(t('deleteOrderFailed'));
+        }
+      },
+    });
+  };
+
   // 发货（需要填写日期和操作人）
   const handleSent = (orderData: OrderData) => {
     setSelectedOrder(orderData);
@@ -483,6 +506,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     const isVoided = s === '5';
     const isOutOfStock = s === '3';
     const isCompleted = s === '2';
+    const canDeleteWithoutInventory = ['0', '1', '3', '5', '7'].includes(s || '0');
+    const deleteAction = {
+      key: 'delete', label: t('deleteOrder'), icon: <DeleteOutlined />, danger: true,
+      disabled: !canDeleteWithoutInventory, onClick: () => handleDeleteOrder(orderData),
+    };
 
     // 店补订单
     if (isStoreOrder) {
@@ -530,6 +558,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             disabled: isVoided,
             onClick: () => handleVoid(orderData),
           },
+          deleteAction,
         ],
       };
     }
@@ -585,6 +614,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           disabled: isVoided,
           onClick: () => handleVoid(orderData),
         },
+        deleteAction,
       ],
     };
   };
@@ -878,6 +908,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
               >
                 {t('void')}
               </Button>
+              <Button size="small" danger onClick={() => handleDeleteOrder(order)} className="flex-1"
+                style={{ minHeight: '32px' }} disabled={!['0', '1', '3', '5', '7'].includes(order.status || '0')}>
+                {t('deleteOrder')}
+              </Button>
             </>
           ) : (
             // 客定订单：发货、已到货、完成、缺货、重置、Void
@@ -935,6 +969,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
                 disabled={order.status === '5'}
               >
                 {t('void')}
+              </Button>
+              <Button size="small" danger onClick={() => handleDeleteOrder(order)} className="flex-1"
+                style={{ minHeight: '32px' }} disabled={!['0', '1', '3', '5', '7'].includes(order.status || '0')}>
+                {t('deleteOrder')}
               </Button>
             </>
           )}
