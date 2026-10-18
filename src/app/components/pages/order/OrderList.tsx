@@ -669,13 +669,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       key: 'salePrice',
       width: 100,
     },
-    ...(canViewPurchasePrice ? [{
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('purchasePrice')}</div>,
-      dataIndex: 'purchasePrice',
-      key: 'purchasePrice',
-      width: 120,
-      render: (value: string | undefined) => value || '-',
-    }] : []),
+    {
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('statusLog')}</div>,
+      dataIndex: 'statusHistory',
+      width: 250,
+      render: (value: string) => renderStatusHistory(value),
+    },
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderColor')}</div>,
       dataIndex: 'color',
@@ -754,12 +753,13 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       width: 100,
       render: (value: string) => renderStatus(value),
     },
-    {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('statusLog')}</div>,
-      dataIndex: 'statusHistory',
-      width: 250,
-      render: (value: string) => renderStatusHistory(value),
-    },
+    ...(canViewPurchasePrice ? [{
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('purchasePrice')}</div>,
+      dataIndex: 'purchasePrice',
+      key: 'purchasePrice',
+      width: 120,
+      render: (value: string | undefined) => value || '-',
+    }] : []),
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('operation')}</div>,
       key: 'action',
