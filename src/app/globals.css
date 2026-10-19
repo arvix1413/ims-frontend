@@ -80,22 +80,6 @@ body {
   padding-inline: 6px !important;
 }
 
-.order-list-table .ant-table-thead > tr > th {
-  min-width: 44px;
-}
-
-.order-list-table .ant-table-thead > tr > th:nth-child(2) {
-  min-width: 68px;
-}
-
-.order-list-table .ant-table-thead > tr > th:nth-child(5) {
-  min-width: 136px;
-}
-
-.order-list-table .ant-table-thead > tr > th:nth-child(11) {
-  min-width: 80px;
-}
-
 .order-list-table .ant-table-tbody > tr > td:nth-child(11) {
   white-space: nowrap;
 }

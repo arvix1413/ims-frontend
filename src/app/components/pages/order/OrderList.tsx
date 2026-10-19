@@ -625,7 +625,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 44,
+      width: '4.5%',
       render: (id: number) => (
         <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
       ),
@@ -633,7 +633,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 68,
+      width: '7%',
       render: (item: string, record: OrderData) => (
         <img 
           style={{ height: 66, width: 52, objectFit: 'cover', cursor: 'pointer' }}
@@ -658,11 +658,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderCode'),
       dataIndex: 'design',
       key: 'design',
+      width: '7%',
     },
     {
       title: t('operation'),
       key: 'action',
-      width: 44,
+      width: '5%',
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<MoreOutlined />} aria-label={t('operation')} />
@@ -672,18 +673,20 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('statusLog'),
       dataIndex: 'statusHistory',
+      width: '12%',
       render: (value: string) => renderStatusHistory(value),
     },
     {
       title: t('status'),
       dataIndex: 'status',
-      width: 58,
+      width: '5%',
       render: (value: string) => renderStatus(value),
     },
     {
       title: t('orderColor'),
       dataIndex: 'color',
       key: 'color',
+      width: '5%',
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
@@ -693,35 +696,36 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderSize'),
       dataIndex: 'size',
       key: 'size',
-      width: 44,
+      width: '4%',
     },
     {
       title: t('orderPrice'),
       dataIndex: 'salePrice',
       key: 'salePrice',
-      width: 54,
+      width: '4.5%',
     },
     {
       title: t('orderAmount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 48,
+      width: '4%',
     },
     {
       title: t('time'),
       dataIndex: 'date',
-      width: 72,
+      width: '8%',
       render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
       title: t('customerContact'),
       dataIndex: 'customerContact',
       key: 'customerContact',
+      width: '7%',
     }, {
       title: t('orderType'),
       dataIndex: 'type',
       key: 'type',
-      width: 62,
+      width: '4.5%',
       render: (type: number) => (
         <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
           {type === 0 ? t('storeSupply') : type === 1 ? t('customerOrder') : '-'}
@@ -731,7 +735,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('paymentStatus'),
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 68,
+      width: '5.5%',
       render: (flag: string, record: OrderData) => {
         if (record.type === 0) {
           return <span style={{ color: '#8c8c8c', fontSize: 12 }}>-</span>;
@@ -746,10 +750,12 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('orderedBy'),
       dataIndex: 'orderedBy',
       key: 'orderedBy',
+      width: '5%',
     }, {
       title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
+      width: '5.5%',
       render: (text: string) => (
         <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{text}</span>
       ),
@@ -758,7 +764,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: t('purchasePrice'),
       dataIndex: 'purchasePrice',
       key: 'purchasePrice',
-      width: 70,
+      width: '6.5%',
       render: (value: string | undefined) => value || '-',
     }] : []),
   ];
@@ -1040,7 +1046,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           loading={loading}
           rowKey="id"
           className="order-list-table"
-          tableLayout="auto"
+          tableLayout="fixed"
           pagination={false}
           size="small"
           sticky={true}
