@@ -79,7 +79,7 @@ export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsC
 
   // 桌面端侧边栏内容
   const desktopSidebar = (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-white shadow-sm border-r border-gray-200 min-h-screen transition-all duration-300 ease-in-out relative z-10 flex-shrink-0`}>
+    <aside className={`${isCollapsed ? 'w-16' : 'w-64'} sticky top-0 h-screen overflow-y-auto bg-white shadow-sm border-r border-gray-200 min-h-screen transition-all duration-300 ease-in-out relative z-10 flex-shrink-0`}>
       {/* 折叠按钮 */}
       <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-end'} p-4 border-b border-gray-200`}>
         <button

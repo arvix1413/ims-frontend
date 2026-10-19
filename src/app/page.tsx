@@ -31,7 +31,7 @@ function HomeContent() {
   return (
     <AuthGuard>
       <ResponsiveRouter>
-        <div className="min-h-screen bg-gray-50 md:min-w-[1200px] md:overflow-x-auto">
+        <div className="min-h-screen bg-gray-50 md:min-w-[1200px] md:overflow-x-clip">
         {/* Header 容器 - 桌面端带过渡效果，移动端固定显示 */}
         <div 
           className="transition-all duration-300 ease-in-out overflow-hidden md:block"
