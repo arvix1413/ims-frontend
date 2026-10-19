@@ -81,7 +81,7 @@ body {
 }
 
 .order-list-table .ant-table-thead > tr > th {
-  min-width: 48px;
+  min-width: 44px;
 }
 
 .order-list-table .ant-table-thead > tr > th:nth-child(2) {
@@ -89,7 +89,7 @@ body {
 }
 
 .order-list-table .ant-table-thead > tr > th:nth-child(5) {
-  min-width: 100px;
+  min-width: 136px;
 }
 
 .order-list-table .ant-table-thead > tr > th:nth-child(11) {
