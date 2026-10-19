@@ -288,7 +288,7 @@ export default function DesignDetail({
 
   if (!detailData) {
     return (
-      <div className="p-4 md:p-6">
+      <div className="p-3 md:p-4">
         <Button icon={<ArrowLeftOutlined />} onClick={onBackToList} className="mb-4">
           {t('backToList')}
         </Button>
@@ -300,8 +300,8 @@ export default function DesignDetail({
   return (
     <>
       {/* 桌面端布局 */}
-      <div className="hidden md:block p-6">
-        <div style={{ marginBottom: 24, display: 'flex', gap: '12px' }}>
+      <div className="hidden md:block p-4">
+        <div style={{ marginBottom: 16, display: 'flex', gap: '12px' }}>
           <Button 
             icon={<ArrowLeftOutlined />} 
             onClick={onBackToList} 
@@ -335,8 +335,8 @@ export default function DesignDetail({
         </div>
 
         {/* 商品详情 */}
-        <div style={{ backgroundColor: '#fff', padding: 24, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <div style={{ display: 'flex', gap: '40px', maxHeight: '400px' }}>
+        <div style={{ backgroundColor: '#fff', padding: 18, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <div style={{ display: 'flex', gap: '24px', maxHeight: '400px' }}>
             <div style={{ flexShrink: 0 }}>
               <img 
                 src={API_CONFIG.BASE_URL + detailData.previewPhoto}
@@ -448,7 +448,7 @@ export default function DesignDetail({
         </div>
 
         {/* 库存管理 - 桌面端 */}
-        <div style={{ backgroundColor: '#fff', padding: 24, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginTop: 24 }}>
+        <div style={{ backgroundColor: '#fff', padding: 18, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{t('stockManagement')}</h3>
             {canUseFeature('createItem') && (

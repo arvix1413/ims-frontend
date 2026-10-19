@@ -352,9 +352,9 @@ export default function EmployeeManagement() {
   );
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 md:p-4">
       {/* 桌面端视图 */}
-      <div className="hidden md:block bg-white border border-gray-200 rounded-lg p-6">
+      <div className="hidden md:block bg-white border border-gray-200 rounded-lg p-4">
         <UniversalTable
           columns={columns}
           dataSource={users}

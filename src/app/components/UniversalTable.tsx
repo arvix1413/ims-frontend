@@ -127,7 +127,7 @@ export default function UniversalTable({
             layout="inline"
             onFinish={advancedSearch.onSearch}
           >
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px 8px', width: '100%' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', width: '100%', alignItems: 'flex-end' }}>
               {advancedSearch.children}
               <Form.Item style={{ marginBottom: 0 }}>
                 <Space>

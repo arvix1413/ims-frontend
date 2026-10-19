@@ -29,17 +29,17 @@ export default function SearchFormCard({
   const { t } = useTranslation();
 
   return (
-    <Card style={{ marginBottom: 16 }}>
+    <Card style={{ marginBottom: 12 }}>
       <Form
         form={form}
         layout="vertical"
         onFinish={onSearch}
-        style={{ display: 'flex', flexWrap: 'wrap', gap: '0 16px', alignItems: 'flex-end' }}
+        style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 16px', alignItems: 'flex-end' }}
       >
         {children}
 
         {/* 搜索 / 重置按钮 */}
-        <Form.Item style={{ marginBottom: 24 }}>
+        <Form.Item style={{ marginBottom: 0 }}>
           <Button
             type="primary"
             htmlType="submit"
@@ -55,7 +55,7 @@ export default function SearchFormCard({
 
         {/* 额外信息（可选） */}
         {extra && (
-          <Form.Item style={{ marginBottom: 24 }}>
+          <Form.Item style={{ marginBottom: 0 }}>
             {extra}
           </Form.Item>
         )}

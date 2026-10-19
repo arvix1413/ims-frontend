@@ -625,7 +625,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 80,
+      width: 64,
       fixed: 'left' as const,
       render: (id: number) => (
         <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
@@ -634,7 +634,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 120,
+      width: 96,
       fixed: 'left' as const,
       render: (item: string, record: OrderData) => (
         <img 
@@ -660,26 +660,36 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderCode')}</div>,
       dataIndex: 'design',
       key: 'design',
-      width: 150,
+      width: 130,
       fixed: 'left' as const,
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderPrice')}</div>,
-      dataIndex: 'salePrice',
-      key: 'salePrice',
-      width: 100,
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('operation')}</div>,
+      key: 'action',
+      width: 72,
+      render: (_: any, record: OrderData) => (
+        <Dropdown menu={getActionMenu(record)} trigger={['click']}>
+          <Button type="text" icon={<MoreOutlined />} aria-label={t('operation')} />
+        </Dropdown>
+      ),
     },
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('statusLog')}</div>,
       dataIndex: 'statusHistory',
-      width: 250,
+      width: 190,
       render: (value: string) => renderStatusHistory(value),
+    },
+    {
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('status')}</div>,
+      dataIndex: 'status',
+      width: 88,
+      render: (value: string) => renderStatus(value),
     },
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderColor')}</div>,
       dataIndex: 'color',
       key: 'color',
-      width: 120,
+      width: 96,
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
@@ -689,30 +699,36 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderSize')}</div>,
       dataIndex: 'size',
       key: 'size',
-      width: 80,
+      width: 68,
+    },
+    {
+      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderPrice')}</div>,
+      dataIndex: 'salePrice',
+      key: 'salePrice',
+      width: 82,
     },
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderAmount')}</div>,
       dataIndex: 'amount',
       key: 'amount',
-      width: 80,
+      width: 64,
     },
     {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('time')}</div>,
       dataIndex: 'date',
-      width: 120,
+      width: 108,
       render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('customerContact')}</div>,
       dataIndex: 'customerContact',
       key: 'customerContact',
-      width: 150,
+      width: 135,
     }, {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderType')}</div>,
       dataIndex: 'type',
       key: 'type',
-      width: 90,
+      width: 85,
       render: (type: number) => (
         <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
           {type === 0 ? t('storeSupply') : type === 1 ? t('customerOrder') : '-'}
@@ -722,7 +738,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('paymentStatus')}</div>,
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 90,
+      width: 95,
       render: (flag: string, record: OrderData) => {
         if (record.type === 0) {
           return <span style={{ color: '#8c8c8c', fontSize: 12 }}>-</span>;
@@ -737,39 +753,23 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderedBy')}</div>,
       dataIndex: 'orderedBy',
       key: 'orderedBy',
-      width: 100,
+      width: 95,
     }, {
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderRemark')}</div>,
       dataIndex: 'remark',
       key: 'remark',
-      width: 200,
+      width: 160,
       render: (text: string) => (
         <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
       ),
     }] : []),
-    {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('status')}</div>,
-      dataIndex: 'status',
-      width: 100,
-      render: (value: string) => renderStatus(value),
-    },
     ...(canViewPurchasePrice ? [{
       title: <div style={{ whiteSpace: 'nowrap' }}>{t('purchasePrice')}</div>,
       dataIndex: 'purchasePrice',
       key: 'purchasePrice',
-      width: 120,
+      width: 100,
       render: (value: string | undefined) => value || '-',
     }] : []),
-    {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('operation')}</div>,
-      key: 'action',
-      width: 80,
-      render: (_: any, record: OrderData) => (
-        <Dropdown menu={getActionMenu(record)} trigger={['click']}>
-          <Button type="text" icon={<MoreOutlined />} />
-        </Dropdown>
-      ),
-    },
   ];
 
   // 移动端卡片渲染
@@ -982,7 +982,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
   );
 
   return (
-    <div className="p-3 md:p-6 pt-0 md:pt-0 overflow-hidden">
+    <div className="p-3 md:p-4 pt-0 md:pt-0 overflow-hidden">
       {/* 搜索表单 */}
       <Card className="mb-4">
         <Form
@@ -991,24 +991,24 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           onFinish={handleSearch}
           className="md:flex md:flex-wrap md:gap-4"
         >
-          <Form.Item name="design" label={t('orderCode')} className="md:w-48 mb-4">
+          <Form.Item name="design" label={t('orderCode')} className="md:w-48 mb-3">
             <Input placeholder={t('pleaseEnterDesignCode')} />
           </Form.Item>
           
           {!isLogisticsUser && (
-            <Form.Item name="customerContact" label={t('customerContact')} className="md:w-48 mb-4">
+            <Form.Item name="customerContact" label={t('customerContact')} className="md:w-48 mb-3">
               <Input placeholder={t('pleaseEnterName') + '/' + t('pleaseEnterPhone')} />
             </Form.Item>
           )}
           
           {!isLogisticsUser && (
-            <Form.Item name="remark" label={t('orderRemark')} className="md:w-48 mb-4">
+            <Form.Item name="remark" label={t('orderRemark')} className="md:w-48 mb-3">
               <Input placeholder={t('pleaseEnterRemark')} />
             </Form.Item>
           )}
           
           {!isLogisticsUser && (
-            <Form.Item name="paymentFlag" label={t('paymentStatus')} className="md:w-48 mb-4">
+            <Form.Item name="paymentFlag" label={t('paymentStatus')} className="md:w-48 mb-3">
               <Select placeholder={t('pleaseSelect') + t('paymentStatus')}>
                 <Select.Option value="PAID">PAID（{t('paid')}）</Select.Option>
                 <Select.Option value="UNPAID">UNPAID（{t('unpaid')}）</Select.Option>
@@ -1016,7 +1016,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             </Form.Item>
           )}
           
-          <Form.Item name="status" label={t('status')} className="md:w-48 mb-4">
+          <Form.Item name="status" label={t('status')} className="md:w-48 mb-3">
             <Select
               mode="multiple"
               placeholder={t('pleaseSelectStatus')}
@@ -1024,11 +1024,11 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
             />
           </Form.Item>
           
-          <Form.Item name="dateRange" label={t('dateRange')} className="md:w-72 mb-4">
+          <Form.Item name="dateRange" label={t('dateRange')} className="md:w-72 mb-3">
             <DatePicker.RangePicker style={{ width: '100%' }} />
           </Form.Item>
           
-          <Form.Item className="mb-4" style={{ alignSelf: 'flex-end' }}>
+          <Form.Item className="mb-3" style={{ alignSelf: 'flex-end' }}>
             <Space>
               <Button type="primary" htmlType="submit">
                 {t('search')}
@@ -1048,7 +1048,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           dataSource={data}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 1480 }}
+          scroll={{ x: 'max-content' }}
           pagination={false}
           size="small"
           sticky={true}

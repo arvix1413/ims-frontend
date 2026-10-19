@@ -219,7 +219,7 @@ export default function EmployeeHistory() {
   );
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 md:p-4">
       {/* 搜索表单 */}
       <Card className="mb-4" style={{ borderRadius: 12 }}>
         <Form
@@ -231,21 +231,21 @@ export default function EmployeeHistory() {
           <Form.Item 
             name="userName" 
             label={t('operator')}
-            className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[200px]"
+            className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[200px]"
           >
             <Input placeholder={t('pleaseEnterOperatorName')} />
           </Form.Item>
           <Form.Item 
             name="uri" 
             label={t('uri')}
-            className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[200px]"
+            className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[200px]"
           >
             <Input placeholder={t('pleaseEnterApiPath')} />
           </Form.Item>
           <Form.Item 
             name="operateDate" 
             label={t('operationTime')}
-            className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[300px]"
+            className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[300px]"
           >
             <DatePicker.RangePicker 
               placeholder={[t('startTime'), t('endTime')]}

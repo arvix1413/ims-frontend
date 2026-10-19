@@ -256,20 +256,20 @@ export default function InventoryRecords() {
   };
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 md:p-4">
       {/* 搜索表单 */}
       <Card className="mb-4" style={{ borderRadius: 12 }}>
         <Form form={form} layout="vertical" className="md:!flex md:!flex-wrap md:!items-end md:!gap-4" onFinish={() => fetchData(1)}>
-          <Form.Item name="body" label={t('designCode')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[160px]">
+          <Form.Item name="body" label={t('designCode')} className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[160px]">
             <Input placeholder={t('pleaseEnterDesignCode')} />
           </Form.Item>
-          <Form.Item name="color" label={t('color')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[120px]">
+          <Form.Item name="color" label={t('color')} className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[120px]">
             <Input placeholder={t('colorPlaceholder')} />
           </Form.Item>
-          <Form.Item name="size" label={t('size')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[100px]">
+          <Form.Item name="size" label={t('size')} className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[100px]">
             <Input placeholder={t('sizePlaceholder')} />
           </Form.Item>
-          <Form.Item name="operateDate" label={t('operationTime')} className="!mb-4 md:!mb-0 md:!flex-1 md:!min-w-[280px]">
+          <Form.Item name="operateDate" label={t('operationTime')} className="!mb-3 md:!mb-0 md:!flex-1 md:!min-w-[280px]">
             <DatePicker.RangePicker placeholder={[t('startTime'), t('endTime')]} className="w-full" />
           </Form.Item>
           <div className="flex gap-2 flex-wrap md:!mb-0">

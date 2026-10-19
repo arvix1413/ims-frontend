@@ -646,11 +646,11 @@ export default function BillManagement() {
     : allTabItems;
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 md:p-4">
       {/* 桌面端视图 */}
       <div className="hidden md:block">
         <div style={{ 
-          marginBottom: 24, 
+          marginBottom: 16,
           display: 'flex', 
           flexDirection:"column",
         }}>
@@ -696,28 +696,28 @@ export default function BillManagement() {
         
         {/* 搜索表单 */}
         <SearchFormCard form={form} onSearch={handleSearch} onReset={handleReset}>
-          <Form.Item name="item" label={t('searchProduct')} style={{ minWidth: 192, marginBottom: 24 }}>
+          <Form.Item name="item" label={t('searchProduct')} style={{ minWidth: 192, marginBottom: 12 }}>
             <Input placeholder={t('itemCode')} />
           </Form.Item>
-          <Form.Item name="refNo" label={t('orderNumber')} style={{ minWidth: 192, marginBottom: 24 }}>
+          <Form.Item name="refNo" label={t('orderNumber')} style={{ minWidth: 192, marginBottom: 12 }}>
             <Input placeholder="OR260707" />
           </Form.Item>
-          <Form.Item name="customerPhone" label={t('phoneNumber')} style={{ minWidth: 192, marginBottom: 24 }}>
+          <Form.Item name="customerPhone" label={t('phoneNumber')} style={{ minWidth: 192, marginBottom: 12 }}>
             <Input placeholder={t('customerPhone')} />
           </Form.Item>
-          <Form.Item name="color" label={t('color')} style={{ minWidth: 128, marginBottom: 24 }}>
+          <Form.Item name="color" label={t('color')} style={{ minWidth: 128, marginBottom: 12 }}>
             <Input placeholder={t('color')} />
           </Form.Item>
-          <Form.Item name="size" label={t('size')} style={{ minWidth: 128, marginBottom: 24 }}>
+          <Form.Item name="size" label={t('size')} style={{ minWidth: 128, marginBottom: 12 }}>
             <Input placeholder={t('size')} />
           </Form.Item>
-          <Form.Item name="stockType" label={t('stockType')} style={{ minWidth: 160, marginBottom: 24 }}>
+          <Form.Item name="stockType" label={t('stockType')} style={{ minWidth: 160, marginBottom: 12 }}>
             <Select placeholder="Order/In Stock" allowClear>
               <Select.Option value="order">Order</Select.Option>
               <Select.Option value="inStock">In Stock</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="createDate" label={t('createTime')} style={{ minWidth: 280, marginBottom: 24 }}>
+          <Form.Item name="createDate" label={t('createTime')} style={{ minWidth: 280, marginBottom: 12 }}>
             <DatePicker.RangePicker
               placeholder={[t('startTime'), t('endTime')]}
               style={{ width: '100%' }}

@@ -505,11 +505,11 @@ export default function MemberManagement() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-3 md:p-4">
       {/* 桌面端视图 */}
       <div className="hidden md:block">
         <div style={{ 
-          marginBottom: 24, 
+          marginBottom: 16,
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center' 
@@ -540,16 +540,16 @@ export default function MemberManagement() {
             ) : undefined
           }
         >
-          <Form.Item name="name" label={t('name')} style={{ minWidth: 200, marginBottom: 24 }}>
+          <Form.Item name="name" label={t('name')} style={{ minWidth: 200, marginBottom: 12 }}>
             <Input placeholder={t('pleaseEnterName')} />
           </Form.Item>
-          <Form.Item name="phone" label={t('phone')} style={{ minWidth: 200, marginBottom: 24 }}>
+          <Form.Item name="phone" label={t('phone')} style={{ minWidth: 200, marginBottom: 12 }}>
             <Input placeholder={t('pleaseEnterPhone')} />
           </Form.Item>
-          <Form.Item name="startDate" label={t('startDate')} style={{ minWidth: 200, marginBottom: 24 }}>
+          <Form.Item name="startDate" label={t('startDate')} style={{ minWidth: 200, marginBottom: 12 }}>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="endDate" label={t('endDate')} style={{ minWidth: 200, marginBottom: 24 }}>
+          <Form.Item name="endDate" label={t('endDate')} style={{ minWidth: 200, marginBottom: 12 }}>
             <DatePicker style={{ width: '100%' }} />
           </Form.Item>
         </SearchFormCard>

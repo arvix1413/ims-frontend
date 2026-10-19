@@ -279,9 +279,9 @@ export default function AllMemberPurchaseHistory({ onBackToList }: AllMemberPurc
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: '16px' }}>
       <div style={{ 
-        marginBottom: 24, 
+        marginBottom: 16,
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center' 

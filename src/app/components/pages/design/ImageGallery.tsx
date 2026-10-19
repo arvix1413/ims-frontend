@@ -252,7 +252,7 @@ export default function ImageGallery({
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4">
       <div 
         onClick={onBackToDetail} 
         style={{ color: "#ee8d20", fontWeight: 600, cursor: "pointer", marginBottom: 20 }}

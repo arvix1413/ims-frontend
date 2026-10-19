@@ -576,7 +576,7 @@ export default function Design() {
 
       {/* 列表视图 */}
       <div style={{ display: currentView === 'list' ? 'block' : 'none' }}>
-      <div className="p-3 md:p-6">
+      <div className="p-3 md:p-4">
         {/* 搜索和筛选区域 */}
         <Card className="mb-4">
           {/* 桌面端布局 */}

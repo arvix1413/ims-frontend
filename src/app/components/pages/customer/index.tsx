@@ -177,7 +177,7 @@ export default function CustomerManagement() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 16 }}>
       <Card>
         <Form form={form} layout="inline" style={{ marginBottom: 16 }}>
           <Form.Item name="name" label={t('customerName')}>

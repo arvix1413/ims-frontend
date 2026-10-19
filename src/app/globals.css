@@ -32,7 +32,45 @@
 body {
   background: #ffffff;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+.app-content-panel {
+  min-width: 0;
+}
+
+.app-content-panel .ant-card {
+  border-radius: 10px;
+}
+
+.app-content-panel .ant-card:not(.ant-card-small) > .ant-card-body {
+  padding: 16px;
+}
+
+.app-content-panel .ant-form-vertical .ant-form-item {
+  margin-bottom: 12px;
+}
+
+.app-content-panel .ant-form-vertical .ant-form-item-label {
+  padding-bottom: 4px;
+}
+
+.app-content-panel .ant-form-inline .ant-form-item {
+  margin-inline-end: 12px;
+  margin-bottom: 12px;
+}
+
+.app-content-panel .ant-card.mb-4 {
+  margin-bottom: 12px;
+}
+
+.app-content-panel .ant-tabs-nav {
+  margin-bottom: 12px;
+}
+
+.app-content-panel .ant-table-thead > tr > th,
+.app-content-panel .ant-table-tbody > tr > td {
+  padding: 9px 10px;
 }
 
 /* 修复加载页面黑色背景问题 */
@@ -156,6 +194,10 @@ header select option {
     min-height: 44px;
   }
 
+  .app-content-panel .ant-card:not(.ant-card-small) > .ant-card-body {
+    padding: 14px;
+  }
+
   /* 按钮触摸友好 */
   .ant-btn {
     min-height: 40px;
@@ -214,6 +256,15 @@ header select option {
   .ant-table-thead > tr > th,
   .ant-table-tbody > tr > td {
     padding: 8px 4px;
+  }
+
+  .app-content-panel .ant-table-thead > tr > th,
+  .app-content-panel .ant-table-tbody > tr > td {
+    padding: 8px 6px;
+  }
+
+  .app-content-panel .ant-card:not(.ant-card-small) > .ant-card-body {
+    padding: 14px;
   }
 
   /* 表格横向滚动 */
