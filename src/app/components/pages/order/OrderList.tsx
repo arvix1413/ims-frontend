@@ -625,8 +625,7 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 64,
-      fixed: 'left' as const,
+      width: 44,
       render: (id: number) => (
         <span style={{ fontSize: 12, color: '#8c8c8c' }}>{id}</span>
       ),
@@ -634,11 +633,10 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
     {
       title: t('photo'),
       dataIndex: 'previewPhoto',
-      width: 96,
-      fixed: 'left' as const,
+      width: 68,
       render: (item: string, record: OrderData) => (
         <img 
-          style={{ height: 80, width: 64, objectFit: 'cover', cursor: 'pointer' }} 
+          style={{ height: 66, width: 52, objectFit: 'cover', cursor: 'pointer' }}
           alt="" 
           src={API_CONFIG.BASE_URL + item}
           onClick={() => {
@@ -657,16 +655,14 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       ),
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderCode')}</div>,
+      title: t('orderCode'),
       dataIndex: 'design',
       key: 'design',
-      width: 130,
-      fixed: 'left' as const,
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('operation')}</div>,
+      title: t('operation'),
       key: 'action',
-      width: 72,
+      width: 44,
       render: (_: any, record: OrderData) => (
         <Dropdown menu={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<MoreOutlined />} aria-label={t('operation')} />
@@ -674,71 +670,68 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
       ),
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('statusLog')}</div>,
+      title: t('statusLog'),
       dataIndex: 'statusHistory',
-      width: 190,
       render: (value: string) => renderStatusHistory(value),
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('status')}</div>,
+      title: t('status'),
       dataIndex: 'status',
-      width: 88,
+      width: 58,
       render: (value: string) => renderStatus(value),
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderColor')}</div>,
+      title: t('orderColor'),
       dataIndex: 'color',
       key: 'color',
-      width: 96,
       render: (color: string) => {
         const colorValue = Array.isArray(color) ? color[0] : color;
         return getColorTranslation(colorValue);
       },
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderSize')}</div>,
+      title: t('orderSize'),
       dataIndex: 'size',
       key: 'size',
-      width: 68,
+      width: 44,
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderPrice')}</div>,
+      title: t('orderPrice'),
       dataIndex: 'salePrice',
       key: 'salePrice',
-      width: 82,
+      width: 54,
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderAmount')}</div>,
+      title: t('orderAmount'),
       dataIndex: 'amount',
       key: 'amount',
-      width: 64,
+      width: 48,
     },
     {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('time')}</div>,
+      title: t('time'),
       dataIndex: 'date',
-      width: 108,
+      width: 72,
       render: (data: string) => dayjs(data).format('YYYY-MM-DD'),
     },
     ...(!isLogisticsUser ? [{
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('customerContact')}</div>,
+      title: t('customerContact'),
       dataIndex: 'customerContact',
       key: 'customerContact',
-      width: 135,
     }, {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderType')}</div>,
+      title: t('orderType'),
       dataIndex: 'type',
       key: 'type',
-      width: 85,
+      width: 62,
       render: (type: number) => (
         <span style={{ color: type === 0 ? '#52c41a' : '#1890ff', fontWeight: 'bold', fontSize: 12 }}>
           {type === 0 ? t('storeSupply') : type === 1 ? t('customerOrder') : '-'}
         </span>
       ),
     }, {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('paymentStatus')}</div>,
+      title: t('paymentStatus'),
       dataIndex: 'paymentFlag',
       key: 'paymentFlag',
-      width: 95,
+      width: 68,
       render: (flag: string, record: OrderData) => {
         if (record.type === 0) {
           return <span style={{ color: '#8c8c8c', fontSize: 12 }}>-</span>;
@@ -750,24 +743,22 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
         );
       },
     }, {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderedBy')}</div>,
+      title: t('orderedBy'),
       dataIndex: 'orderedBy',
       key: 'orderedBy',
-      width: 95,
     }, {
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('orderRemark')}</div>,
+      title: t('orderRemark'),
       dataIndex: 'remark',
       key: 'remark',
-      width: 160,
       render: (text: string) => (
-        <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{text}</span>
+        <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{text}</span>
       ),
     }] : []),
     ...(canViewPurchasePrice ? [{
-      title: <div style={{ whiteSpace: 'nowrap' }}>{t('purchasePrice')}</div>,
+      title: t('purchasePrice'),
       dataIndex: 'purchasePrice',
       key: 'purchasePrice',
-      width: 100,
+      width: 70,
       render: (value: string | undefined) => value || '-',
     }] : []),
   ];
@@ -1048,7 +1039,8 @@ const OrderList = forwardRef<any, OrderListProps>(({ warehouseName, onRefresh, o
           dataSource={data}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 'max-content' }}
+          className="order-list-table"
+          tableLayout="auto"
           pagination={false}
           size="small"
           sticky={true}

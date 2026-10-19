@@ -73,6 +73,12 @@ body {
   padding: 9px 10px;
 }
 
+/* Let order columns use the available desktop width instead of forcing a wide table. */
+.order-list-table .ant-table-cell {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 /* 修复加载页面黑色背景问题 */
 html {
   background: #ffffff;
