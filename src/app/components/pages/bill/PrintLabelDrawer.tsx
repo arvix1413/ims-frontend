@@ -23,11 +23,13 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
   const [sizeOptions, setSizeOptions] = useState<string[]>([]);
   const [variantItems, setVariantItems] = useState<any[]>([]);
   const [selectedDesignCode, setSelectedDesignCode] = useState('');
+  const [baseSalePrice, setBaseSalePrice] = useState(0);
   const [loadingVariants, setLoadingVariants] = useState(false);
   const codeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearVariantSelection = () => {
     setSelectedDesignCode('');
+    setBaseSalePrice(0);
     setVariantItems([]);
     setColorOptions([]);
     setSizeOptions([]);
@@ -37,12 +39,14 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
   const loadDesignVariants = async (option: any) => {
     setLoadingVariants(true);
     setSelectedDesignCode(option.value);
+    const designSalePrice = Number(option.salePrice ?? 0);
+    setBaseSalePrice(designSalePrice);
     setVariantItems([]);
     setColorOptions([]);
     setSizeOptions([]);
     form.setFieldsValue({
       code: option.value,
-      salePrice: parseFloat(option.salePrice ?? 0),
+      salePrice: designSalePrice,
       color: undefined,
       size: undefined,
     });
@@ -62,7 +66,12 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
       setVariantItems(items);
       setColorOptions(colors);
       setSizeOptions(sizes);
-      form.setFieldsValue({ color: firstColor, size: sizes[0] });
+      const firstVariant = items.find((item: any) => item.color === firstColor && item.size === sizes[0]);
+      form.setFieldsValue({
+        color: firstColor,
+        size: sizes[0],
+        salePrice: Number(firstVariant?.salePrice ?? designSalePrice),
+      });
     } catch {
       clearVariantSelection();
       notification.error({ message: t('printLabelFailed') });
@@ -114,7 +123,14 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
       variantItems.filter((item: any) => item.color === color).map((item: any) => item.size).filter(Boolean)
     )] as string[];
     setSizeOptions(sizes);
-    form.setFieldsValue({ size: sizes[0] });
+    const selectedVariant = variantItems.find((item: any) => item.color === color && item.size === sizes[0]);
+    form.setFieldsValue({ size: sizes[0], salePrice: Number(selectedVariant?.salePrice ?? baseSalePrice) });
+  };
+
+  const handleSizeChange = (size: string) => {
+    const color = form.getFieldValue('color');
+    const selectedVariant = variantItems.find((item: any) => item.color === color && item.size === size);
+    form.setFieldsValue({ salePrice: Number(selectedVariant?.salePrice ?? baseSalePrice) });
   };
 
   // 打印標籤
@@ -220,6 +236,7 @@ export default function PrintLabelDrawer({ visible, onClose }: PrintLabelDrawerP
             disabled={!selectedDesignCode || loadingVariants || sizeOptions.length === 0}
             loading={loadingVariants}
             options={sizeOptions.map(s => ({ value: s, label: s }))}
+          onChange={handleSizeChange}
           />
         </Form.Item>
 

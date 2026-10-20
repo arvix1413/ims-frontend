@@ -753,11 +753,17 @@ export interface ItemData {
   designId: number;
   color: string;
   size: string;
+  salePrice?: number | string | null;
   warehouseName: string;
   createDate: string;
   inStoreStock: number;      // 店内仓
   tempStoreStock: number;    // 代存仓
   damagedStock: number;      // 损耗仓
+}
+
+export interface ModifyItemRequest {
+  id: number;
+  salePrice: number;
 }
 
 // 创建订单请求参数

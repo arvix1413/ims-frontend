@@ -535,7 +535,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const firstItemId = firstItem?.id ?? null;
                       setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items, designSelected: true } }));
                       const designs = form.getFieldValue('designs') || [];
-                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
+                      designs[name] = { ...designs[name], designCode: val, price: Number(firstItem?.salePrice ?? option.salePrice ?? 0), _baseSalePrice: Number(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
                     } catch { notification.error({ message: t('fetchStockDataFailed') }); }
                   };
@@ -544,19 +544,24 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     const items = cache.warehouseItems;
                     const matchedItem = items.find((i: any) => i.color === val) ?? null;
                     const firstSize = matchedItem?.size ?? '';
-                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], color: val, size: firstSize, itemId };
+                    const selectedItem = items.find((i: any) => i.color === val && i.size === firstSize) ?? null;
+                    designs[name] = {
+                      ...designs[name], color: val, size: firstSize, itemId: selectedItem?.id ?? null,
+                      price: Number(selectedItem?.salePrice ?? designs[name]?._baseSalePrice ?? designs[name]?.price ?? 0),
+                    };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 
                   const handleSizeChange = (val: string) => {
                     const items = cache.warehouseItems;
                     const currentColor = cur.color;
-                    const matchedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
-                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], size: val, itemId };
+                    const selectedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
+                    designs[name] = {
+                      ...designs[name], size: val, itemId: selectedItem?.id ?? null,
+                      price: Number(selectedItem?.salePrice ?? designs[name]?._baseSalePrice ?? designs[name]?.price ?? 0),
+                    };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 
@@ -683,7 +688,7 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                       const firstItemId = firstItem?.id ?? null;
                       setRowCache(prev => ({ ...prev, [name]: { codeOptions: [], warehouseItems: items, designSelected: true } }));
                       const designs = form.getFieldValue('designs') || [];
-                      designs[name] = { ...designs[name], designCode: val, price: parseFloat(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
+                      designs[name] = { ...designs[name], designCode: val, price: Number(firstItem?.salePrice ?? option.salePrice ?? 0), _baseSalePrice: Number(option.salePrice ?? 0), color: firstColor, size: firstSize, stockType: 'inStock', itemId: firstItemId, number: designs[name]?.number ?? 1 };
                       form.setFieldsValue({ designs: [...designs] });
                     } catch { notification.error({ message: t('fetchStockDataFailed') }); }
                   };
@@ -692,19 +697,24 @@ export default function MemberPurchaseHistory({ memberData, onBackToList }: Memb
                     const items = cache.warehouseItems;
                     const matchedItem = items.find((i: any) => i.color === val) ?? null;
                     const firstSize = matchedItem?.size ?? '';
-                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], color: val, size: firstSize, itemId };
+                    const selectedItem = items.find((i: any) => i.color === val && i.size === firstSize) ?? null;
+                    designs[name] = {
+                      ...designs[name], color: val, size: firstSize, itemId: selectedItem?.id ?? null,
+                      price: Number(selectedItem?.salePrice ?? designs[name]?._baseSalePrice ?? designs[name]?.price ?? 0),
+                    };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 
                   const handleSizeChange = (val: string) => {
                     const items = cache.warehouseItems;
                     const currentColor = cur.color;
-                    const matchedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
-                    const itemId = matchedItem?.id ?? null;
                     const designs = form.getFieldValue('designs') || [];
-                    designs[name] = { ...designs[name], size: val, itemId };
+                    const selectedItem = items.find((i: any) => i.color === currentColor && i.size === val) ?? null;
+                    designs[name] = {
+                      ...designs[name], size: val, itemId: selectedItem?.id ?? null,
+                      price: Number(selectedItem?.salePrice ?? designs[name]?._baseSalePrice ?? designs[name]?.price ?? 0),
+                    };
                     form.setFieldsValue({ designs: [...designs] });
                   };
 

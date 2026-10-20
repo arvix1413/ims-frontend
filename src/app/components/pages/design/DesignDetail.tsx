@@ -55,6 +55,8 @@ export default function DesignDetail({
   // 移动端库存操作相关状态
   const [stockDrawerVisible, setStockDrawerVisible] = useState(false);
   const [stockForm] = Form.useForm();
+  const [priceDrawerVisible, setPriceDrawerVisible] = useState(false);
+  const [priceForm] = Form.useForm();
   const [currentItem, setCurrentItem] = useState<ItemData | null>(null);
   const [orderDrawerVisible, setOrderDrawerVisible] = useState(false);
   const [orderForm] = Form.useForm();
@@ -159,6 +161,26 @@ export default function DesignDetail({
     }
   };
 
+  const handleModifyPrice = (itemData: ItemData) => {
+    setCurrentItem(itemData);
+    priceForm.setFieldsValue({ salePrice: Number(itemData.salePrice ?? 0) });
+    setPriceDrawerVisible(true);
+  };
+
+  const handlePriceSubmit = async () => {
+    try {
+      const values = await priceForm.validateFields();
+      if (!currentItem) return;
+      await item.modify({ id: currentItem.id, salePrice: values.salePrice });
+      message.success(t('priceModifySuccess'));
+      setPriceDrawerVisible(false);
+      handleRefreshItems();
+    } catch (error) {
+      console.error('修改 SKU 售价失败:', error);
+      message.error(t('modifyPriceFailed'));
+    }
+  };
+
   const handleOrder = (itemData: ItemData, type: 'store' | 'customer') => {
     setCurrentItem(itemData);
     setOrderType(type);
@@ -226,6 +248,9 @@ export default function DesignDetail({
           <div className="flex-1">
             <div className="text-sm font-medium">{itemData.color}</div>
             <div className="text-xs text-gray-500">{t('size')}: {itemData.size}</div>
+            <div className="text-xs font-medium text-orange-600">
+              {t('salePrice')}: {itemData.salePrice == null ? '—' : `$${Number(itemData.salePrice).toFixed(2)}`}
+            </div>
           </div>
           <div className="text-right">
             <div className={`text-sm font-bold ${itemData.inStoreStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -244,6 +269,16 @@ export default function DesignDetail({
               style={{ minHeight: '32px' }}
             >
               {t('modifyStock')}
+            </Button>
+          )}
+          {canUseFeature('modifyPrice') && (
+            <Button
+              size="small"
+              onClick={() => handleModifyPrice(itemData)}
+              className="flex-1"
+              style={{ minHeight: '32px' }}
+            >
+              {t('modifyPrice')}
             </Button>
           )}
           <Button
@@ -840,6 +875,7 @@ export default function DesignDetail({
             <Form.Item
               label={t('size')}
               name="size"
+              extra={t('xlPriceRuleHint')}
               rules={[
                 { required: true, message: t('pleaseSelectSize') },
                 { type: 'array', min: 1, message: t('pleaseSelectAtLeastOneSize') }
@@ -925,6 +961,7 @@ export default function DesignDetail({
             <Form.Item
               name="size"
               label={t('size')}
+              extra={t('xlPriceRuleHint')}
               rules={[
                 { required: true, message: t('pleaseSelectSize') },
                 { type: 'array', min: 1, message: t('pleaseSelectAtLeastOneSize') }
@@ -982,6 +1019,39 @@ export default function DesignDetail({
               <InputNumber size="large" style={{ width: '100%' }} min={0} precision={0} />
             </Form.Item>
 
+          </Form>
+        </Drawer>
+      )}
+
+      {isMobile && (
+        <Drawer
+          title={t('modifyPrice')}
+          placement="bottom"
+          height="45%"
+          onClose={() => setPriceDrawerVisible(false)}
+          open={priceDrawerVisible}
+          footer={
+            <div className="flex gap-3">
+              <Button block onClick={() => setPriceDrawerVisible(false)}>
+                {t('cancel')}
+              </Button>
+              <Button type="primary" block onClick={handlePriceSubmit}>
+                {t('confirmModify')}
+              </Button>
+            </div>
+          }
+        >
+          <Form form={priceForm} layout="vertical">
+            <div style={{ marginBottom: 12, fontSize: 13, color: '#666' }}>
+              {currentItem?.color} / {currentItem?.size} / {currentItem?.warehouseName}
+            </div>
+            <Form.Item
+              name="salePrice"
+              label={t('salePrice')}
+              rules={[{ required: true, message: t('pleaseEnterSalePrice') }, { type: 'number', min: 0, message: t('salePriceMustBePositive') }]}
+            >
+              <InputNumber size="large" style={{ width: '100%' }} min={0} precision={2} />
+            </Form.Item>
           </Form>
         </Drawer>
       )}

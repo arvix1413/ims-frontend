@@ -125,7 +125,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         designService.getList(params).then(async (res: any) => {
           if (res && res.data && res.data.content && res.data.content.length > 0) {
             const design = res.data.content[0];
-            const price = parseInt(design['salePrice']);
+            const baseSalePrice = Number(design['salePrice'] ?? 0);
             const designId = design['id'];
 
             // 拉库存，填充颜色/尺码（与手动选择路径一致）
@@ -145,6 +145,9 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
               // 拉库存失败不阻断流程
             }
 
+            const selectedItem = warehouseItems.find((item: any) => item.id === firstItemId);
+            const price = Number(selectedItem?.salePrice ?? baseSalePrice);
+
             const scannedData = {
               code,
               qty: 1,
@@ -154,6 +157,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
               color: firstColor,
               size: firstSize,
               itemId: firstItemId,
+              _baseSalePrice: baseSalePrice,
               stockType: 'inStock',
               _warehouseItems: warehouseItems,
               _codeOptions: [],
@@ -600,12 +604,14 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                       const inStockItems = warehouseItems.filter((i: any) => (i.inStoreStock ?? 0) > 0);
                       const firstColor = inStockItems[0]?.color ?? warehouseItems[0]?.color ?? '';
                       const firstSize = inStockItems.find((i: any) => i.color === firstColor)?.size ?? warehouseItems.find((i: any) => i.color === firstColor)?.size ?? '';
-                      const firstItemId = warehouseItems.find((i: any) => i.color === firstColor && i.size === firstSize)?.id ?? null;
+                      const selectedItem = warehouseItems.find((i: any) => i.color === firstColor && i.size === firstSize);
+                      const firstItemId = selectedItem?.id ?? null;
                       const currentItems = form.getFieldValue('item') || [];
                       currentItems[name] = {
                         ...currentItems[name],
                         code: val,
-                        price: parseFloat(salePrice ?? 0),
+                        price: Number(selectedItem?.salePrice ?? salePrice ?? 0),
+                        _baseSalePrice: Number(salePrice ?? 0),
                         color: firstColor,
                         size: firstSize,
                         itemId: firstItemId,
@@ -624,8 +630,22 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                     const currentItems = form.getFieldValue('item') || [];
                     const matched = rowItems.find((i: any) => i.color === val);
                     const newSize = matched?.size ?? '';
-                    const newItemId = matched?.id ?? null;
-                    currentItems[name] = { ...currentItems[name], color: val, size: newSize, itemId: newItemId };
+                    const selectedItem = rowItems.find((i: any) => i.color === val && i.size === newSize);
+                    const newItemId = selectedItem?.id ?? null;
+                    currentItems[name] = {
+                      ...currentItems[name], color: val, size: newSize, itemId: newItemId,
+                      price: Number(selectedItem?.salePrice ?? cur._baseSalePrice ?? cur.price ?? 0),
+                    };
+                    form.setFieldsValue({ item: [...currentItems] });
+                  };
+
+                  const handleSizeChange = (val: string) => {
+                    const currentItems = form.getFieldValue('item') || [];
+                    const selectedItem = rowItems.find((i: any) => i.color === cur.color && i.size === val);
+                    currentItems[name] = {
+                      ...currentItems[name], size: val, itemId: selectedItem?.id ?? null,
+                      price: Number(selectedItem?.salePrice ?? cur._baseSalePrice ?? cur.price ?? 0),
+                    };
                     form.setFieldsValue({ item: [...currentItems] });
                   };
 
@@ -687,12 +707,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                           disabled={!cur._designSelected || sizeOptions.length === 0}
                           options={sizeOptions.map(s => ({ value: s, label: s }))}
                           allowClear
-                          onChange={(val: string) => {
-                            const currentItems = form.getFieldValue('item') || [];
-                            const matched = rowItems.find((i: any) => i.color === cur.color && i.size === val);
-                            currentItems[name] = { ...currentItems[name], size: val, itemId: matched?.id ?? null };
-                            form.setFieldsValue({ item: [...currentItems] });
-                          }}
+                          onChange={handleSizeChange}
                         />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock" noStyle>

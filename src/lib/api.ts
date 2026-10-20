@@ -264,6 +264,12 @@ export const item = {
     return response.data;
   },
 
+  // 修改单个颜色/尺码/仓库 SKU 的售价
+  modify: async (params: { id: number; salePrice: number }): Promise<ApiResponse<ItemData>> => {
+    const response = await apiClient.put<ApiResponse<ItemData>>('/item/modify', params);
+    return response.data;
+  },
+
   // 按二仓分别修改库存
   modifyWarehouseStock: async (id: number, inStoreStock: number, tempStoreStock: number): Promise<ApiResponse> => {
     const response = await apiClient.put<ApiResponse>(`/item/modify-warehouse-stock?id=${id}&inStoreStock=${inStoreStock}&tempStoreStock=${tempStoreStock}`);

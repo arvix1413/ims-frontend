@@ -188,6 +188,7 @@ export function usePermissions() {
       
       case 'createItem':
       case 'modifyStock':
+      case 'modifyPrice':
       case 'deleteItem':
         return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN, E_USER_TYPE.PRODUCTMANAGEMENT]);
       

@@ -25,8 +25,10 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
   const [form] = Form.useForm();
   const [stockForm] = Form.useForm();
   const [orderForm] = Form.useForm();
+  const [priceForm] = Form.useForm();
   
   const [stockDrawerVisible, setStockDrawerVisible] = useState(false);
+  const [priceDrawerVisible, setPriceDrawerVisible] = useState(false);
   const [orderDrawerVisible, setOrderDrawerVisible] = useState(false);
   const [orderType, setOrderType] = useState<'store' | 'customer'>('store');
   const [currentItem, setCurrentItem] = useState<ItemData | null>(null);
@@ -58,6 +60,26 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       tempStoreStock: itemData.tempStoreStock ?? 0,
     });
     setStockDrawerVisible(true);
+  };
+
+  const handleModifyPrice = (itemData: ItemData) => {
+    setCurrentItem(itemData);
+    priceForm.setFieldsValue({ salePrice: Number(itemData.salePrice ?? 0) });
+    setPriceDrawerVisible(true);
+  };
+
+  const handlePriceSubmit = async () => {
+    try {
+      const values = await priceForm.validateFields();
+      if (!currentItem) return;
+      await item.modify({ id: currentItem.id, salePrice: values.salePrice });
+      message.success(t('priceModifySuccess'));
+      setPriceDrawerVisible(false);
+      onRefresh();
+    } catch (error) {
+      console.error('修改 SKU 售价失败:', error);
+      message.error(t('modifyPriceFailed'));
+    }
   };
 
   const handleStockSubmit = async () => {
@@ -131,6 +153,12 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
       key: 'size',
     },
     {
+      title: t('salePrice'),
+      dataIndex: 'salePrice',
+      key: 'salePrice',
+      render: (price: ItemData['salePrice']) => price == null ? '—' : `$${Number(price).toFixed(2)}`,
+    },
+    {
       title: t('inStoreStock'),
       dataIndex: 'inStoreStock',
       key: 'inStoreStock',
@@ -180,6 +208,24 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
               }}
             >
               {t('modifyStock')}
+            </Button>
+          )}
+          {canUseFeature('modifyPrice') && (
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              onClick={() => handleModifyPrice(record)}
+              size="small"
+              style={{
+                backgroundColor: '#fff',
+                border: '1px solid #d9d9d9',
+                borderRadius: '4px',
+                padding: '4px 8px',
+                height: 'auto',
+                minWidth: '80px'
+              }}
+            >
+              {t('modifyPrice')}
             </Button>
           )}
           <Button
@@ -277,6 +323,31 @@ export default function ItemTable({ data, loading, warehouseName, designId, onRe
             rules={[{ type: 'number', min: 0, message: t('cannotBeLessThanZero') }]}
           >
             <InputNumber style={{ width: '100%' }} min={0} precision={0} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              {t('confirmModify')}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      <Drawer
+        title={t('modifyPrice')}
+        open={priceDrawerVisible}
+        onClose={() => setPriceDrawerVisible(false)}
+        width={400}
+      >
+        <Form form={priceForm} layout="vertical" onFinish={handlePriceSubmit}>
+          <div style={{ marginBottom: 16, padding: '8px 12px', background: '#f5f5f5', borderRadius: 6, fontSize: 13, color: '#666' }}>
+            {currentItem?.color} / {currentItem?.size} / {currentItem?.warehouseName}
+          </div>
+          <Form.Item
+            label={t('salePrice')}
+            name="salePrice"
+            rules={[{ required: true, message: t('pleaseEnterSalePrice') }, { type: 'number', min: 0, message: t('salePriceMustBePositive') }]}
+          >
+            <InputNumber style={{ width: '100%' }} min={0} precision={2} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
