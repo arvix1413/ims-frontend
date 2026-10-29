@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Card, message, Pagination, Input, DatePicker, Spin, Tag } from 'antd';
 import Form from '@/app/components/common/ValidatedForm';
-import { SearchOutlined, ReloadOutlined, UserOutlined, ApiOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { SearchOutlined, ReloadOutlined, UserOutlined, ApiOutlined, ClockCircleOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { EmployeeOperationLog, EmployeeOperationLogRequest } from '@/lib/types';
 import { employeeOperationLog } from '@/lib/api';
@@ -14,6 +14,7 @@ export default function EmployeeHistory() {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [data, setData] = useState<EmployeeOperationLog[]>([]);
+  const [expandedLogIds, setExpandedLogIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -94,6 +95,22 @@ export default function EmployeeHistory() {
     fetchData(page);
   };
 
+  const toggleLogDetails = (id: number) => {
+    setExpandedLogIds((current) => current.includes(id)
+      ? current.filter((expandedId) => expandedId !== id)
+      : [...current, id]);
+  };
+
+  const formatLogDetails = (record: EmployeeOperationLog) => {
+    const detail = record.body || record.args;
+    if (!detail) return '-';
+    try {
+      return JSON.stringify(typeof detail === 'string' ? JSON.parse(detail) : detail, null, 2);
+    } catch {
+      return detail;
+    }
+  };
+
   // 获取API类型标签颜色
   const getApiTypeColor = (uri: string) => {
     if (uri.includes('create') || uri.includes('add')) return 'green';
@@ -131,6 +148,13 @@ export default function EmployeeHistory() {
       width: 100,
     },
     {
+      title: t('ipAddress'),
+      dataIndex: 'clientIp',
+      key: 'clientIp',
+      width: 150,
+      render: (ip?: string | null) => ip ? <span title={ip} style={{ whiteSpace: 'nowrap' }}>{ip}</span> : '-',
+    },
+    {
       title: t('uri'),
       dataIndex: 'uri',
       key: 'uri',
@@ -143,10 +167,13 @@ export default function EmployeeHistory() {
       key: 'details',
       render: (_: any, record: EmployeeOperationLog) => {
         const detail = record.body || record.args;
-        if (detail === null || detail === undefined) return '-';
-        if (typeof detail === 'string') return detail;
-        if (typeof detail === 'object') return JSON.stringify(detail);
-        return String(detail);
+        if (!detail) return '-';
+        const expanded = expandedLogIds.includes(record.id);
+        return (
+          <Button type="link" size="small" onClick={() => toggleLogDetails(record.id)}>
+            {expanded ? t('hideLogDetails') : t('showLogDetails')}
+          </Button>
+        );
       },
     },
     {
@@ -200,18 +227,28 @@ export default function EmployeeHistory() {
           
           {/* 操作详情 */}
           {(item.body || item.args) && (
-            <div className="bg-gray-50 rounded-lg p-3 mb-3">
-              <div className="text-sm text-gray-600 mb-1">{t('details')}:</div>
-              <div className="text-sm text-gray-800 break-words">
-                {typeof (item.body || item.args) === 'string' ? (item.body || item.args) : JSON.stringify(item.body || item.args)}
-              </div>
+            <div className="mb-3">
+              <Button type="link" size="small" className="!px-0" onClick={() => toggleLogDetails(item.id)}>
+                {expandedLogIds.includes(item.id) ? t('hideLogDetails') : t('showLogDetails')}
+              </Button>
+              {expandedLogIds.includes(item.id) && (
+                <pre className="m-0 whitespace-pre-wrap break-all rounded-lg bg-gray-50 p-3 text-sm text-gray-800">
+                  {formatLogDetails(item)}
+                </pre>
+              )}
             </div>
           )}
           
-          {/* 操作时间 */}
-          <div className="flex items-center text-xs text-gray-500">
-            <ClockCircleOutlined className="mr-1" />
-            {moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}
+          {/* 操作时间和来源 IP */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+            <span className="flex items-center">
+              <ClockCircleOutlined className="mr-1" />
+              {moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}
+            </span>
+            <span className="flex items-center break-all">
+              <GlobalOutlined className="mr-1 shrink-0" />
+              {t('ipAddress')}: {item.clientIp || '-'}
+            </span>
           </div>
         </div>
       </div>
@@ -275,6 +312,15 @@ export default function EmployeeHistory() {
             rowKey="id"
             loading={loading}
             pagination={false}
+            expandable={{
+              expandedRowKeys: expandedLogIds.filter((id) => data.some((record) => record.id === id)),
+              expandIcon: () => null,
+              expandedRowRender: (record: EmployeeOperationLog) => (
+                <pre className="m-0 whitespace-pre-wrap break-all rounded-md bg-gray-50 p-3 text-sm text-gray-700">
+                  {formatLogDetails(record)}
+                </pre>
+              ),
+            }}
           />
           
           {/* 分页 */}

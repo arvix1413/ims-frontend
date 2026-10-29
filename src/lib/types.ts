@@ -388,8 +388,9 @@ export interface MemberPurchaseHistoryResponse {
 // 员工操作历史记录相关类型
 export interface EmployeeOperationLog {
   id: number;
-  userId: number;
-  userName: string;
+  userId: number | null;
+  userName: string | null;
+  clientIp?: string | null;
   uri: string;
   args?: string;
   body: string;

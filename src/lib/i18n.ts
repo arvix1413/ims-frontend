@@ -303,6 +303,8 @@ const zhTranslations = {
   operatorInfo: '操作信息',
   apiPathAndType: 'API路径和类型',
   operationDetails: '操作详情',
+  showLogDetails: '展开详情',
+  hideLogDetails: '收起详情',
   operationTime: '操作时间',
   searchForm: '搜索表单',
   printLabelPanel: '打印标签',
@@ -341,6 +343,7 @@ const zhTranslations = {
   
   // Inventory Records
   operator: '操作员',
+  ipAddress: 'IP地址',
   inventoryOperationTime: '操作时间',
   pleaseEnterProductCode: '请输入商品代码',
   pleaseEnterOperator: '请输入操作人',
@@ -973,6 +976,8 @@ const enTranslations = {
   operatorInfo: 'Operator Info',
   apiPathAndType: 'API Path and Type',
   operationDetails: 'Operation Details',
+  showLogDetails: 'Show details',
+  hideLogDetails: 'Hide details',
   operationTime: 'Operation Time',
   searchForm: 'Search Form',
   printLabelPanel: 'Print Label Panel',
@@ -1011,6 +1016,7 @@ const enTranslations = {
   
   // Inventory Records
   operator: 'Operator',
+  ipAddress: 'IP Address',
   inventoryOperationTime: 'Operation Time',
   pleaseEnterProductCode: 'Please enter product code',
   pleaseEnterOperator: 'Please enter operator',
