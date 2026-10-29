@@ -141,10 +141,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   aria-label={t('accountMenu', { name: userInfo.name })}
                   aria-haspopup="menu"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-sm font-medium md:h-10 md:w-10">
+                  <span className="account-menu-avatar flex h-8 w-8 items-center justify-center rounded-full bg-gray-600 text-sm font-medium text-white md:h-10 md:w-10">
                     {userInfo.name?.trim().charAt(0).toUpperCase()}
                   </span>
-                  <DownOutlined className="text-xs text-gray-300" />
+                  <DownOutlined className="account-menu-chevron text-xs" />
                 </button>
               </Dropdown>
             ) : (

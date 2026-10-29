@@ -184,6 +184,15 @@ header select {
   background-color: #1f2937 !important;
 }
 
+header .account-menu-avatar {
+  color: #ffffff !important;
+  background-color: #4b5563 !important;
+}
+
+header .account-menu-chevron {
+  color: #d1d5db !important;
+}
+
 header select option {
   color: white !important;
   background-color: #1f2937 !important;
