@@ -38,15 +38,6 @@ export const ORDER_STATUS_MAP = {
   '7': { text: '货到已取', color: '#13c2c2' },
 } as const;
 
-// Package充值配置
-export const PACKAGE_TOPUP_MAP: Record<number, number> = {
-  1200: 1350,
-  1800: 2200,
-  2800: 3500,
-  3800: 5000,
-  5000: 6750,
-} as const;
-
 // 表格默认配置
 export const TABLE_CONFIG = {
   DEFAULT_PAGE_SIZE: 20,

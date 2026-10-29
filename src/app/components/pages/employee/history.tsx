@@ -110,6 +110,9 @@ export default function EmployeeHistory() {
     name: 'name', email: 'email', local: 'local', address: 'address', store: 'store',
     voucherNumber: 'voucherNumber', registrationDate: 'registrationDate',
     membershipPackageTotal: 'memberPackageTotal', memberPackageTotal: 'memberPackageTotal',
+    saleAmount: 'packageSaleAmount', creditAmount: 'packageCreditAmount',
+    benefitDescription: 'packageBenefits', termsDescription: 'packageTerms', enabled: 'packageStatus',
+    sortOrder: 'packageSortOrder',
     height: 'height', weight: 'weight', personalNotes: 'personalNotes',
     hot: 'hot', photos: 'images', detail: 'designDetail', previewPhoto: 'previewPhoto',
     category: 'category', description: 'description', code: 'itemCode',
@@ -120,7 +123,7 @@ export default function EmployeeHistory() {
     discount: 'discount', discountPercent: 'discountPercent',
   };
 
-  const hiddenLogFields = /(^id$|ids$|userid$|itemid$|memberid$|designid$|orderid$|customerid$|createdate|modifydate|createby|modifyby|purchaseprice|token|password|secret)/i;
+  const hiddenLogFields = /(^id$|ids$|userid$|itemid$|memberid$|packageid$|packagecode$|designid$|orderid$|customerid$|createdate|modifydate|createby|modifyby|purchaseprice|token|password|secret)/i;
 
   const getLogAction = (uri: string) => {
     const path = (uri || '').split('?')[0].toLowerCase();
@@ -130,6 +133,8 @@ export default function EmployeeHistory() {
       '/order/modify': 'logActionOrderModify',
       '/order/delete': 'logActionOrderDelete',
       '/member/top-up': 'logActionMemberTopUp',
+      '/memberpackage/create': 'logActionMemberPackageCreate',
+      '/memberpackage/modify': 'logActionMemberPackageModify',
       '/memberpurchasehistory/create': 'logActionMemberPurchase',
       '/memberpurchasehistory/modify': 'logActionMemberPurchaseModify',
       '/item/modify-stock/business': 'logActionStockModify',

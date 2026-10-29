@@ -12,6 +12,7 @@ import BillManagement from './pages/bill';
 import Design from './pages/design/index';
 import Order from './pages/order';
 import OrderHistory from './pages/orderHistory/index';
+import MemberPackageManagement from './pages/member/MemberPackageManagement';
 
 interface ContentProps {
   activePage: string;
@@ -34,6 +35,7 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         'billManagement',
         'memberManagement',
         'customerManagement',
+        'memberPackageManagement',
       ];
       const firstAccessiblePage = accessiblePages.find((page) => canAccessPage(page));
       if (firstAccessiblePage) {
@@ -85,6 +87,8 @@ export default function Content({ activePage, sidebarCollapsed = false, setActiv
         return <MemberManagement key={activePage} />;
       case 'customerManagement':
         return <CustomerManagement key={activePage} />;
+      case 'memberPackageManagement':
+        return <MemberPackageManagement key={activePage} />;
       default:
         return <Design key="designManagement" />;
     }

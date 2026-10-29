@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { AutoComplete, Button, Divider, Input, InputNumber, InputRef, notification, Select, Space, Tag } from 'antd';
+import { AutoComplete, Button, Divider, Input, InputNumber, InputRef, notification, Select, Space, Tag, Tooltip } from 'antd';
 import Form from '@/app/components/common/ValidatedForm';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData } from '@/lib/types';
-import { receipt, designService, customerApi, member, item as itemApi } from '@/lib/api';
-import { PACKAGE_TOPUP_MAP } from '@/config/constants';
+import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData, MemberPackageConfig } from '@/lib/types';
+import { receipt, designService, customerApi, member, item as itemApi, memberPackageApi } from '@/lib/api';
 import { useNotification } from '@/lib/notificationManager';
 import moment from 'moment';
 
@@ -43,6 +42,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
   const inputRef = useRef<InputRef>(null);
   const [newPayment, setNewPayment] = useState(paymentList);
   const [customerOptions, setCustomerOptions] = useState<{ value: string; label: string; customer: CustomerData }[]>([]);
+  const [memberPackages, setMemberPackages] = useState<MemberPackageConfig[]>([]);
+  const [memberPackagesLoading, setMemberPackagesLoading] = useState(true);
   const phoneSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,6 +67,26 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       return sum + calcFinalPrice(cur.price, cur.discountPercent, cur.discount, cur.qty);
     }, 0);
   }, [items]);
+
+  useEffect(() => {
+    let active = true;
+    memberPackageApi.getActive()
+      .then((response) => {
+        if (active && response.code === 200) setMemberPackages(response.data || []);
+        else if (active) setMemberPackages([]);
+      })
+      .catch((error) => {
+        console.error('fetch active member packages failed:', error);
+        if (active) {
+          setMemberPackages([]);
+          notification.error({ message: t('fetchMemberPackagesFailed') });
+        }
+      })
+      .finally(() => {
+        if (active) setMemberPackagesLoading(false);
+      });
+    return () => { active = false; };
+  }, [t]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -250,25 +271,28 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     const phone = normalizePhone(itemForm.customerPhone);
     const name = (itemForm.customerName || '').trim();
     
-    // 处理package充值
-    const packageItems = itemForm.item?.filter((item: any) => item.code && item.code.startsWith('Package'));
-    let shouldTopUp = false;
+    // 会员配套的充值额按每份配套金额和购买数量计算，并随订单保存配置快照。
+    const packageItems = itemForm.item?.filter((item: any) => Number(item.packageId) > 0);
     let topUpAmount = 0;
     let packageAmount = 0;
-    
-    if (packageItems && packageItems.length > 0 && phone) {
-      // 计算Package充值金额
-      for (const pkg of packageItems) {
-        const match = pkg.code.match(/Package(\d+)/);
-        if (match) {
-          const packageValue = parseInt(match[1]);
-          if (PACKAGE_TOPUP_MAP[packageValue]) {
-            packageAmount += packageValue;
-            topUpAmount += PACKAGE_TOPUP_MAP[packageValue];
-            shouldTopUp = true;
-          }
-        }
-      }
+
+    for (const pkg of packageItems || []) {
+      const quantity = Math.max(0, Number(pkg.qty ?? 1));
+      topUpAmount += Number(pkg.packageCreditAmount || 0) * quantity;
+      packageAmount += calcFinalPrice(Number(pkg.price || 0), Number(pkg.discountPercent || 0), Number(pkg.discount || 0), quantity);
+    }
+    topUpAmount = Number(topUpAmount.toFixed(2));
+    packageAmount = Number(packageAmount.toFixed(2));
+
+    if (topUpAmount > 0 && !(Number(itemForm.customerId) > 0)) {
+      globalNotification.custom({
+        type: 'warning',
+        key: 'sales-order-package-member-required',
+        message: t('packageMemberRequired'),
+        duration: 6,
+        placement: 'top',
+      });
+      return;
     }
     
     const newItem: PrintReceiptRequest = {
@@ -283,7 +307,13 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         color: item.color || '',
         size: item.size || '',
         itemId: item.itemId || null,
-        stockType: item.stockType || 'inStock'
+        stockType: item.packageId ? 'package' : item.stockType || 'inStock',
+        packageId: item.packageId,
+        packageName: item.packageName,
+        packageCreditAmount: item.packageCreditAmount,
+        packageDescription: item.packageDescription,
+        packageBenefitDescription: item.packageBenefitDescription,
+        packageTermsDescription: item.packageTermsDescription
       }))
     };
     
@@ -303,8 +333,8 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
       // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
       await receipt.print(newItem);
         
-      // 如果有package充值且有客户电话
-      if (shouldTopUp && phone && itemForm.customerId) {
+      // 会员 ID 是充值所需的唯一标识，手机号可能尚未填写或变更。
+      if (topUpAmount > 0 && Number(itemForm.customerId) > 0) {
         try {
           await member.topUp({
             id: itemForm.customerId,
@@ -313,7 +343,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
           });
           notification.success({
-            message: `销售订单创建成功！已为会员充值$${topUpAmount}`
+            message: t('saleOrderTopUpSuccess', { amount: topUpAmount.toFixed(2) })
           });
         } catch (error) {
           console.error('会员充值失败:', error);
@@ -422,14 +452,29 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     setCustomerOptions([]);
   }, [form]);
 
-  const onPackage = useCallback((value: number) => {
+  const onPackage = useCallback((value: number | MemberPackageConfig) => {
     let newPackage: any = {};
-    if (value === -1) {
+    if (typeof value !== 'number') {
+      newPackage = {
+        code: value.name,
+        packageId: value.id,
+        packageName: value.name,
+        packageCreditAmount: Number(value.creditAmount),
+        packageDescription: value.description || '',
+        packageBenefitDescription: value.benefitDescription || '',
+        packageTermsDescription: value.termsDescription || '',
+        qty: 1,
+        price: Number(value.saleAmount),
+        discountPercent: 0,
+        discount: 0,
+        stockType: 'package',
+      };
+    } else if (value === -1) {
       newPackage = { code: "Alteration", qty: 1, discountPercent: 0, discount: 0 };
     } else if (value === -2) {
       newPackage = { code: "Credit", qty: 1, discountPercent: 0, discount: 0 };
     } else {
-      newPackage = { code: "Package" + value, qty: 1, price: value, discountPercent: 0, discount: 0 };
+      return;
     }
     if (addRef.current) {
       addRef.current(newPackage);
@@ -445,12 +490,27 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
         <Button onClick={onBackToList} icon={<ArrowLeftOutlined />}>{t('backToList')}</Button>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", width: 900, marginBottom: 20 }}>
-        <Button type="primary" onClick={() => onPackage(1200)}>PACKAGE 1200</Button>
-        <Button type="primary" onClick={() => onPackage(1800)}>PACKAGE 1800</Button>
-        <Button type="primary" onClick={() => onPackage(2800)}>PACKAGE 2800</Button>
-        <Button type="primary" onClick={() => onPackage(3800)}>PACKAGE 3800</Button>
-        <Button type="primary" onClick={() => onPackage(5000)}>PACKAGE 5000</Button>
+      <div style={{ display: "flex", flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+        {memberPackages.map((packageItem) => (
+          <Tooltip
+            key={packageItem.id}
+            title={(
+              <div className="space-y-1">
+                <div>{t('packagePurchaseInfo', { sale: Number(packageItem.saleAmount).toFixed(2), credit: Number(packageItem.creditAmount).toFixed(2) })}</div>
+                {packageItem.description && <div>{packageItem.description}</div>}
+                {packageItem.benefitDescription && <div>{packageItem.benefitDescription}</div>}
+                {packageItem.termsDescription && <div>{packageItem.termsDescription}</div>}
+              </div>
+            )}
+          >
+            <Button type="primary" disabled={memberPackagesLoading} onClick={() => onPackage(packageItem)}>
+              <span className="flex flex-col items-start leading-tight">
+                <span>{packageItem.name}</span>
+                <span className="text-xs font-normal">${Number(packageItem.saleAmount).toFixed(2)} / +${Number(packageItem.creditAmount).toFixed(2)}</span>
+              </span>
+            </Button>
+          </Tooltip>
+        ))}
         <Button type="primary" onClick={() => onPackage(-1)}>Alteration</Button>
         <Button type="primary" onClick={() => onPackage(-2)}>Credit</Button>
       </div>
@@ -663,57 +723,68 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         name={[name, 'code']}
                         rules={[{ required: true, message: 'Missing code' }]}
                       >
-                        <AutoComplete
-                          style={{ width: 180 }}
-                          placeholder="Code"
-                          options={codeOptions}
-                          onSearch={handleCodeSearch}
-                          onSelect={handleCodeSelect}
-                          filterOption={false}
-                          allowClear
-                          onChange={(val) => {
-                            if (!val || val !== cur.code) {
-                              const currentItems = form.getFieldValue('item') || [];
-                              currentItems[name] = {
-                                ...currentItems[name],
-                                code: val,
-                                price: undefined,
-                                color: undefined,
-                                size: undefined,
-                                itemId: null,
-                                _warehouseItems: [],
-                                _codeOptions: val ? currentItems[name]?._codeOptions : [],
-                                _designSelected: false,
-                              };
-                              form.setFieldsValue({ item: [...currentItems] });
-                            }
-                          }}
-                        />
+                        {cur.packageId ? (
+                          <Input style={{ width: 180 }} disabled />
+                        ) : (
+                          <AutoComplete
+                            style={{ width: 180 }}
+                            placeholder="Code"
+                            options={codeOptions}
+                            onSearch={handleCodeSearch}
+                            onSelect={handleCodeSelect}
+                            filterOption={false}
+                            allowClear
+                            onChange={(val) => {
+                              if (!val || val !== cur.code) {
+                                const currentItems = form.getFieldValue('item') || [];
+                                currentItems[name] = {
+                                  ...currentItems[name],
+                                  code: val,
+                                  price: undefined,
+                                  color: undefined,
+                                  size: undefined,
+                                  itemId: null,
+                                  packageId: undefined,
+                                  packageName: undefined,
+                                  packageCreditAmount: undefined,
+                                  _warehouseItems: [],
+                                  _codeOptions: val ? currentItems[name]?._codeOptions : [],
+                                  _designSelected: false,
+                                };
+                                form.setFieldsValue({ item: [...currentItems] });
+                              }
+                            }}
+                          />
+                        )}
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, 'color']}>
-                        <Select
-                          placeholder="Color"
-                          style={{ width: 120 }}
-                          disabled={!cur._designSelected}
-                          options={colorOptions.map(c => ({ value: c, label: c }))}
-                          onChange={handleColorChange}
-                          allowClear
-                        />
-                      </Form.Item>
-                      <Form.Item {...restField} name={[name, 'size']}>
-                        <Select
-                          placeholder="Size"
-                          style={{ width: 100 }}
-                          disabled={!cur._designSelected || sizeOptions.length === 0}
-                          options={sizeOptions.map(s => ({ value: s, label: s }))}
-                          allowClear
-                          onChange={handleSizeChange}
-                        />
-                      </Form.Item>
+                      {!cur.packageId && (
+                        <>
+                          <Form.Item {...restField} name={[name, 'color']}>
+                            <Select
+                              placeholder="Color"
+                              style={{ width: 120 }}
+                              disabled={!cur._designSelected}
+                              options={colorOptions.map(c => ({ value: c, label: c }))}
+                              onChange={handleColorChange}
+                              allowClear
+                            />
+                          </Form.Item>
+                          <Form.Item {...restField} name={[name, 'size']}>
+                            <Select
+                              placeholder="Size"
+                              style={{ width: 100 }}
+                              disabled={!cur._designSelected || sizeOptions.length === 0}
+                              options={sizeOptions.map(s => ({ value: s, label: s }))}
+                              allowClear
+                              onChange={handleSizeChange}
+                            />
+                          </Form.Item>
+                        </>
+                      )}
                       <Form.Item {...restField} name={[name, 'stockType']} initialValue="inStock" noStyle>
                         <Input type="hidden" />
                       </Form.Item>
-                      <Button
+                      {!cur.packageId && <Button
                         size="small"
                         type={cur.stockType === 'order' ? 'default' : 'primary'}
                         style={{ 
@@ -730,12 +801,12 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                         }}
                       >
                         {cur.stockType === 'order' ? 'Order' : 'In Stock'}
-                      </Button>
+                      </Button>}
                       <Form.Item {...restField} name={[name, 'qty']} initialValue={1}>
                         <InputNumber placeholder="Qty" min={0} style={{ width: 60 }} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'price']}>
-                        <InputNumber placeholder="Price" style={{ width: 100 }} />
+                        <InputNumber placeholder="Price" style={{ width: 100 }} disabled={Boolean(cur.packageId)} />
                       </Form.Item>
                       <Form.Item {...restField} name={[name, 'discountPercent']} initialValue={0}>
                         <InputNumber placeholder="Discount/%" min={0} max={100} style={{ width: 100 }} />
@@ -746,6 +817,11 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
                       </Form.Item>
                       <span>(Number)</span>
                       <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Final: {finalPrice}</div>
+                      {cur.packageId && (
+                        <Tag color="green">
+                          {t('packageCreditLabel')}: ${(Number(cur.packageCreditAmount || 0) * qty).toFixed(2)}
+                        </Tag>
+                      )}
                       <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
                     </Space>
                   );

@@ -189,6 +189,33 @@ export interface MemberData {
   personalNotes?: string;  // 个人备注及喜好
 }
 
+export interface MemberPackageConfig {
+  id: number;
+  packageCode: string;
+  name: string;
+  saleAmount: number;
+  creditAmount: number;
+  description: string;
+  benefitDescription: string;
+  termsDescription: string;
+  enabled: number;
+  sortOrder: number;
+  createDate?: string;
+  modifyDate?: string;
+}
+
+export interface MemberPackageMutation {
+  id?: number;
+  name: string;
+  saleAmount: number;
+  creditAmount: number;
+  description: string;
+  benefitDescription: string;
+  termsDescription: string;
+  enabled: number;
+  sortOrder: number;
+}
+
 export interface MemberListResponse {
   msg: string;
   code: number;
@@ -428,6 +455,12 @@ export interface ReceiptItem {
   discount: number;
   finalPrice: number;
   discountPercent: number;
+  packageId?: number;
+  packageName?: string;
+  packageCreditAmount?: number;
+  packageDescription?: string;
+  packageBenefitDescription?: string;
+  packageTermsDescription?: string;
 }
 
 export interface ReceiptData {
@@ -484,7 +517,13 @@ export interface PrintReceiptItem {
   color?: string;
   size?: string;
   itemId?: number | null;
-  stockType?: 'order' | 'inStock';  // order或in stock标识
+  stockType?: 'order' | 'inStock' | 'package';  // order、in stock或会员配套
+  packageId?: number;
+  packageName?: string;
+  packageCreditAmount?: number;
+  packageDescription?: string;
+  packageBenefitDescription?: string;
+  packageTermsDescription?: string;
 }
 
 export interface PrintReceiptPayment {
@@ -506,15 +545,6 @@ export interface PrintReceiptRequest {
   customerPhone?: string;
   remark?: string;
 }
-
-// Package充值配置
-export const PACKAGE_TOPUP_MAP: Record<number, number> = {
-  1200: 1350,
-  1800: 2200,
-  2800: 3500,
-  3800: 5000,
-  5000: 6750,
-} as const;
 
 // 打印标签相关类型
 export interface PrintLabelRequest {

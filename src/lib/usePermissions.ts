@@ -74,7 +74,7 @@ export function usePermissions() {
 
     switch (userInfo.type) {
       case E_USER_TYPE.SUPERADMIN:
-        return ['employeeManagement'];
+        return ['employeeManagement', 'memberPackageManagement'];
       
       case E_USER_TYPE.SALER:
         return [
@@ -106,7 +106,8 @@ export function usePermissions() {
           'employeeHistory',
           'billManagement',
           'memberManagement',
-          'customerManagement'
+          'customerManagement',
+          'memberPackageManagement'
         ];
     }
   };

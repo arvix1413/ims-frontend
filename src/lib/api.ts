@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_ENDPOINTS } from './endpoints';
 import { API_CONFIG } from '@/config/constants';
-import { UserListResponse, CreateUserRequest, ModifyUserRequest, PaginationParams, UserListRequest, DesignListResponse, DesignListRequest, DesignDetailResponse, ModifyDesignRequest, CreateDesignRequest, CreateItemRequest, SearchPageParams, ItemData, CreateOrderRequest, OrderPageRequest, OrderPageResponse, ModifyOrderRequest, InventoryRecordResponse, InventoryRecordRequest, CustomerListResponse, CustomerListRequest, CustomerPageResponse, CustomerData, CreateCustomerRequest, ModifyCustomerRequest, MemberListResponse, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseResponse, MemberPurchaseRequest, CreateMemberRequest, CreatePurchaseRecordRequest, MemberPurchaseHistoryRequest, MemberPurchaseHistoryResponse, EmployeeOperationLogResponse, EmployeeOperationLogRequest, ReceiptListResponse, ReceiptListRequest, PrintReceiptRequest, PrintLabelRequest, PrintDailyReportRequest, DailySaleRequest, DailySaleResponse, CashListResponse, CashListRequest, CreateCashRequest, CashDrawerListResponse, CashDrawerListRequest, CreateCashDrawerRequest, UserBasicResponse, MemberPageResponse, ReturnOrderListResponse, ReturnOrderListRequest, CreateReturnOrderRequest } from './types';
+import { UserListResponse, CreateUserRequest, ModifyUserRequest, PaginationParams, UserListRequest, DesignListResponse, DesignListRequest, DesignDetailResponse, ModifyDesignRequest, CreateDesignRequest, CreateItemRequest, SearchPageParams, ItemData, CreateOrderRequest, OrderPageRequest, OrderPageResponse, ModifyOrderRequest, InventoryRecordResponse, InventoryRecordRequest, CustomerListResponse, CustomerListRequest, CustomerPageResponse, CustomerData, CreateCustomerRequest, ModifyCustomerRequest, MemberListResponse, MemberListRequest, ModifyMemberRequest, TopUpMemberRequest, MemberPurchaseResponse, MemberPurchaseRequest, CreateMemberRequest, CreatePurchaseRecordRequest, MemberPurchaseHistoryRequest, MemberPurchaseHistoryResponse, EmployeeOperationLogResponse, EmployeeOperationLogRequest, ReceiptListResponse, ReceiptListRequest, PrintReceiptRequest, PrintLabelRequest, PrintDailyReportRequest, DailySaleRequest, DailySaleResponse, CashListResponse, CashListRequest, CreateCashRequest, CashDrawerListResponse, CashDrawerListRequest, CreateCashDrawerRequest, UserBasicResponse, MemberPageResponse, ReturnOrderListResponse, ReturnOrderListRequest, CreateReturnOrderRequest, MemberPackageConfig, MemberPackageMutation } from './types';
 import GlobalNotification from './notificationUtils';
 
 // 创建axios实例
@@ -428,6 +428,25 @@ export const member = {
   // 获取会员购买记录（通用查询）
   getPurchaseHistoryList: async (params: MemberPurchaseHistoryRequest): Promise<MemberPurchaseHistoryResponse> => {
     const response = await apiClient.post<MemberPurchaseHistoryResponse>('/memberPurchaseHistory/page', params);
+    return response.data;
+  },
+};
+
+export const memberPackageApi = {
+  getActive: async (): Promise<ApiResponse<MemberPackageConfig[]>> => {
+    const response = await apiClient.get<ApiResponse<MemberPackageConfig[]>>('/memberPackage/active');
+    return response.data;
+  },
+  getAll: async (): Promise<ApiResponse<MemberPackageConfig[]>> => {
+    const response = await apiClient.get<ApiResponse<MemberPackageConfig[]>>('/memberPackage/list');
+    return response.data;
+  },
+  create: async (params: MemberPackageMutation): Promise<ApiResponse<MemberPackageConfig>> => {
+    const response = await apiClient.put<ApiResponse<MemberPackageConfig>>('/memberPackage/create', params);
+    return response.data;
+  },
+  modify: async (params: MemberPackageMutation & { id: number }): Promise<ApiResponse<MemberPackageConfig>> => {
+    const response = await apiClient.put<ApiResponse<MemberPackageConfig>>('/memberPackage/modify', params);
     return response.data;
   },
 };
