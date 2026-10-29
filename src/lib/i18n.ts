@@ -7,6 +7,16 @@ const zhTranslations = {
   // Header
   language: '语言',
   logout: '退出登录',
+  accountMenu: '{{name}}账户菜单',
+  changePassword: '修改密码',
+  currentPassword: '当前密码',
+  newPassword: '新密码',
+  confirmNewPassword: '确认新密码',
+  passwordRequired: '请输入密码',
+  passwordLength: '密码长度需为 8 至 128 位',
+  passwordMismatch: '两次输入的新密码不一致',
+  changePasswordSuccess: '密码已修改',
+  changePasswordFailed: '修改密码失败，请稍后重试',
   loading: '加载中...',
   userInfoNotFound: '未获取到用户信息',
   
@@ -667,6 +677,16 @@ const enTranslations = {
   // Header
   language: 'Language',
   logout: 'Logout',
+  accountMenu: '{{name}} account menu',
+  changePassword: 'Change password',
+  currentPassword: 'Current password',
+  newPassword: 'New password',
+  confirmNewPassword: 'Confirm new password',
+  passwordRequired: 'Please enter a password',
+  passwordLength: 'Use 8 to 128 characters',
+  passwordMismatch: 'The new passwords do not match',
+  changePasswordSuccess: 'Password updated',
+  changePasswordFailed: 'Could not update password. Please try again.',
   loading: 'Loading...',
   userInfoNotFound: 'User info not found',
   

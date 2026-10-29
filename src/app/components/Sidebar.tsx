@@ -17,12 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Shirt,
-  X,
-  Globe,
-  LogOut
+  X
 } from 'lucide-react';
 import { usePermissions } from '@/lib/usePermissions';
-import { authManager } from '@/lib/auth';
 
 interface SidebarProps {
   activePage: string;
@@ -34,7 +31,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsCollapsed, mobileOpen = false, onMobileClose }: SidebarProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { canAccessPage } = usePermissions();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,11 +67,6 @@ export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsC
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
-  };
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'zh' ? 'en' : 'zh';
-    i18n.changeLanguage(newLang);
   };
 
   // 桌面端侧边栏内容
@@ -194,31 +186,6 @@ export default function Sidebar({ activePage, setActivePage, isCollapsed, setIsC
         })}
       </div>
 
-      {/* 底部操作 */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white">
-        {/* 语言切换 */}
-        <button
-          onClick={toggleLanguage}
-          className="w-full flex items-center px-6 py-4 hover:bg-gray-50 transition-colors"
-        >
-          <Globe className="w-6 h-6 mr-4 text-gray-600" />
-          <span className="text-base text-gray-700">
-            {i18n.language === 'zh' ? 'English' : '中文'}
-          </span>
-        </button>
-
-        {/* 退出登录 */}
-        <button
-          onClick={() => {
-            authManager.logout();
-            if (onMobileClose) onMobileClose();
-          }}
-          className="w-full flex items-center px-6 py-4 hover:bg-gray-50 transition-colors border-t border-gray-100"
-        >
-          <LogOut className="w-6 h-6 mr-4 text-red-600" />
-          <span className="text-base text-red-600">{t('logout')}</span>
-        </button>
-      </div>
     </Drawer>
   );
 

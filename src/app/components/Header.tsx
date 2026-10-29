@@ -1,7 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { App as AntdApp, Dropdown, Form, Input, Modal } from 'antd';
+import type { MenuProps } from 'antd';
+import {
+  CheckOutlined,
+  DownOutlined,
+  GlobalOutlined,
+  LockOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
 import { authManager } from '@/lib/auth';
+import { api } from '@/lib/api';
 import { usePermissions } from '@/lib/usePermissions';
 import { Menu as MenuIcon } from 'lucide-react';
 
@@ -9,76 +20,210 @@ interface HeaderProps {
   onMenuClick?: () => void;
 }
 
+interface ChangePasswordValues {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export default function Header({ onMenuClick }: HeaderProps) {
   const { t, i18n } = useTranslation();
   const { userInfo, loading } = usePermissions();
+  const { message } = AntdApp.useApp();
+  const [passwordForm] = Form.useForm<ChangePasswordValues>();
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
-  // 切换语言
-  const handleLanguageChange = (language: string) => {
-    const langCode = language === '中文' ? 'zh' : 'en';
-    i18n.changeLanguage(langCode);
+  const handleLanguageChange = (language: 'zh' | 'en') => {
+    void i18n.changeLanguage(language);
   };
 
-  return (
-    <header className="bg-gray-900 shadow-sm border-b border-gray-700 px-4 md:px-6 py-3 md:py-4 min-w-full sticky top-0 z-50">
-      <div className="flex items-center justify-between flex-wrap md:flex-nowrap gap-2 md:gap-0">
-        {/* Logo + Mobile Menu Button */}
-        <div className="flex items-center flex-shrink-0 gap-3">
-          {/* Mobile Menu Button - only visible on mobile */}
-          <button
-            onClick={onMenuClick}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-800 active:bg-gray-700 transition-colors"
-            aria-label="打开菜单"
-          >
-            <MenuIcon className="w-6 h-6 text-white" />
-          </button>
-          
-          <div className="text-xl md:text-2xl font-bold text-white">
-            Slady
-          </div>
+  const handleAccountMenuClick: NonNullable<MenuProps['onClick']> = ({ key }) => {
+    if (key === 'change-password') {
+      setPasswordModalOpen(true);
+    } else if (key === 'language-zh') {
+      handleLanguageChange('zh');
+    } else if (key === 'language-en') {
+      handleLanguageChange('en');
+    } else if (key === 'logout') {
+      authManager.logout();
+    }
+  };
+
+  const closePasswordModal = () => {
+    if (savingPassword) return;
+    setPasswordModalOpen(false);
+    passwordForm.resetFields();
+  };
+
+  const handlePasswordChange = async (values: ChangePasswordValues) => {
+    setSavingPassword(true);
+    try {
+      const response = await api.user.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      if (response.code === 200) {
+        message.success(t('changePasswordSuccess'));
+        setPasswordModalOpen(false);
+        passwordForm.resetFields();
+      }
+    } catch {
+      message.error(t('changePasswordFailed'));
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const accountMenuItems: NonNullable<MenuProps['items']> = [
+    {
+      type: 'group',
+      label: (
+        <div className="min-w-40 py-1">
+          <div className="font-semibold text-gray-900">{userInfo?.name}</div>
+          <div className="mt-0.5 text-xs font-normal text-gray-500">{userInfo?.type}</div>
         </div>
+      ),
+    },
+    { type: 'divider' },
+    ...(userInfo?.id
+      ? [{ key: 'change-password', icon: <LockOutlined />, label: t('changePassword') }]
+      : []),
+    {
+      key: 'language',
+      icon: <GlobalOutlined />,
+      label: t('language'),
+      children: [
+        {
+          key: 'language-zh',
+          label: '中文',
+          icon: i18n.language === 'zh' ? <CheckOutlined /> : undefined,
+        },
+        {
+          key: 'language-en',
+          label: 'English',
+          icon: i18n.language === 'zh' ? undefined : <CheckOutlined />,
+        },
+      ],
+    },
+    { type: 'divider' },
+    { key: 'logout', icon: <LogoutOutlined />, label: t('logout'), danger: true },
+  ];
 
-        {/* Right side - Language and User Info */}
-        <div className="flex items-center space-x-4 md:space-x-8 flex-shrink-0">
-          {/* Language Switch */}
-          <div className="flex items-center space-x-1 md:space-x-2">
-            <select 
-              value={i18n.language === 'zh' ? '中文' : 'English'}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              className="border border-gray-600 bg-gray-800 text-white rounded px-2 py-1 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 min-h-[40px] md:min-h-auto"
-              style={{ color: 'white' }}
+  return (
+    <>
+      <header className="sticky top-0 z-50 min-w-full border-b border-gray-700 bg-gray-900 px-4 py-3 shadow-sm md:px-6 md:py-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 md:flex-nowrap md:gap-0">
+          <div className="flex flex-shrink-0 items-center gap-3">
+            <button
+              onClick={onMenuClick}
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-gray-800 active:bg-gray-700 md:hidden"
+              aria-label="打开菜单"
             >
-              <option value="中文">中文</option>
-              <option value="English">English</option>
-            </select>
+              <MenuIcon className="h-6 w-6 text-white" />
+            </button>
+            <div className="text-xl font-bold text-white md:text-2xl">Slady</div>
           </div>
 
-          {/* User Info */}
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <div className="flex flex-shrink-0 items-center">
             {loading ? (
-              <div className="text-xs md:text-sm text-gray-300">{t('loading')}</div>
+              <div className="text-xs text-gray-300 md:text-sm">{t('loading')}</div>
             ) : userInfo ? (
-              <>
-                <div className="text-right hidden md:block">
-                  <div className="text-xs md:text-sm font-medium text-white">{userInfo.name}</div>
-                  <div className="text-[10px] md:text-xs text-gray-300">{userInfo.type}</div>
-                </div>
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-700 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-                  {userInfo.name.charAt(0)}
-                </div>
+              <Dropdown
+                menu={{ items: accountMenuItems, onClick: handleAccountMenuClick }}
+                trigger={['click']}
+                placement="bottomRight"
+                arrow
+              >
                 <button
-                  onClick={() => authManager.logout()}
-                  className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm rounded min-h-[40px] md:min-h-auto flex items-center"
+                  type="button"
+                  className="flex min-h-10 items-center gap-2 rounded-full p-1 pr-2 text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  aria-label={t('accountMenu', { name: userInfo.name })}
+                  aria-haspopup="menu"
                 >
-                  <div className='text-white'>{t('logout')}</div>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-sm font-medium md:h-10 md:w-10">
+                    {userInfo.name?.trim().charAt(0).toUpperCase()}
+                  </span>
+                  <DownOutlined className="text-xs text-gray-300" />
                 </button>
-              </>
+              </Dropdown>
             ) : (
-              <div className="text-xs md:text-sm text-gray-300">{t('userInfoNotFound')}</div>
+              <div className="text-xs text-gray-300 md:text-sm">{t('userInfoNotFound')}</div>
             )}
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <Modal
+        title={t('changePassword')}
+        open={passwordModalOpen}
+        onCancel={closePasswordModal}
+        footer={null}
+        destroyOnClose
+        maskClosable={!savingPassword}
+        keyboard={!savingPassword}
+      >
+        <Form
+          form={passwordForm}
+          layout="vertical"
+          requiredMark={false}
+          onFinish={handlePasswordChange}
+          className="mt-5"
+        >
+          <Form.Item
+            label={t('currentPassword')}
+            name="currentPassword"
+            rules={[{ required: true, message: t('passwordRequired') }]}
+          >
+            <Input.Password autoComplete="current-password" maxLength={128} />
+          </Form.Item>
+          <Form.Item
+            label={t('newPassword')}
+            name="newPassword"
+            rules={[
+              { required: true, message: t('passwordRequired') },
+              { min: 8, max: 128, message: t('passwordLength') },
+            ]}
+          >
+            <Input.Password autoComplete="new-password" maxLength={128} />
+          </Form.Item>
+          <Form.Item
+            label={t('confirmNewPassword')}
+            name="confirmPassword"
+            dependencies={['newPassword']}
+            rules={[
+              { required: true, message: t('passwordRequired') },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error(t('passwordMismatch')));
+                },
+              }),
+            ]}
+          >
+            <Input.Password autoComplete="new-password" maxLength={128} />
+          </Form.Item>
+          <div className="mt-6 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={closePasswordModal}
+              disabled={savingPassword}
+              className="min-h-10 rounded-md border border-gray-300 px-4 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={savingPassword}
+              className="min-h-10 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+            >
+              {savingPassword ? t('loading') : t('save')}
+            </button>
+          </div>
+        </Form>
+      </Modal>
+    </>
   );
 }

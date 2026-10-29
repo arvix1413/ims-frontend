@@ -144,6 +144,12 @@ export const api = {
       const response = await apiClient.delete<ApiResponse>(API_ENDPOINTS.USER.DELETE, { data });
       return response.data;
     },
+
+    // 修改当前登录用户自己的密码
+    changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<ApiResponse> => {
+      const response = await apiClient.post<ApiResponse>('/user/change-password', data);
+      return response.data;
+    },
   },
 
   // 商品设计接口
