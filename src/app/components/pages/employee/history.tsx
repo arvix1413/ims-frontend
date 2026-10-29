@@ -261,7 +261,7 @@ export default function EmployeeHistory() {
       render: (uri: string) => uri ? getLogAction(uri) : '-',
     },
     {
-      title: t('details'),
+      title: t('logDetailsColumn'),
       key: 'details',
       render: (_: any, record: EmployeeOperationLog) => {
         if (!record.body && !record.args) return '-';
