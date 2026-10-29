@@ -107,9 +107,20 @@ export default function EmployeeHistory() {
     newInStoreStock: 'inStoreStock', newTempStoreStock: 'tempStoreStock', damagedStock: 'damagedStock',
     newDamagedStock: 'damagedStock', unpaidStock: 'unpaidStock', newUnpaidStock: 'unpaidStock',
     sourceNo: 'sourceNo', eventType: 'inventoryChangeType', phone: 'phone',
+    name: 'name', email: 'email', local: 'local', address: 'address', store: 'store',
+    voucherNumber: 'voucherNumber', registrationDate: 'registrationDate',
+    membershipPackageTotal: 'memberPackageTotal', memberPackageTotal: 'memberPackageTotal',
+    height: 'height', weight: 'weight', personalNotes: 'personalNotes',
+    hot: 'hot', photos: 'images', detail: 'designDetail', previewPhoto: 'previewPhoto',
+    category: 'category', description: 'description', code: 'itemCode',
+    voided: 'voided', paymentMethod: 'paymentMethod', storeName: 'store',
+    cashier: 'cashier', gst: 'gst', totalPrice: 'totalAmount', refNo: 'sourceNo',
+    value: 'category', label: 'category', date: 'date', deleted: 'accountStatus',
+    item: 'productDetails', qty: 'quantityLabel', finalPrice: 'salePrice',
+    discount: 'discount', discountPercent: 'discountPercent',
   };
 
-  const hiddenLogFields = /(^id$|ids$|userid$|itemid$|memberid$|designid$|orderid$|token|password|secret)/i;
+  const hiddenLogFields = /(^id$|ids$|userid$|itemid$|memberid$|designid$|orderid$|customerid$|createdate|modifydate|createby|modifyby|purchaseprice|token|password|secret)/i;
 
   const getLogAction = (uri: string) => {
     const path = (uri || '').split('?')[0].toLowerCase();
@@ -179,6 +190,13 @@ export default function EmployeeHistory() {
         .join('\n');
     }
     const text = String(value);
+    if ((text.startsWith('{') && text.endsWith('}')) || (text.startsWith('[') && text.endsWith(']'))) {
+      try {
+        return formatLogValue(key, JSON.parse(text));
+      } catch {
+        // Keep ordinary text untouched when it only resembles JSON.
+      }
+    }
     if (key === 'status' && /^\d+$/.test(text)) {
       const statusLabels: Record<string, string> = {
         '0': 'pending', '1': 'shipped', '2': 'completed', '3': 'outOfStock', '4': 'damaged',
@@ -207,6 +225,49 @@ export default function EmployeeHistory() {
       .filter(([key, value]) => !hiddenLogFields.test(key) && value !== null && value !== undefined && value !== '' && logFieldLabels[key])
       .map(([key, value]) => ({ key, label: t(logFieldLabels[key]), value: formatLogValue(key, value) }))
       .filter((entry) => entry.value !== '');
+  };
+
+  const parseSnapshot = (raw?: string | null): Record<string, unknown>[] => {
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.filter((entry) => entry && typeof entry === 'object');
+      return parsed && typeof parsed === 'object' ? [parsed] : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getSnapshotChanges = (record: EmployeeOperationLog) => {
+    const beforeRows = parseSnapshot(record.beforeData);
+    const afterRows = parseSnapshot(record.afterData);
+    if (!beforeRows.length || !afterRows.length) return [];
+
+    const afterById = new Map(afterRows.map((row, index) => [String(row.id ?? `row-${index}`), row]));
+    return beforeRows.map((before, index) => {
+      const identity = String(before.id ?? `row-${index}`);
+      const after = afterById.get(identity) || afterRows[index];
+      if (!after) return null;
+      const fields = Object.keys({ ...before, ...after })
+        .filter((key) => !hiddenLogFields.test(key) && logFieldLabels[key])
+        .filter((key) => JSON.stringify(before[key] ?? null) !== JSON.stringify(after[key] ?? null))
+        .map((key) => ({
+          key,
+          label: t(logFieldLabels[key]),
+          before: formatLogValue(key, before[key]),
+          after: formatLogValue(key, after[key]),
+        }));
+      if (!fields.length) return null;
+
+      const recordLabel = ['designCode', 'design', 'name', 'voucherNumber', 'refNo', 'code']
+        .map((key) => before[key] ?? after[key])
+        .find((value) => value !== null && value !== undefined && value !== '');
+      return {
+        key: identity,
+        label: recordLabel ? String(recordLabel) : t('recordNumber', { number: index + 1 }),
+        fields,
+      };
+    }).filter((group): group is { key: string; label: string; fields: { key: string; label: string; before: string; after: string }[] } => Boolean(group));
   };
 
   // 获取API类型标签颜色
@@ -264,7 +325,7 @@ export default function EmployeeHistory() {
       title: t('logDetailsColumn'),
       key: 'details',
       render: (_: any, record: EmployeeOperationLog) => {
-        if (!record.body && !record.args) return '-';
+        if (!record.body && !record.args && !record.beforeData && !record.afterData) return '-';
         return (
           <Button type="link" size="small" onClick={() => setSelectedLog(record)}>
             {t('viewLogDetails')}
@@ -319,7 +380,7 @@ export default function EmployeeHistory() {
           </div>
           
           {/* 操作详情 */}
-          {(item.body || item.args) && (
+          {(item.body || item.args || item.beforeData || item.afterData) && (
             <div className="mb-3">
               <Button type="link" size="small" className="!px-0" onClick={() => setSelectedLog(item)}>
                 {t('viewLogDetails')}
@@ -486,7 +547,30 @@ export default function EmployeeHistory() {
             <Divider className="!my-3" />
             <section>
               <h3 className="mb-3 text-base font-semibold text-gray-900">{t('changedInformation')}</h3>
-              {getReadableLogDetails(selectedLog).length ? (
+              {getSnapshotChanges(selectedLog).length ? (
+                <div className="space-y-3">
+                  {getSnapshotChanges(selectedLog).map((group) => (
+                    <Card key={group.key} size="small" title={group.label}>
+                      <Descriptions bordered size="small" column={1}>
+                        {group.fields.map(({ key, label, before, after }) => (
+                          <Descriptions.Item key={key} label={label}>
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4">
+                              <div className="min-w-0">
+                                <div className="mb-1 text-xs text-gray-500">{t('beforeValue')}</div>
+                                <div className="whitespace-pre-wrap break-words">{before || '-'}</div>
+                              </div>
+                              <div className="min-w-0">
+                                <div className="mb-1 text-xs text-gray-500">{t('afterValue')}</div>
+                                <div className="whitespace-pre-wrap break-words">{after || '-'}</div>
+                              </div>
+                            </div>
+                          </Descriptions.Item>
+                        ))}
+                      </Descriptions>
+                    </Card>
+                  ))}
+                </div>
+              ) : getReadableLogDetails(selectedLog).length ? (
                 <Descriptions bordered size="small" column={1}>
                   {getReadableLogDetails(selectedLog).map(({ key, label, value }) => (
                     <Descriptions.Item key={key} label={label}>

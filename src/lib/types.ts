@@ -394,6 +394,8 @@ export interface EmployeeOperationLog {
   uri: string;
   args?: string;
   body: string;
+  beforeData?: string | null;
+  afterData?: string | null;
   createDate: string;
 }
 
