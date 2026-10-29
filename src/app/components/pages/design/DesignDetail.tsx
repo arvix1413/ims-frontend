@@ -875,7 +875,6 @@ export default function DesignDetail({
             <Form.Item
               label={t('size')}
               name="size"
-              extra={t('xlPriceRuleHint')}
               rules={[
                 { required: true, message: t('pleaseSelectSize') },
                 { type: 'array', min: 1, message: t('pleaseSelectAtLeastOneSize') }
@@ -961,7 +960,6 @@ export default function DesignDetail({
             <Form.Item
               name="size"
               label={t('size')}
-              extra={t('xlPriceRuleHint')}
               rules={[
                 { required: true, message: t('pleaseSelectSize') },
                 { type: 'array', min: 1, message: t('pleaseSelectAtLeastOneSize') }

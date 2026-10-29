@@ -186,10 +186,13 @@ export function usePermissions() {
       case 'cashManagement':
       case 'balanceManagement':
         return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN, E_USER_TYPE.FINANCE]);
+
+      // Temporarily hide SKU-level price editing until the customer is ready to use it.
+      case 'modifyPrice':
+        return false;
       
       case 'createItem':
       case 'modifyStock':
-      case 'modifyPrice':
       case 'deleteItem':
         return hasPermission([E_USER_TYPE.ADMIN, E_USER_TYPE.SUPERADMIN, E_USER_TYPE.PRODUCTMANAGEMENT]);
       
