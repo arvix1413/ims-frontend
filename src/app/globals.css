@@ -139,15 +139,18 @@ html {
 }
 
 /* Keep password modal controls readable against the dark primary action. */
-.change-password-modal .password-submit-button {
+.password-change-form .ant-btn-primary,
+.password-change-form .ant-btn-primary:hover,
+.password-change-form .ant-btn-primary:focus,
+.password-change-form .ant-btn-primary:active {
   color: #ffffff !important;
 }
 
-.change-password-modal .ant-input-password-icon {
+.password-change-form .ant-input-password-icon {
   color: #6b7280 !important;
 }
 
-.change-password-modal .ant-input-password-icon:hover {
+.password-change-form .ant-input-password-icon:hover {
   color: #1f2937 !important;
 }
 

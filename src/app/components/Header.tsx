@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { App as AntdApp, Dropdown, Form, Input, Modal } from 'antd';
+import { App as AntdApp, Button, Dropdown, Form, Input, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   CheckOutlined,
@@ -157,7 +157,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
       <Modal
         title={t('changePassword')}
         open={passwordModalOpen}
-        className="change-password-modal"
         onCancel={closePasswordModal}
         footer={null}
         destroyOnClose
@@ -169,7 +168,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           layout="vertical"
           requiredMark={false}
           onFinish={handlePasswordChange}
-          className="mt-5"
+          className="password-change-form mt-5"
         >
           <Form.Item
             label={t('currentPassword')}
@@ -215,13 +214,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
             >
               {t('cancel')}
             </button>
-            <button
-              type="submit"
-              disabled={savingPassword}
-              className="password-submit-button min-h-10 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={savingPassword}
+              className="min-h-10 rounded-md px-4 text-sm font-medium"
             >
               {savingPassword ? t('loading') : t('save')}
-            </button>
+            </Button>
           </div>
         </Form>
       </Modal>
