@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Card, message, Pagination, Input, DatePicker, Spin, Tag } from 'antd';
+import React, { useState } from 'react';
+import { Table, Button, Card, message, Pagination, Input, DatePicker, Spin, Tag, Modal, Descriptions, Divider, Empty } from 'antd';
 import Form from '@/app/components/common/ValidatedForm';
 import { SearchOutlined, ReloadOutlined, UserOutlined, ApiOutlined, ClockCircleOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,7 @@ export default function EmployeeHistory() {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [data, setData] = useState<EmployeeOperationLog[]>([]);
-  const [expandedLogIds, setExpandedLogIds] = useState<number[]>([]);
+  const [selectedLog, setSelectedLog] = useState<EmployeeOperationLog | null>(null);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -95,20 +95,118 @@ export default function EmployeeHistory() {
     fetchData(page);
   };
 
-  const toggleLogDetails = (id: number) => {
-    setExpandedLogIds((current) => current.includes(id)
-      ? current.filter((expandedId) => expandedId !== id)
-      : [...current, id]);
+  const logFieldLabels: Record<string, string> = {
+    result: 'logFieldResult', status: 'status', paymentFlag: 'paymentStatus', paymentStatus: 'paymentStatus',
+    amount: 'quantityLabel', number: 'quantityLabel', salePrice: 'salePrice', price: 'salePrice', quotedPrice: 'quotedPrice',
+    purchasePrice: 'purchasePrice', sum: 'totalAmount', balance: 'memberBalance',
+    memberRemainingAmount: 'remainingBalance', customerContact: 'customerContact', customerName: 'customerName',
+    orderedBy: 'orderedBy', design: 'product', designCode: 'designCode', color: 'color', size: 'size',
+    warehouseName: 'warehouse', remark: 'remark', type: 'orderType', purchaseDate: 'purchaseDate',
+    saler: 'salesperson', seller: 'salesperson', salesperson: 'salesperson', designs: 'productDetails',
+    stockType: 'stockType', inStoreStock: 'inStoreStock', tempStoreStock: 'tempStoreStock',
+    newInStoreStock: 'inStoreStock', newTempStoreStock: 'tempStoreStock', damagedStock: 'damagedStock',
+    newDamagedStock: 'damagedStock', unpaidStock: 'unpaidStock', newUnpaidStock: 'unpaidStock',
+    sourceNo: 'sourceNo', eventType: 'inventoryChangeType', phone: 'phone',
   };
 
-  const formatLogDetails = (record: EmployeeOperationLog) => {
+  const hiddenLogFields = /(^id$|ids$|userid$|itemid$|memberid$|designid$|orderid$|token|password|secret)/i;
+
+  const getLogAction = (uri: string) => {
+    const path = (uri || '').split('?')[0].toLowerCase();
+    const exactActions: Record<string, string> = {
+      '/auth/login': 'logActionLogin',
+      '/order/create': 'logActionOrderCreate',
+      '/order/modify': 'logActionOrderModify',
+      '/order/delete': 'logActionOrderDelete',
+      '/member/top-up': 'logActionMemberTopUp',
+      '/memberpurchasehistory/create': 'logActionMemberPurchase',
+      '/memberpurchasehistory/modify': 'logActionMemberPurchaseModify',
+      '/item/modify-stock/business': 'logActionStockModify',
+      '/item/modify-stock': 'logActionStockModify',
+      '/design/create': 'logActionProductCreate',
+      '/design/modify': 'logActionProductModify',
+      '/design/delete': 'logActionProductDelete',
+      '/item/create': 'logActionProductCreate',
+      '/item/modify': 'logActionProductModify',
+      '/item/delete': 'logActionProductDelete',
+      '/member/create': 'logActionMemberCreate',
+      '/member/modify': 'logActionMemberModify',
+      '/member/delete': 'logActionMemberDelete',
+    };
+    const exact = exactActions[path];
+    if (exact) return t(exact);
+    if (path.includes('modify') || path.includes('update')) return t('logActionUpdate');
+    if (path.includes('create') || path.includes('add')) return t('logActionCreate');
+    if (path.includes('delete') || path.includes('remove')) return t('logActionDelete');
+    if (path.includes('login') || path.includes('auth')) return t('logActionLogin');
+    return t('operationText');
+  };
+
+  const parseLogDetail = (record: EmployeeOperationLog): unknown => {
     const detail = record.body || record.args;
-    if (!detail) return '-';
+    if (!detail) return null;
+    if (typeof detail !== 'string') return detail;
     try {
-      return JSON.stringify(typeof detail === 'string' ? JSON.parse(detail) : detail, null, 2);
+      return JSON.parse(detail);
     } catch {
-      return detail;
+      if (record.args && detail === record.args) {
+        const params = new URLSearchParams(detail);
+        const query: Record<string, string> = {};
+        params.forEach((value, key) => { query[key] = value; });
+        return Object.keys(query).length ? query : null;
+      }
+      return null;
     }
+  };
+
+  const formatLogValue = (key: string, value: unknown): string => {
+    if (value === null || value === undefined || value === '') return '-';
+    if (Array.isArray(value)) {
+      return value.map((entry) => {
+        if (entry && typeof entry === 'object') {
+          return Object.entries(entry as Record<string, unknown>)
+            .filter(([nestedKey, nestedValue]) => !hiddenLogFields.test(nestedKey) && nestedValue !== null && nestedValue !== undefined && logFieldLabels[nestedKey])
+            .map(([nestedKey, nestedValue]) => `${t(logFieldLabels[nestedKey])}: ${formatLogValue(nestedKey, nestedValue)}`)
+            .join(' · ');
+        }
+        return String(entry);
+      }).filter(Boolean).join('\n');
+    }
+    if (typeof value === 'object') {
+      return Object.entries(value as Record<string, unknown>)
+        .filter(([nestedKey, nestedValue]) => !hiddenLogFields.test(nestedKey) && nestedValue !== null && nestedValue !== undefined && logFieldLabels[nestedKey])
+        .map(([nestedKey, nestedValue]) => `${t(logFieldLabels[nestedKey])}: ${formatLogValue(nestedKey, nestedValue)}`)
+        .join('\n');
+    }
+    const text = String(value);
+    if (key === 'status' && /^\d+$/.test(text)) {
+      const statusLabels: Record<string, string> = {
+        '0': 'pending', '1': 'shipped', '2': 'completed', '3': 'outOfStock', '4': 'damaged',
+        '5': 'void', '6': 'arrivedNotPickedUp', '7': 'arrivedPickedUp', '8': 'arrived',
+      };
+      if (statusLabels[text]) return t(statusLabels[text]);
+    }
+    if (key === 'paymentFlag') {
+      if (text.toUpperCase() === 'PAID') return t('paid');
+      if (text.toUpperCase() === 'UNPAID') return t('unpaid');
+    }
+    if (key === 'result') {
+      if (text.toLowerCase() === 'success') return t('success');
+      if (text.toLowerCase() === 'failed') return t('failed');
+    }
+    if (key === 'type' && (text === '0' || text === '1')) return t(text === '0' ? 'storeSupply' : 'customerOrder');
+    if (/date|time/i.test(key) && moment(text).isValid()) return moment(text).format('YYYY-MM-DD HH:mm:ss');
+    if (typeof value === 'boolean') return t(value ? 'yes' : 'no');
+    return text;
+  };
+
+  const getReadableLogDetails = (record: EmployeeOperationLog) => {
+    const parsed = parseLogDetail(record);
+    if (!parsed || typeof parsed !== 'object') return [];
+    return Object.entries(parsed as Record<string, unknown>)
+      .filter(([key, value]) => !hiddenLogFields.test(key) && value !== null && value !== undefined && value !== '' && logFieldLabels[key])
+      .map(([key, value]) => ({ key, label: t(logFieldLabels[key]), value: formatLogValue(key, value) }))
+      .filter((entry) => entry.value !== '');
   };
 
   // 获取API类型标签颜色
@@ -155,23 +253,21 @@ export default function EmployeeHistory() {
       render: (ip?: string | null) => ip ? <span title={ip} style={{ whiteSpace: 'nowrap' }}>{ip}</span> : '-',
     },
     {
-      title: t('uri'),
+      title: t('operationText'),
       dataIndex: 'uri',
       key: 'uri',
       fixed: 'left' as const,
       width: 200,
-      render: (res: any) => typeof res === 'string' ? res : (res ? String(res) : '-'),
+      render: (uri: string) => uri ? getLogAction(uri) : '-',
     },
     {
       title: t('details'),
       key: 'details',
       render: (_: any, record: EmployeeOperationLog) => {
-        const detail = record.body || record.args;
-        if (!detail) return '-';
-        const expanded = expandedLogIds.includes(record.id);
+        if (!record.body && !record.args) return '-';
         return (
-          <Button type="link" size="small" onClick={() => toggleLogDetails(record.id)}>
-            {expanded ? t('hideLogDetails') : t('showLogDetails')}
+          <Button type="link" size="small" onClick={() => setSelectedLog(record)}>
+            {t('viewLogDetails')}
           </Button>
         );
       },
@@ -215,10 +311,7 @@ export default function EmployeeHistory() {
           <div className="mb-3">
             <div className="flex items-center mb-2">
               <ApiOutlined className="text-gray-500 mr-2" />
-              <span className="text-sm text-gray-600 mr-2">{t('api')}:</span>
-              <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">
-                {item.uri}
-              </code>
+              <span className="text-sm text-gray-700 font-medium">{getLogAction(item.uri)}</span>
             </div>
             <Tag color={getApiTypeColor(item.uri)} className="text-xs">
               {getApiTypeText(item.uri)}
@@ -228,14 +321,9 @@ export default function EmployeeHistory() {
           {/* 操作详情 */}
           {(item.body || item.args) && (
             <div className="mb-3">
-              <Button type="link" size="small" className="!px-0" onClick={() => toggleLogDetails(item.id)}>
-                {expandedLogIds.includes(item.id) ? t('hideLogDetails') : t('showLogDetails')}
+              <Button type="link" size="small" className="!px-0" onClick={() => setSelectedLog(item)}>
+                {t('viewLogDetails')}
               </Button>
-              {expandedLogIds.includes(item.id) && (
-                <pre className="m-0 whitespace-pre-wrap break-all rounded-lg bg-gray-50 p-3 text-sm text-gray-800">
-                  {formatLogDetails(item)}
-                </pre>
-              )}
             </div>
           )}
           
@@ -312,15 +400,6 @@ export default function EmployeeHistory() {
             rowKey="id"
             loading={loading}
             pagination={false}
-            expandable={{
-              expandedRowKeys: expandedLogIds.filter((id) => data.some((record) => record.id === id)),
-              expandIcon: () => null,
-              expandedRowRender: (record: EmployeeOperationLog) => (
-                <pre className="m-0 whitespace-pre-wrap break-all rounded-md bg-gray-50 p-3 text-sm text-gray-700">
-                  {formatLogDetails(record)}
-                </pre>
-              ),
-            }}
           />
           
           {/* 分页 */}
@@ -373,6 +452,55 @@ export default function EmployeeHistory() {
           )}
         </div>
       </Card>
+
+      <Modal
+        open={selectedLog !== null}
+        onCancel={() => setSelectedLog(null)}
+        footer={null}
+        centered
+        width="min(720px, calc(100vw - 24px))"
+        title={selectedLog ? (
+          <div>
+            <div>{t('operationDetails')}</div>
+            <div className="mt-1 text-sm font-normal text-gray-500">{getLogAction(selectedLog.uri)}</div>
+          </div>
+        ) : null}
+      >
+        {selectedLog && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 rounded-xl bg-gray-50 p-4 sm:grid-cols-2">
+              <div>
+                <div className="text-xs text-gray-500">{t('operator')}</div>
+                <div className="mt-1 font-medium text-gray-900">{selectedLog.userName || '-'}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">{t('operationTime')}</div>
+                <div className="mt-1 font-medium text-gray-900">{moment(selectedLog.createDate).format('YYYY-MM-DD HH:mm:ss')}</div>
+              </div>
+              <div className="sm:col-span-2">
+                <div className="text-xs text-gray-500">{t('ipAddress')}</div>
+                <div className="mt-1 font-medium text-gray-900">{selectedLog.clientIp || '-'}</div>
+              </div>
+            </div>
+
+            <Divider className="!my-3" />
+            <section>
+              <h3 className="mb-3 text-base font-semibold text-gray-900">{t('changedInformation')}</h3>
+              {getReadableLogDetails(selectedLog).length ? (
+                <Descriptions bordered size="small" column={1}>
+                  {getReadableLogDetails(selectedLog).map(({ key, label, value }) => (
+                    <Descriptions.Item key={key} label={label}>
+                      <span className="whitespace-pre-wrap break-words">{value}</span>
+                    </Descriptions.Item>
+                  ))}
+                </Descriptions>
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noReadableLogDetails')} />
+              )}
+            </section>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
