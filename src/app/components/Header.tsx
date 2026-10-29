@@ -157,6 +157,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
       <Modal
         title={t('changePassword')}
         open={passwordModalOpen}
+        className="change-password-modal"
         onCancel={closePasswordModal}
         footer={null}
         destroyOnClose
@@ -217,7 +218,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <button
               type="submit"
               disabled={savingPassword}
-              className="min-h-10 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+              className="password-submit-button min-h-10 rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
             >
               {savingPassword ? t('loading') : t('save')}
             </button>

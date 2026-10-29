@@ -138,6 +138,19 @@ html {
   border-color: #1f2937 !important;
 }
 
+/* Keep password modal controls readable against the dark primary action. */
+.change-password-modal .password-submit-button {
+  color: #ffffff !important;
+}
+
+.change-password-modal .ant-input-password-icon {
+  color: #6b7280 !important;
+}
+
+.change-password-modal .ant-input-password-icon:hover {
+  color: #1f2937 !important;
+}
+
 /* 链接颜色 */
 a {
   color: #1f2937;
