@@ -6,7 +6,7 @@ import Form from '@/app/components/common/ValidatedForm';
 import { MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PrintReceiptItem, PrintReceiptPayment, PrintReceiptRequest, DesignListRequest, CustomerData, MemberData, MemberPackageConfig } from '@/lib/types';
-import { receipt, designService, customerApi, member, item as itemApi, memberPackageApi } from '@/lib/api';
+import { receipt, designService, customerApi, item as itemApi, memberPackageApi } from '@/lib/api';
 import { useNotification } from '@/lib/notificationManager';
 import moment from 'moment';
 
@@ -271,30 +271,6 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     const phone = normalizePhone(itemForm.customerPhone);
     const name = (itemForm.customerName || '').trim();
     
-    // 会员配套的充值额按每份配套金额和购买数量计算，并随订单保存配置快照。
-    const packageItems = itemForm.item?.filter((item: any) => Number(item.packageId) > 0);
-    let topUpAmount = 0;
-    let packageAmount = 0;
-
-    for (const pkg of packageItems || []) {
-      const quantity = Math.max(0, Number(pkg.qty ?? 1));
-      topUpAmount += Number(pkg.packageCreditAmount || 0) * quantity;
-      packageAmount += calcFinalPrice(Number(pkg.price || 0), Number(pkg.discountPercent || 0), Number(pkg.discount || 0), quantity);
-    }
-    topUpAmount = Number(topUpAmount.toFixed(2));
-    packageAmount = Number(packageAmount.toFixed(2));
-
-    if (topUpAmount > 0 && !(Number(itemForm.customerId) > 0)) {
-      globalNotification.custom({
-        type: 'warning',
-        key: 'sales-order-package-member-required',
-        message: t('packageMemberRequired'),
-        duration: 6,
-        placement: 'top',
-      });
-      return;
-    }
-    
     const newItem: PrintReceiptRequest = {
       ...itemForm,
       gst: 0,
@@ -332,29 +308,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
     try {
       // 创建销售订单，后端会自动根据 stockType=inStock 扣减库存
       await receipt.print(newItem);
-        
-      // 会员 ID 是充值所需的唯一标识，手机号可能尚未填写或变更。
-      if (topUpAmount > 0 && Number(itemForm.customerId) > 0) {
-        try {
-          await member.topUp({
-            id: itemForm.customerId,
-            balance: topUpAmount,
-            saler: itemForm.cashier || '',
-            remark: `Package充值：销售$${packageAmount}，充值$${topUpAmount}`
-          });
-          notification.success({
-            message: t('saleOrderTopUpSuccess', { amount: topUpAmount.toFixed(2) })
-          });
-        } catch (error) {
-          console.error('会员充值失败:', error);
-          notification.warning({
-            message: t('printReceiptSuccessTopUpFailed'),
-            description: t('pleaseTopUpMemberManually')
-          });
-        }
-      } else {
-        notification.success({ message: t('printReceiptSuccess') });
-      }
+      notification.success({ message: t('printReceiptSuccess') });
 
       if (onPrintSuccess) {
         onPrintSuccess();
@@ -506,7 +460,7 @@ export default function PrintReceipt({ onBackToList, onPrintSuccess }: PrintRece
             <Button type="primary" disabled={memberPackagesLoading} onClick={() => onPackage(packageItem)}>
               <span className="flex flex-col items-start leading-tight">
                 <span>{packageItem.name}</span>
-                <span className="text-xs font-normal">${Number(packageItem.saleAmount).toFixed(2)} / +${Number(packageItem.creditAmount).toFixed(2)}</span>
+                <span className="text-xs font-normal">{t('packagePurchaseInfo', { sale: Number(packageItem.saleAmount).toFixed(2), credit: Number(packageItem.creditAmount).toFixed(2) })}</span>
               </span>
             </Button>
           </Tooltip>

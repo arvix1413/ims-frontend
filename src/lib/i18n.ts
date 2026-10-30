@@ -62,10 +62,8 @@ const zhTranslations = {
   enabled: '启用',
   disabled: '停用',
   actions: '操作',
-  packagePurchaseInfo: '售价 ${{sale}} · 充值 ${{credit}}',
-  packageCreditLabel: '充值',
-  saleOrderTopUpSuccess: '销售订单已创建，为会员充值了 ${{amount}}',
-  packageMemberRequired: '会员配套需要关联会员，请先选择会员再创建订单。',
+  packagePurchaseInfo: '售价 ${{sale}} · 需手动充值 ${{credit}}',
+  packageCreditLabel: '手动充值',
   
   // Design Management
   designList: '商品列表',
@@ -733,8 +731,6 @@ const zhTranslations = {
   fetchCashDrawerBalanceFailed: '获取现金抽屉余额数据失败',
   fetchHotItemsDataFailed: '获取爆款数据失败',
   fetchColdItemsDataFailed: '获取冷款数据失败',
-  pleaseTopUpMemberManually: '请手动为会员充值',
-  printReceiptSuccessTopUpFailed: '销售订单创建成功，但会员充值失败',
   pleaseSelectDate: '请选择日期',
   fetchStockFailed: '获取库存失败',
   itemNoStockRecord: '商品 {{code}} 未匹配到库存记录，跳过',
@@ -809,10 +805,8 @@ const enTranslations = {
   enabled: 'Enabled',
   disabled: 'Disabled',
   actions: 'Actions',
-  packagePurchaseInfo: 'Sale ${{sale}} · credit ${{credit}}',
-  packageCreditLabel: 'Credit',
-  saleOrderTopUpSuccess: 'Sales order created; ${{amount}} was credited to the member',
-  packageMemberRequired: 'Select a member before creating an order with a member package.',
+  packagePurchaseInfo: 'Sale ${{sale}} · manual top-up ${{credit}}',
+  packageCreditLabel: 'Manual top-up',
   
   // Design Management
   designList: 'Design List',
@@ -1478,8 +1472,6 @@ const enTranslations = {
   fetchCashDrawerBalanceFailed: 'Failed to fetch cash drawer balance data',
   fetchHotItemsDataFailed: 'Failed to fetch hot items data',
   fetchColdItemsDataFailed: 'Failed to fetch cold items data',
-  pleaseTopUpMemberManually: 'Please top up member manually',
-  printReceiptSuccessTopUpFailed: 'Sales order created, but member top-up failed',
   pleaseSelectDate: 'Please select date',
   fetchStockFailed: 'Failed to fetch stock',
   itemNoStockRecord: 'Item {{code}} has no matching stock record, skipped',
